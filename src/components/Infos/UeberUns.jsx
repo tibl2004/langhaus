@@ -36,11 +36,12 @@ function UeberUns() {
               <div className="vorstand-image-wrapper">
                 {mitglied.foto && (
                   <img
-                    src={mitglied.foto}
+                    src={`data:image/png;base64,${mitglied.foto}`}
                     alt={`Foto von ${mitglied.vorname} ${mitglied.nachname}`}
                     className="vorstand-foto"
                   />
                 )}
+
                 <div className="vorstand-rolle-overlay">
                   {mitglied.rolle}
                 </div>

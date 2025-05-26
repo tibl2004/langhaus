@@ -1,0 +1,61 @@
+.mein-profil-container {
+    max-width: 800px;
+    margin: 3rem auto;
+    padding: 2rem;
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 1.5rem;
+    font-family: 'Segoe UI', sans-serif;
+  
+    h2 {
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #2c3e50;
+    }
+  
+    .profil-card {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 2rem;
+  
+      .vorstand-foto {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #3498db;
+        box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+      }
+  
+      .profil-details {
+        flex: 1;
+  
+        h3 {
+          font-size: 1.6rem;
+          color: #34495e;
+          margin-bottom: 1rem;
+        }
+  
+        p {
+          font-size: 1rem;
+          margin: 0.4rem 0;
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          color: #555;
+  
+          svg {
+            color: #2980b9;
+            flex-shrink: 0;
+          }
+  
+          strong {
+            color: #2c3e50;
+          }
+        }
+      }
+    }
+  }
+  

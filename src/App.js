@@ -7,6 +7,8 @@ import Links from './components/Links/Links';
 import LoginForm from './components/Login/LoginForm';
 import CreateLinks from './components/Links/CreateLinks';
 import UeberUns from './components/Infos/UeberUns';
+import VorstandForm from './components/Vorstand/VorstandErstellen';
+import MeinProfil from './components/Vorstand/MeinProfil';
 
 const App = () => {
   return (
@@ -19,6 +21,8 @@ const App = () => {
           <Route path="/links" element={<Links />} />
           <Route path="/create-link" element={<CreateLinks />} />
           <Route path="/ueber-uns" element={<UeberUns />} />
+          <Route path="/vorstand-erstellen" element={<VorstandForm />} />
+          <Route path="/profil" element={<MeinProfil />} />
 
           <Route path="/login" element={<LoginForm />} />
 
