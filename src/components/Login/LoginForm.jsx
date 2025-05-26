@@ -12,7 +12,7 @@ const LoginForm = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('https://shelf-life-331c.onrender.com/api/login', {
+      const response = await axios.post('https://jugehoerig-backend.onrender.com/api/login', {
         benutzername,
         passwort,
       });

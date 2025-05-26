@@ -26,6 +26,7 @@ function Navbar() {
           <NavItem to="/" text="Home" icon={faHome} setBurgerMenuActive={setBurgerMenuActive} />
           <NavItem to="/events" text="Events" icon={faPerson} setBurgerMenuActive={setBurgerMenuActive} />
           <NavItem to="/links" text="Links" icon={faLink} setBurgerMenuActive={setBurgerMenuActive} />
+          <NavItem to="/ueber-uns" text="Über Uns" icon={faSignIn} setBurgerMenuActive={setBurgerMenuActive} />
           <NavItem to="/login" text="Login" icon={faSignIn} setBurgerMenuActive={setBurgerMenuActive} />
 
         </ul>

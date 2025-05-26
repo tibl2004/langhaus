@@ -1,0 +1,90 @@
+.vorstand-container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: "Segoe UI", sans-serif;
+  }
+  
+  .vorstand-title {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: #222;
+    font-weight: 600;
+  }
+  
+  .vorstand-loading,
+  .vorstand-empty {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #555;
+  }
+  
+  .vorstand-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+  
+  .vorstand-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+  
+    &:hover {
+      transform: translateY(-5px);
+    }
+  }
+  
+  .vorstand-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    overflow: hidden;
+  }
+  
+  .vorstand-foto {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  
+  .vorstand-rolle-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(25, 118, 210, 0.9); // kräftiges Blau
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+  }
+  
+  .vorstand-info {
+    padding: 1.2rem;
+    text-align: center;
+  
+    .vorstand-name {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+  
+    .vorstand-beschreibung {
+      font-size: 1rem;
+      color: #666;
+    }
+  }
+  
