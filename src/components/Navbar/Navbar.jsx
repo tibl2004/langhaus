@@ -4,28 +4,59 @@ import "./Navbar.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faHome,
-  faUserPlus,
-  faBars,
   faUser,
   faLink,
+  faBars,
   faSignInAlt,
   faSignOutAlt,
+  faFileMedical,
+  faClipboardList,
 } from "@fortawesome/free-solid-svg-icons";
 import logo from "../../logo.png";
 
 function Navbar() {
   const [burgerMenuActive, setBurgerMenuActive] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userTypes, setUserTypes] = useState([]); // alle Rollen
+  const [userType, setUserType] = useState(null); // Hauptrolle
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const userData = localStorage.getItem("user");
     setIsLoggedIn(!!token);
+
+    if (userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        const roles = parsedUser?.userTypes || [];
+
+        setUserTypes(roles);
+
+        if (roles.includes("vorstand")) {
+          setUserType("vorstand");
+        } else if (roles.includes("admin")) {
+          setUserType("admin");
+        } else {
+          setUserType(null);
+        }
+      } catch (err) {
+        console.error("Fehler beim Parsen von user:", err);
+        setUserTypes([]);
+        setUserType(null);
+      }
+    } else {
+      setUserTypes([]);
+      setUserType(null);
+    }
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setIsLoggedIn(false);
+    setUserTypes([]);
+    setUserType(null);
     navigate("/login");
   };
 
@@ -46,10 +77,30 @@ function Navbar() {
         </div>
 
         <ul className={`nav-items ${burgerMenuActive ? "active" : ""}`}>
-          <NavItem to="/" text="Home" icon={faHome} setBurgerMenuActive={setBurgerMenuActive} />
-          <NavItem to="/events" text="Events" icon={faUser} setBurgerMenuActive={setBurgerMenuActive} />
-          <NavItem to="/links" text="Links" icon={faLink} setBurgerMenuActive={setBurgerMenuActive} />
-          <NavItem to="/ueber-uns" text="Über Uns" icon={faUser} setBurgerMenuActive={setBurgerMenuActive} />
+          <NavItem
+            to="/"
+            text="Home"
+            icon={faHome}
+            setBurgerMenuActive={setBurgerMenuActive}
+          />
+          <NavItem
+            to="/events"
+            text="Events"
+            icon={faUser}
+            setBurgerMenuActive={setBurgerMenuActive}
+          />
+          <NavItem
+            to="/links"
+            text="Links"
+            icon={faLink}
+            setBurgerMenuActive={setBurgerMenuActive}
+          />
+          <NavItem
+            to="/ueber-uns"
+            text="Über Uns"
+            icon={faUser}
+            setBurgerMenuActive={setBurgerMenuActive}
+          />
 
           {!isLoggedIn ? (
             <NavItem
@@ -60,14 +111,38 @@ function Navbar() {
             />
           ) : (
             <>
+              {/* Vorstand hat Vorrang */}
+              {userType === "vorstand" && (
+                <NavItem
+                  to="/vorstand-dashboard"
+                  text="Vorstand Dashboard"
+                  icon={faClipboardList}
+                  setBurgerMenuActive={setBurgerMenuActive}
+                />
+              )}
+
+              {/* Wenn user BOTH admin UND vorstand ist */}
+              {userTypes.includes("admin") && userTypes.includes("vorstand") && (
+                <NavItem
+                  to="/createkrankmeldung"
+                  text="Krankmeldung"
+                  icon={faFileMedical}
+                  setBurgerMenuActive={setBurgerMenuActive}
+                />
+              )}
+
               <NavItem
                 to="/profil"
                 text="Profil"
                 icon={faUser}
                 setBurgerMenuActive={setBurgerMenuActive}
               />
+
               <li>
-                <button className="nav-link logout-button" onClick={handleLogout}>
+                <button
+                  className="nav-link logout-button"
+                  onClick={handleLogout}
+                >
                   <FontAwesomeIcon icon={faSignOutAlt} className="icon" /> Logout
                 </button>
               </li>

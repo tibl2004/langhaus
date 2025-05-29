@@ -33,8 +33,7 @@ export default function VorstandForm() {
     setError('');
     setSuccessMsg('');
 
-    // Pflichtfelder checken
-    const requiredFields = ['geschlecht','vorname','nachname','adresse','plz','ort','benutzername','passwort','telefon','email','rolle'];
+    const requiredFields = ['geschlecht', 'vorname', 'nachname', 'adresse', 'plz', 'ort', 'benutzername', 'passwort', 'telefon', 'email', 'rolle'];
     for (const field of requiredFields) {
       if (!formData[field]) {
         setError('Bitte alle Pflichtfelder ausfüllen.');
@@ -46,7 +45,6 @@ export default function VorstandForm() {
       const response = await axios.post('/api/vorstand', formData, {
         headers: { 'Content-Type': 'application/json' }
       });
-      // Erfolgreiche Antwort
       setSuccessMsg('Vorstand erfolgreich erstellt!');
       setFormData({
         geschlecht: '',
@@ -65,7 +63,7 @@ export default function VorstandForm() {
       });
       setFotoPreview(null);
     } catch (err) {
-      if (err.response && err.response.data && err.response.data.error) {
+      if (err.response && err.response.data?.error) {
         setError(err.response.data.error);
       } else {
         setError('Fehler beim Erstellen des Vorstands oder Netzwerkfehler.');
@@ -92,9 +90,7 @@ export default function VorstandForm() {
 
   return (
     <form onSubmit={handleSubmit} className="vorstand-form">
-      {fotoPreview && (
-        <img src={fotoPreview} alt="Foto Vorschau" className="foto-preview" />
-      )}
+      {fotoPreview && <img src={fotoPreview} alt="Foto Vorschau" className="foto-preview" />}
       <div className="form-content">
         {error && <p className="error-message">{error}</p>}
         {successMsg && <p className="success-message">{successMsg}</p>}
@@ -109,9 +105,9 @@ export default function VorstandForm() {
             required
           >
             <option value="">Bitte wählen</option>
-            <option value="m">Männlich</option>
-            <option value="w">Weiblich</option>
-            <option value="d">Divers</option>
+            <option value="Weiblich">Weiblich</option>
+            <option value="Männlich">Männlich</option>
+            <option value="Divers">Divers</option>
           </select>
         </div>
 
@@ -241,8 +237,8 @@ export default function VorstandForm() {
           required
         >
           <option value="">Bitte wählen</option>
-          <option value="vorstand">Vorstand</option>
-          <option value="mitglied">Mitglied</option>
+          <option value="Vorstandsmitglied">Vorstandsmitglied</option>
+          <option value="Mitglied">Mitglied</option>
         </select>
 
         <button type="submit">Vorstand erstellen</button>
