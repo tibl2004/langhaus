@@ -11,6 +11,7 @@ import {
   faSignOutAlt,
   faFileMedical,
   faClipboardList,
+  faPeopleGroup,
 } from "@fortawesome/free-solid-svg-icons";
 import logo from "../../logo.png";
 
@@ -24,15 +25,19 @@ function Navbar() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
+  
+    console.log("Token:", token);
+    console.log("UserData:", userData);
+  
     setIsLoggedIn(!!token);
-
+  
     if (userData) {
       try {
         const parsedUser = JSON.parse(userData);
         const roles = parsedUser?.userTypes || [];
-
+  
         setUserTypes(roles);
-
+  
         if (roles.includes("vorstand")) {
           setUserType("vorstand");
         } else if (roles.includes("admin")) {
@@ -50,6 +55,7 @@ function Navbar() {
       setUserType(null);
     }
   }, []);
+  
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -111,22 +117,14 @@ function Navbar() {
             />
           ) : (
             <>
-              {/* Vorstand hat Vorrang */}
-              {userType === "vorstand" && (
-                <NavItem
-                  to="/vorstand-dashboard"
-                  text="Vorstand Dashboard"
-                  icon={faClipboardList}
-                  setBurgerMenuActive={setBurgerMenuActive}
-                />
-              )}
+             
 
               {/* Wenn user BOTH admin UND vorstand ist */}
               {userTypes.includes("admin") && userTypes.includes("vorstand") && (
                 <NavItem
-                  to="/createkrankmeldung"
-                  text="Krankmeldung"
-                  icon={faFileMedical}
+                  to="/vorstand"
+                  text="Vorstand"
+                  icon={faPeopleGroup}
                   setBurgerMenuActive={setBurgerMenuActive}
                 />
               )}

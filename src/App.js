@@ -9,6 +9,7 @@ import CreateLinks from './components/Links/CreateLinks';
 import UeberUns from './components/Infos/UeberUns';
 import VorstandForm from './components/Vorstand/VorstandErstellen';
 import MeinProfil from './components/Vorstand/MeinProfil';
+import Vorstand from './components/Vorstand/Vorstand';
 
 const App = () => {
   return (
@@ -22,6 +23,8 @@ const App = () => {
           <Route path="/create-link" element={<CreateLinks />} />
           <Route path="/ueber-uns" element={<UeberUns />} />
           <Route path="/vorstand-erstellen" element={<VorstandForm />} />
+          <Route path="/vorstand" element={<Vorstand />} />
+
           <Route path="/profil" element={<MeinProfil />} />
 
           <Route path="/login" element={<LoginForm />} />

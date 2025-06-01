@@ -14,11 +14,14 @@ const LoginForm = () => {
                 benutzername: username,
                 passwort: password
             });
-            const { token, userType } = response.data;
+
+            const { token, userTypes, rolle, name } = response.data;
+
             localStorage.setItem('token', token);
-            // Redirect or handle userType as needed
+            localStorage.setItem('user', JSON.stringify({ userTypes, rolle, name }));
+
             window.location.href = "/kunden";
-            console.log('Login erfolgreich, User Type:', userType);
+            console.log('Login erfolgreich:', { userTypes, rolle, name });
         } catch (error) {
             setError('Fehler beim Login. Bitte überprüfen Sie Benutzername und Passwort.');
         }
@@ -26,9 +29,8 @@ const LoginForm = () => {
 
     return (
         <div className="login-container">
-            
             <form className="login-form" onSubmit={handleSubmit}>
-            <h2 className="login-title">Login</h2>
+                <h2 className="login-title">Login</h2>
                 <div className="form-group">
                     <label htmlFor="username" className="form-label">Benutzername</label>
                     <input
