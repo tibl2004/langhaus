@@ -1,81 +1,111 @@
+// EventList.scss
+
 .event-list {
-  padding: 2rem;
-  background: #f9fafc;
-  min-height: 100vh;
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 24px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #222;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.05);
+}
 
-  h1 {
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
-    color: #1a202c;
-    text-align: center;
+h1 {
+  font-weight: 700;
+  font-size: 2.6rem;
+  margin-bottom: 30px;
+  text-align: center;
+  color: #1f2937; // dunkles Grau-Blau
+}
+
+.create-button {
+  display: block;
+  margin: 0 auto 40px auto;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb, #3b82f6); // Blau Verlauf
+  border: none;
+  color: white;
+  font-size: 2.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(59, 130, 246, 0.4);
+  transition: background 0.3s ease;
+  user-select: none;
+
+  &:focus {
+    outline: 3px solid #2563eb;
+    outline-offset: 2px;
+  }
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 28px;
+  padding-bottom: 40px;
+}
+
+.event-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  user-select: none;
+
+  // Kein Hover-Effekt gewünscht -> keine :hover Regeln
+}
+
+.event-image {
+  flex-shrink: 0;
+  width: 100%;
+  height: 180px;
+  background-color: #e5e7eb; // hellgrau
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+}
+
+.event-content {
+  padding: 20px 24px 24px 24px;
+  flex-grow: 1;
+
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+    color: #111827; // fast schwarz
+    line-height: 1.2;
   }
 
-  .loading,
-  .error,
-  .no-events {
-    text-align: center;
-    font-size: 1.2rem;
-    color: #718096;
-    margin-top: 2rem;
+  p {
+    font-size: 1rem;
+    color: #4b5563; // dunkelgrau
+    line-height: 1.5;
+    margin: 0;
   }
+}
 
-  .error {
-    color: #e53e3e;
-  }
-
-  .events-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 2rem;
-    padding: 1rem 0;
-  }
-
-  .event-card {
-    background: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
-    text-decoration: none;
-    color: inherit;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-
-    &:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
-    }
-
-    .event-image {
-      width: 100%;
-      height: 180px;
-      overflow: hidden;
-
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-      }
-    }
-
-    .event-content {
-      padding: 1.2rem;
-
-      h2 {
-        font-size: 1.25rem;
-        color: #2d3748;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-      }
-
-      p {
-        font-size: 0.95rem;
-        color: #4a5568;
-        line-height: 1.4;
-      }
-    }
-  }
+.loading,
+.error,
+.no-events {
+  text-align: center;
+  font-size: 1.25rem;
+  color: #6b7280; // mittelgrau
+  margin-top: 40px;
+  user-select: none;
 }
