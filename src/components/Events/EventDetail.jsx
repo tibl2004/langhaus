@@ -20,23 +20,44 @@ export default function EventDetail() {
     bis: "",
     alle: false,
     supporter: false,
-    bild: null, // für base64 Bild im Upload
+    bild: null,
   });
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
 
+  const [userTypes, setUserTypes] = useState(null);
+
   useEffect(() => {
-    // Eventdaten laden
+    const token = localStorage.getItem("token");
+    const userData = localStorage.getItem("user");
+
+    if (userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        if (parsedUser.userTypes) {
+          setUserTypes(parsedUser.userTypes.toLowerCase());
+        }
+      } catch {
+        console.error("Fehler beim Parsen der Benutzerdaten");
+      }
+    }
+
     axios
-      .get(`https://jugehoerig-backend.onrender.com/api/event/${id}`)
+      .get(`https://jugehoerig-backend.onrender.com/api/event/${id}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       .then((res) => {
         setEvent(res.data);
         setFormData({
           titel: res.data.titel || "",
           beschreibung: res.data.beschreibung || "",
           ort: res.data.ort || "",
-          von: res.data.von ? new Date(res.data.von).toISOString().slice(0, 16) : "",
-          bis: res.data.bis ? new Date(res.data.bis).toISOString().slice(0, 16) : "",
+          von: res.data.von
+            ? new Date(res.data.von).toISOString().slice(0, 16)
+            : "",
+          bis: res.data.bis
+            ? new Date(res.data.bis).toISOString().slice(0, 16)
+            : "",
           alle: res.data.alle === 1 || res.data.alle === true,
           supporter: res.data.supporter === 1 || res.data.supporter === true,
           bild: null,
@@ -64,7 +85,7 @@ export default function EventDetail() {
       reader.onloadend = () => {
         setFormData((prev) => ({
           ...prev,
-          bild: reader.result, // base64 inkl. prefix data:image/png;base64,...
+          bild: reader.result,
         }));
       };
       reader.readAsDataURL(file);
@@ -77,7 +98,6 @@ export default function EventDetail() {
   const handleEditToggle = () => {
     setEditMode((prev) => !prev);
     setSaveError(null);
-    // Bei Abbruch evtl. alte Daten zurücksetzen
     if (editMode && event) {
       setFormData({
         titel: event.titel || "",
@@ -96,7 +116,6 @@ export default function EventDetail() {
     setSaving(true);
     setSaveError(null);
     try {
-      // Bild wird nur gesendet, wenn neu hochgeladen
       const payload = {
         titel: formData.titel,
         beschreibung: formData.beschreibung,
@@ -120,14 +139,32 @@ export default function EventDetail() {
         }
       );
 
-      // Nach erfolgreichem Speichern neu laden
-      const res = await axios.get(`https://jugehoerig-backend.onrender.com/api/event/${id}`);
+      const res = await axios.get(
+        `https://jugehoerig-backend.onrender.com/api/event/${id}`
+      );
       setEvent(res.data);
       setEditMode(false);
-    } catch (err) {
+    } catch {
       setSaveError("Fehler beim Speichern des Events.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm("Möchten Sie dieses Event wirklich löschen?")) return;
+    try {
+      await axios.delete(
+        `https://jugehoerig-backend.onrender.com/api/event/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      navigate("/events");
+    } catch {
+      alert("Fehler beim Löschen des Events.");
     }
   };
 
@@ -143,10 +180,7 @@ export default function EventDetail() {
 
       <div className="event-header">
         {!editMode ? (
-          <>
-            <h1>{event.titel}</h1>
-            
-          </>
+          <h1>{event.titel}</h1>
         ) : (
           <>
             <input
@@ -157,15 +191,14 @@ export default function EventDetail() {
               placeholder="Titel"
               required
             />
-            <input
-              type="file"
-              accept="image/png"
-              onChange={handleImageChange}
-              aria-label="Event Bild hochladen (PNG)"
-            />
+            <input type="file" accept="image/png" onChange={handleImageChange} />
             {(formData.bild || event.bild) && (
               <img
-                src={formData.bild ? formData.bild : `data:image/png;base64,${event.bild}`}
+                src={
+                  formData.bild
+                    ? formData.bild
+                    : `data:image/png;base64,${event.bild}`
+                }
                 alt="Event Vorschau"
                 style={{ maxWidth: "400px", marginTop: "10px" }}
               />
@@ -177,7 +210,7 @@ export default function EventDetail() {
       <div className="event-info">
         {!editMode ? (
           <>
-          <img src={event.bild} alt={event.bildtitel} />
+            <img src={event.bild} alt={event.bildtitel} />
             <p>
               <strong>Beschreibung:</strong> {event.beschreibung}
             </p>
@@ -273,7 +306,19 @@ export default function EventDetail() {
             {saveError && <p className="error">{saveError}</p>}
           </>
         ) : (
-          <button onClick={handleEditToggle}>Bearbeiten</button>
+          <>
+            {(userTypes === "admin" || userTypes === "vorstand") && (
+              <button onClick={handleEditToggle}>Bearbeiten</button>
+            )}
+            {userTypes === "admin" && (
+              <button
+                onClick={handleDelete}
+                style={{ backgroundColor: "red", color: "#fff" }}
+              >
+                Löschen
+              </button>
+            )}
+          </>
         )}
       </div>
     </div>

@@ -1,62 +1,203 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Links.scss';
-import { FiExternalLink } from 'react-icons/fi';
+import { FiExternalLink, FiEdit, FiTrash2, FiCheck, FiX } from 'react-icons/fi';
 import {jwtDecode} from 'jwt-decode';
-import { Link } from "react-router-dom";
 
 const Links = () => {
   const [sections, setSections] = useState([]);
   const [isVorstand, setIsVorstand] = useState(false);
+  const [editSectionId, setEditSectionId] = useState(null);
+  const [editLinkId, setEditLinkId] = useState(null);
+  const [editValue, setEditValue] = useState('');
+  const [editUrl, setEditUrl] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-if (token) {
-  try {
-    const decoded = jwtDecode(token);
-    if (decoded.userType === 'vorstand' || decoded.userType === 'admin') {
-      setIsVorstand(true);
-    }
-  } catch (err) {
-    console.error("Fehler beim Dekodieren des Tokens:", err);
-  }
-}
-
-
-    const fetchSections = async () => {
+    if (token) {
       try {
-        const res = await axios.get('https://jugehoerig-backend.onrender.com/api/links');
-        setSections(res.data);
-      } catch (error) {
-        console.error('Fehler beim Abrufen der Inhalte:', error);
+        const decoded = jwtDecode(token);
+        if (decoded.userType === 'vorstand' || decoded.userType === 'admin') {
+          setIsVorstand(true);
+        }
+      } catch (err) {
+        console.error("Fehler beim Dekodieren des Tokens:", err);
       }
-    };
+    }
 
     fetchSections();
   }, []);
+
+  const fetchSections = async () => {
+    try {
+      const res = await axios.get('https://jugehoerig-backend.onrender.com/api/links');
+      setSections(res.data);
+    } catch (error) {
+      console.error('Fehler beim Abrufen der Inhalte:', error);
+    }
+  };
+
+  const handleDeleteSection = async (sectionId) => {
+    if (!window.confirm('Willst du diesen Abschnitt wirklich löschen?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`https://jugehoerig-backend.onrender.com/api/links/${sectionId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setSections(sections.filter(s => s.id !== sectionId));
+    } catch (error) {
+      console.error('Fehler beim Löschen des Abschnitts:', error);
+      alert('Löschen fehlgeschlagen.');
+    }
+  };
+
+  const handleDeleteLink = async (linkId, sectionId) => {
+    if (!window.confirm('Willst du diesen Link wirklich löschen?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`https://jugehoerig-backend.onrender.com/api/links/${linkId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setSections(sections.map(section =>
+        section.id === sectionId
+          ? { ...section, links: section.links.filter(link => link.id !== linkId) }
+          : section
+      ));
+    } catch (error) {
+      console.error('Fehler beim Löschen des Links:', error);
+      alert('Löschen fehlgeschlagen.');
+    }
+  };
+
+  const handleEditSection = (section) => {
+    setEditSectionId(section.id);
+    setEditValue(section.subtitle);
+    setEditLinkId(null); // kein Link gleichzeitig editieren
+  };
+
+  const handleEditLink = (link) => {
+    setEditLinkId(link.id);
+    setEditValue(link.text);
+    setEditUrl(link.url);
+    setEditSectionId(null); // kein Abschnitt gleichzeitig editieren
+  };
+
+  const saveSectionEdit = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`https://jugehoerig-backend.onrender.com/api/links/${editSectionId}`, { subtitle: editValue }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchSections();
+      setEditSectionId(null);
+      setEditValue('');
+    } catch (error) {
+      console.error('Fehler beim Speichern des Abschnitts:', error);
+    }
+  };
+
+  const saveLinkEdit = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`https://jugehoerig-backend.onrender.com/api/links/${editLinkId}`, { text: editValue, url: editUrl }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchSections();
+      setEditLinkId(null);
+      setEditValue('');
+      setEditUrl('');
+    } catch (error) {
+      console.error('Fehler beim Speichern des Links:', error);
+    }
+  };
 
   return (
     <div className="links-wrapper">
       <div className="header-with-button">
         <h2>Nützliche Links</h2>
         {isVorstand && (
-       <Link to="/create-link" className="plus-button" title="Link hinzufügen">
-       +
-     </Link>
-     
+          <button
+            onClick={() => alert("Hier könnte der Link-Hinzufügen-Dialog sein")}
+            className="plus-button"
+            title="Link hinzufügen"
+          >
+            +
+          </button>
         )}
       </div>
       <p>Hier findest du nützliche Links:</p>
+
       {sections.map((section) => (
         <div key={section.id} className="section-block">
-          <h3>{section.subtitle}</h3>
+          <div className="section-header">
+            {editSectionId === section.id ? (
+              <>
+                <input
+                  value={editValue}
+                  onChange={(e) => setEditValue(e.target.value)}
+                />
+                <button onClick={saveSectionEdit}><FiCheck /></button>
+                <button onClick={() => setEditSectionId(null)}><FiX /></button>
+              </>
+            ) : (
+              <>
+                <h3>{section.subtitle}</h3>
+                {isVorstand && (
+                  <>
+                    <button onClick={() => handleEditSection(section)} className="icon-button">
+                      <FiEdit />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteSection(section.id)}
+                      className="icon-button delete-button"
+                    >
+                      <FiTrash2 />
+                    </button>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+
           <ul>
             {section.links.map((link) => (
               <li key={link.id}>
-                <a href={link.url} target="_blank" rel="noopener noreferrer">
-                  <FiExternalLink className="link-icon" />
-                  {link.text}
-                </a>
+                {editLinkId === link.id ? (
+                  <>
+                    <input
+                      value={editValue}
+                      onChange={(e) => setEditValue(e.target.value)}
+                      placeholder="Link-Text"
+                    />
+                    <input
+                      value={editUrl}
+                      onChange={(e) => setEditUrl(e.target.value)}
+                      placeholder="Link-URL"
+                    />
+                    <button onClick={saveLinkEdit}><FiCheck /></button>
+                    <button onClick={() => setEditLinkId(null)}><FiX /></button>
+                  </>
+                ) : (
+                  <>
+                    <a href={link.url} target="_blank" rel="noopener noreferrer">
+                      <FiExternalLink className="link-icon" />
+                      {link.text}
+                    </a>
+                    {isVorstand && (
+                      <>
+                        <button onClick={() => handleEditLink(link)} className="icon-button">
+                          <FiEdit />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteLink(link.id, section.id)}
+                          className="icon-button delete-button"
+                        >
+                          <FiTrash2 />
+                        </button>
+                      </>
+                    )}
+                  </>
+                )}
               </li>
             ))}
           </ul>
