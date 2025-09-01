@@ -18,6 +18,7 @@ import NewsletterCreateForm from './components/Newsletter/NewsletterCreateForm';
 import ImportSubscribersTable from './components/Newsletter/ImportSubcribersTable';
 import NewsletterSubscribersList from './components/Newsletter/NewsletterSubscribersList';
 import ImpressumCreate from './components/Impressum/ImpressumCreate';
+import Impressum from './components/Impressum/Impressum';
 
 const App = () => {
   return (
@@ -45,6 +46,7 @@ const App = () => {
           <Route path="*" element={<div>Seite nicht gefunden</div>} />
           <Route path="/event/create" element={<CreateEventForm />} />
         </Routes>
+        <Impressum />
       </div>
     </Router>
   );
