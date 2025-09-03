@@ -5,6 +5,7 @@ import './Home.scss';
 const Home = () => {
   const [vorstand, setVorstand] = useState([]);
   const [homeContent, setHomeContent] = useState(null);
+  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -16,6 +17,14 @@ const Home = () => {
 
         const homeResponse = await axios.get('https://jugehoerig-backend.onrender.com/api/home');
         setHomeContent(homeResponse.data);
+
+        const eventsResponse = await axios.get('https://jugehoerig-backend.onrender.com/api/event');
+        // Nur zukünftige Events anzeigen (von > heute)
+        const today = new Date();
+        const futureEvents = eventsResponse.data.filter(ev => new Date(ev.von) >= today);
+        // nach Datum aufsteigend sortieren
+        futureEvents.sort((a, b) => new Date(a.von) - new Date(b.von));
+        setEvents(futureEvents);
       } catch (err) {
         console.error(err);
         setError('Fehler beim Laden der Daten.');
@@ -73,6 +82,28 @@ const Home = () => {
         </section>
       )}
 
+        {/* ================= Events ================= */}
+        <section className="events-section">
+        <h1>Bevorstehende Events</h1>
+        {events.length === 0 ? (
+          <p>Zurzeit sind keine Events geplant.</p>
+        ) : (
+          <div className="events-grid">
+            {events.map(event => (
+              <div className="event-card" key={event.id}>
+                {event.bild && (
+                  <img src={event.bild} alt={event.titel} className="event-image" />
+                )}
+                <div className="event-info">
+                  <h2>{event.titel}</h2>
+                
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
       {/* ================= Vorstand ================= */}
       <section className="vorstand-section">
         <h1>Unser Vorstand</h1>
@@ -96,6 +127,8 @@ const Home = () => {
           ))}
         </div>
       </section>
+
+    
     </div>
   );
 };
