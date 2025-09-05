@@ -13,6 +13,7 @@ import {
   faClipboardList,
   faPeopleGroup,
   faPaperPlane,
+  faPencil,
 } from "@fortawesome/free-solid-svg-icons";
 import logo from "../../logo.png";
 
@@ -94,6 +95,12 @@ function Navbar() {
             to="/events"
             text="Events"
             icon={faUser}
+            setBurgerMenuActive={setBurgerMenuActive}
+          />
+           <NavItem
+            to="/blogs"
+            text="Blog"
+            icon={faPencil}
             setBurgerMenuActive={setBurgerMenuActive}
           />
            <NavItem

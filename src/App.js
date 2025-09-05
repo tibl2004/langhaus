@@ -21,6 +21,8 @@ import CreateBlog from './components/Blogs/CreateBlog';
 import FooterCreate from './components/Impressum/FooterCreate';
 import Footer from './components/Impressum/Footer';
 import Impressum from './components/Impressum/Impressum';
+import BlogList from './components/Blogs/BlogsList';
+import BlogDetail from './components/Blogs/BlogsDetail';
 
 const App = () => {
   return (
@@ -44,7 +46,8 @@ const App = () => {
           <Route path="/newsletter-import" element={<ImportSubscribersTable />} />
           <Route path="/newsletter-subscribers" element={<NewsletterSubscribersList />} />
           <Route path="/impressum" element={<Impressum />} />
-
+          <Route path="/blogs" element={<BlogList />} />
+          <Route path="/blog/:id" element={<BlogDetail />} />
           <Route path="/profil" element={<MeinProfil />} />
           <Route path="/login" element={<LoginForm />} />
           <Route path="*" element={<div>Seite nicht gefunden</div>} />

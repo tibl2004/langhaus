@@ -13,10 +13,6 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Vorstand
-        const vorstandResponse = await axios.get('https://jugehoerig-backend.onrender.com/api/vorstand/public');
-        setVorstand(vorstandResponse.data);
-
         // Home Content
         const homeResponse = await axios.get('https://jugehoerig-backend.onrender.com/api/home');
         setHomeContent(homeResponse.data);
@@ -28,12 +24,16 @@ const Home = () => {
         futureEvents.sort((a, b) => new Date(a.von) - new Date(b.von));
         setEvents(futureEvents);
 
-        // Blogs - nur die letzten 4
+        // Blogs
         const blogsResponse = await axios.get('https://jugehoerig-backend.onrender.com/api/blogs');
         const sortedBlogs = blogsResponse.data
           .sort((a, b) => new Date(b.erstellt_am) - new Date(a.erstellt_am))
-          .slice(0, 4); // die 4 neuesten
+          .slice(0, 4); // nur die 4 neuesten
         setBlogs(sortedBlogs);
+
+        // Vorstand
+        const vorstandResponse = await axios.get('https://jugehoerig-backend.onrender.com/api/vorstand/public');
+        setVorstand(vorstandResponse.data);
 
       } catch (err) {
         console.error(err);
@@ -45,6 +45,14 @@ const Home = () => {
 
     fetchData();
   }, []);
+
+  const getPreview = (text) => {
+    if (!text) return '';
+    const cleanText = text.replace(/\s+/g, ' ').trim();
+    const sentences = cleanText.match(/[^.!?]+[.!?]/g);
+    if (!sentences) return cleanText.length > 100 ? cleanText.slice(0, 100) + '...' : cleanText;
+    return sentences.slice(0, 2).join(' ');
+  };
 
   if (loading) return <div className="loading">Lade Inhalte...</div>;
   if (error) return <div className="error">{error}</div>;
@@ -89,65 +97,94 @@ const Home = () => {
         </section>
       )}
 
-{/* ================= Blogs ================= */}
-<section className="blogs-section">
-  <h1>Neueste Blogeinträge</h1>
-  {blogs.length === 0 ? (
-    <p>Zurzeit sind keine Blogeinträge vorhanden.</p>
-  ) : (
-    <div className="blogs-grid">
-      {blogs.map(blog => (
-        <div className="blogs-card" key={blog.id}>
-          {blog.bild && (
-            <img
-              src={blog.bild}
-              alt={blog.titel}
-              className="blogs-image"
-            />
-          )}
-
-          {/* Datum in separatem orangen Container */}
-          <div className="blogs-date">
-            {new Date(blog.erstellt_am).toLocaleDateString('de-DE', {
-              day: '2-digit',
-              month: 'long',
-              year: 'numeric'
-            })}
+      {/* ================= Events ================= */}
+      {events.length > 0 && (
+        <section className="events-section">
+          <h1>Unsere kommenden Veranstaltungen</h1>
+          <div className="blogs-grid">
+            {events.map(event => (
+              <div className="blogs-card" key={event.id}>
+                {event.bild && (
+                  <img
+                    src={event.bild}
+                    alt={event.titel}
+                    className="blogs-image"
+                  />
+                )}
+                <div className="blogs-date">
+                  {new Date(event.von).toLocaleDateString('de-DE', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                  })}
+                </div>
+                <div className="blogs-info">
+                  <h2>{event.titel}</h2>
+                  {event.beschreibung && <p>{getPreview(event.beschreibung)}</p>}
+                </div>
+              </div>
+            ))}
           </div>
+        </section>
+      )}
 
-          <div className="blogs-info">
-            <h2>{blog.titel}</h2>
+      {/* ================= Blogs ================= */}
+      {blogs.length > 0 && (
+        <section className="blogs-section">
+          <h1>Neueste Blogeinträge</h1>
+          <div className="blogs-grid">
+            {blogs.map(blog => (
+              <div className="blogs-card" key={blog.id}>
+                {blog.bild && (
+                  <img
+                    src={blog.bild}
+                    alt={blog.titel}
+                    className="blogs-image"
+                  />
+                )}
+                <div className="blogs-date">
+                  {new Date(blog.erstellt_am).toLocaleDateString('de-DE', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                  })}
+                </div>
+                <div className="blogs-info">
+                  <h2>{blog.titel}</h2>
+                  {blog.inhalt && <p>{getPreview(blog.inhalt)}</p>}
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
-      ))}
-    </div>
-  )}
-</section>
-
+        </section>
+      )}
 
       {/* ================= Vorstand ================= */}
-      <section className="vorstand-section">
-        <h1>Unser Vorstand</h1>
-        <div className="vorstand-grid">
-          {vorstand.map((mitglied, index) => (
-            <div className="vorstand-card" key={index}>
-              {mitglied.foto ? (
-                <img
-                  src={`data:image/jpeg;base64,${mitglied.foto}`}
-                  alt={`${mitglied.vorname} ${mitglied.nachname}`}
-                  className="vorstand-foto"
-                />
-              ) : (
-                <div className="placeholder-foto">Kein Foto</div>
-              )}
-              <p className="rolle">{mitglied.rolle}</p>
-              <div className="vorstand-info">
-                <h2>{mitglied.vorname} {mitglied.nachname}</h2>
+      {vorstand.length > 0 && (
+        <section className="vorstand-section">
+          <h1>Unser Vorstand</h1>
+          <div className="vorstand-grid">
+            {vorstand.map((mitglied, index) => (
+              <div className="vorstand-card" key={index}>
+                {mitglied.foto ? (
+                  <img
+                    src={`data:image/jpeg;base64,${mitglied.foto}`}
+                    alt={`${mitglied.vorname} ${mitglied.nachname}`}
+                    className="vorstand-foto"
+                  />
+                ) : (
+                  <div className="placeholder-foto">Kein Foto</div>
+                )}
+                <p className="rolle">{mitglied.rolle}</p>
+                <div className="vorstand-info">
+                  <h2>{mitglied.vorname} {mitglied.nachname}</h2>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      )}
+
     </div>
   );
 };
