@@ -89,30 +89,41 @@ const Home = () => {
         </section>
       )}
 
-      {/* ================= Blogs ================= */}
-      <section className="blogs-section">
-        <h1>Neueste Blogeinträge</h1>
-        {blogs.length === 0 ? (
-          <p>Zurzeit sind keine Blogeinträge vorhanden.</p>
-        ) : (
-          <div className="blogs-grid">
-            {blogs.map(blog => (
-              <div className="blogs-card" key={blog.id}>
-                {blog.bild && (
-                  <img
-                    src={blog.bild}
-                    alt={blog.titel}
-                    className="blogs-image"
-                  />
-                )}
-                <div className="blogs-info">
-                  <h2>{blog.titel}</h2>
-                </div>
-              </div>
-            ))}
+{/* ================= Blogs ================= */}
+<section className="blogs-section">
+  <h1>Neueste Blogeinträge</h1>
+  {blogs.length === 0 ? (
+    <p>Zurzeit sind keine Blogeinträge vorhanden.</p>
+  ) : (
+    <div className="blogs-grid">
+      {blogs.map(blog => (
+        <div className="blogs-card" key={blog.id}>
+          {blog.bild && (
+            <img
+              src={blog.bild}
+              alt={blog.titel}
+              className="blogs-image"
+            />
+          )}
+
+          {/* Datum in separatem orangen Container */}
+          <div className="blogs-date">
+            {new Date(blog.erstellt_am).toLocaleDateString('de-DE', {
+              day: '2-digit',
+              month: 'long',
+              year: 'numeric'
+            })}
           </div>
-        )}
-      </section>
+
+          <div className="blogs-info">
+            <h2>{blog.titel}</h2>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</section>
+
 
       {/* ================= Vorstand ================= */}
       <section className="vorstand-section">
