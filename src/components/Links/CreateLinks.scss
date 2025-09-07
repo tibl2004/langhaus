@@ -1,112 +1,106 @@
 .create-links-container {
-  max-width: 700px;
-  margin: 40px auto;
-  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2.5rem;
   background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  font-family: 'Segoe UI', sans-serif;
-  color: #333;
+  border-radius: 20px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  font-family: "Segoe UI", sans-serif;
+  color: #2d3748;
 
   h2 {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 0.75rem;
     font-size: 1.8rem;
-    margin-bottom: 25px;
-    color: #1e1e2f;
+    font-weight: 600;
+    color: #1a202c;
   }
 
   .create-links-form {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 1.5rem;
 
     .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
       label {
-        font-weight: 600;
-        display: block;
-        margin-bottom: 8px;
-        color: #444;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #2d3748;
       }
 
       input {
-        width: 100%;
-        padding: 12px 14px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
+        padding: 0.85rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
         font-size: 1rem;
-        transition: border-color 0.3s;
-
-        &:focus {
-          border-color: #0077cc;
-          outline: none;
-        }
+        background: #f9fafb;
+        color: #2d3748;
+        outline: none;
       }
     }
 
     .links-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+
       h4 {
         font-size: 1.2rem;
-        margin-bottom: 10px;
-        color: #2a2a2a;
+        font-weight: 600;
+        color: #2d3748;
       }
 
       .link-input-row {
         display: grid;
         grid-template-columns: 1fr 1.5fr auto;
-        gap: 12px;
-        margin-bottom: 12px;
+        gap: 1rem;
         align-items: center;
 
         input {
-          padding: 10px;
-          border-radius: 6px;
-          border: 1px solid #ccc;
-          transition: 0.3s ease;
-
-          &:focus {
-            border-color: #0077cc;
-          }
+          padding: 0.8rem;
+          border: 1px solid #e2e8f0;
+          border-radius: 10px;
+          background: #f9fafb;
+          font-size: 0.95rem;
+          color: #2d3748;
         }
 
         .remove-btn {
-          background: none;
+          background: #fef2f2;
           border: none;
-          color: #e74c3c;
-          font-size: 1.2rem;
+          border-radius: 10px;
+          padding: 0.6rem;
+          color: #e53e3e;
+          font-size: 1.1rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           cursor: pointer;
-          padding: 8px;
-          transition: transform 0.2s;
-
-          &:hover {
-            transform: scale(1.1);
-          }
         }
       }
 
       .add-btn {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        margin-top: 10px;
-        background-color: #f0f0f0;
-        border: 1px dashed #aaa;
-        padding: 10px 14px;
-        border-radius: 8px;
-        cursor: pointer;
-        color: #333;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        background: #edf2f7;
+        color: #2b6cb0;
+        border: none;
+        border-radius: 10px;
+        padding: 0.75rem 1.25rem;
         font-weight: 500;
-        transition: 0.2s;
+        font-size: 0.95rem;
+        cursor: pointer;
 
         svg {
-          font-size: 1.2rem;
-        }
-
-        &:hover {
-          background-color: #e6f2ff;
-          border-color: #0077cc;
-          color: #0077cc;
+          font-size: 1.1rem;
         }
       }
     }
@@ -115,22 +109,19 @@
       align-self: flex-end;
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      background-color: #0077cc;
-      color: white;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 10px;
+      gap: 0.6rem;
+      padding: 1rem 1.5rem;
+      background: #2b6cb0;
+      color: #fff;
       font-size: 1rem;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
       cursor: pointer;
-      transition: background-color 0.3s;
 
       svg {
         font-size: 1.2rem;
-      }
-
-      &:hover {
-        background-color: #005fa3;
       }
     }
   }
