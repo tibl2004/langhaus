@@ -189,7 +189,7 @@ export default function EventDetail() {
     setRegisterSuccess(false);
     try {
       await axios.post(
-        `https://jugehoerig-backend.onrender.com/api/event/${id}/register`,
+        `https://jugehoerig-backend.onrender.com/api/event/${id}/anmeldung`,
         { daten: formData },
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );

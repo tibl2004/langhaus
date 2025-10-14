@@ -25,6 +25,7 @@ import BlogList from './components/Blogs/BlogsList';
 import BlogDetail from './components/Blogs/BlogsDetail';
 import SpendenKontakt from './components/Kontakt/SpendenKontakt';
 import NotFound from './components/Error/NotFound';
+import EventRegistrations from './components/Events/EventRegistrations';
 
 const App = () => {
   return (
@@ -39,6 +40,7 @@ const App = () => {
           <Route path="/footer-create" element={<FooterCreate />} />
           <Route path="/create-blog" element={<CreateBlog />} />
           <Route path="/kontakt" element={<SpendenKontakt />} />
+          <Route path="/events/:eventId/anmeldungen" element={<EventRegistrations />} />
 
           <Route path="/create-link" element={<CreateLinks />} />
           <Route path="/ueber-uns" element={<UeberUns />} />
