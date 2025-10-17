@@ -1,159 +1,185 @@
-/* ====== Grundlayout ====== */
+// 🎨 Links.scss — modernes professionelles Design
+
+$primary-color: #2a73ff;
+$secondary-color: #6c63ff;
+$bg-light: #f8f9fc;
+$bg-white: #ffffff;
+$text-dark: #222;
+$text-light: #555;
+$danger-color: #ff4d4d;
+$success-color: #00c896;
+$border-radius: 14px;
+$transition: all 0.25s ease;
+
 .links-management {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 30px;
-  font-family: 'Inter', sans-serif;
-  color: #333;
+  padding: 2rem 4%;
+  background: linear-gradient(135deg, #eef3ff 0%, #f7f8ff 100%);
+  min-height: 100vh;
 
   h2 {
-    font-size: 2rem;
-    margin-bottom: 20px;
-    color: #1a1a1a;
     text-align: center;
+    color: $text-dark;
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    position: relative;
+
+    &::after {
+      content: "";
+      display: block;
+      width: 80px;
+      height: 4px;
+      margin: 0.8rem auto 0;
+      background: linear-gradient(90deg, $primary-color, $secondary-color);
+      border-radius: 2px;
+    }
   }
 
-  .new-section {
+  .plus-button {
     display: flex;
-    gap: 10px;
-    margin-bottom: 30px;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(90deg, $primary-color, $secondary-color);
+    color: white;
+    border: none;
+    padding: 0.7rem 1.4rem;
+    border-radius: 50px;
+    cursor: pointer;
+    margin: 0 auto 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: $transition;
+    box-shadow: 0 4px 12px rgba(100, 100, 255, 0.2);
 
-    input {
-      flex: 1;
-      padding: 10px 15px;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      transition: 0.2s;
-      &:focus {
-        outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
-      }
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(100, 100, 255, 0.3);
     }
 
-    button {
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 0 15px;
-      cursor: pointer;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      transition: 0.2s;
-
-      &:hover {
-        background: #0056b3;
-      }
-
-      svg {
-        vertical-align: middle;
-      }
+    svg {
+      margin-right: 0.4rem;
     }
   }
 
-  /* ====== Section ====== */
   .section-block {
-    background: #f9f9f9;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 25px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    background: $bg-white;
+    border-radius: $border-radius;
+    padding: 1.5rem 2rem;
+    margin-bottom: 1.8rem;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    transition: $transition;
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    }
 
     .section-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 15px;
+      justify-content: space-between;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
 
       h3 {
-        font-size: 1.3rem;
-        color: #222;
-      }
-
-      button {
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        font-size: 1.1rem;
-        margin-left: 5px;
-        padding: 5px;
-        border-radius: 6px;
-        transition: 0.2s;
-
-        &:hover {
-          background: rgba(0,0,0,0.05);
-        }
-
-        &.delete-button {
-          color: #dc3545;
-          &:hover {
-            background: rgba(220,53,69,0.1);
-          }
-        }
-
-        svg {
-          vertical-align: middle;
-        }
+        font-size: 1.4rem;
+        color: $text-dark;
+        font-weight: 600;
       }
 
       input {
-        padding: 6px 10px;
-        font-size: 1rem;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-        margin-right: 5px;
-
+        font-size: 1.1rem;
+        padding: 0.5rem 0.8rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        outline: none;
+        flex: 1;
         &:focus {
-          outline: none;
-          border-color: #007bff;
+          border-color: $primary-color;
+          box-shadow: 0 0 0 3px rgba(42, 115, 255, 0.1);
+        }
+      }
+
+      button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: $text-light;
+        font-size: 1.2rem;
+        transition: $transition;
+
+        &:hover {
+          color: $primary-color;
+          transform: scale(1.2);
         }
       }
     }
 
-    /* ====== Add Link Box ====== */
     .add-link {
       display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
 
       input {
         flex: 1;
+        padding: 0.6rem 0.9rem;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        transition: $transition;
+
+        &:focus {
+          border-color: $primary-color;
+          box-shadow: 0 0 0 3px rgba(42, 115, 255, 0.1);
+        }
       }
 
       button {
-        padding: 0 12px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: $transition;
+
+        &:first-of-type {
+          color: $success-color;
+        }
+
+        &:last-of-type {
+          color: $danger-color;
+        }
+
+        &:hover {
+          transform: scale(1.2);
+        }
       }
     }
 
-    /* ====== Links List ====== */
     ul {
       list-style: none;
-      padding-left: 0;
+      padding: 0;
+      margin: 0;
 
       li {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 8px 12px;
-        border-radius: 8px;
-        transition: 0.2s;
-        margin-bottom: 8px;
+        background: #f9f9fb;
+        padding: 0.7rem 1rem;
+        border-radius: 10px;
+        margin-bottom: 0.6rem;
+        transition: $transition;
 
         &:hover {
-          background: rgba(0, 123, 255, 0.05);
+          background: #f1f4ff;
         }
 
         a {
           text-decoration: none;
-          color: #007bff;
+          color: $primary-color;
+          font-weight: 500;
           display: flex;
           align-items: center;
-          gap: 6px;
-          font-weight: 500;
+          gap: 0.4rem;
 
           &:hover {
             text-decoration: underline;
@@ -165,57 +191,53 @@
         }
 
         input {
-          padding: 6px 10px;
-          font-size: 0.95rem;
-          border-radius: 6px;
+          flex: 1;
+          margin-right: 0.6rem;
+          padding: 0.4rem 0.8rem;
+          border-radius: 8px;
           border: 1px solid #ccc;
-          margin-right: 5px;
-
           &:focus {
-            outline: none;
-            border-color: #007bff;
+            border-color: $primary-color;
           }
         }
 
         button {
-          background: transparent;
+          background: none;
           border: none;
           cursor: pointer;
-          font-size: 1rem;
-          margin-left: 5px;
-          border-radius: 6px;
-          transition: 0.2s;
+          font-size: 1.1rem;
+          margin-left: 0.3rem;
+          color: $text-light;
+          transition: $transition;
 
           &:hover {
-            background: rgba(0,0,0,0.05);
-          }
-
-          &.delete-button {
-            color: #dc3545;
-            &:hover {
-              background: rgba(220,53,69,0.1);
-            }
+            color: $primary-color;
+            transform: scale(1.2);
           }
         }
       }
     }
   }
 
-  /* ====== Responsive ====== */
+  // 📱 Mobile
   @media (max-width: 768px) {
-    .new-section, .add-link {
-      flex-direction: column;
-    }
+    padding: 1.5rem;
 
-    .section-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
-    }
+    .section-block {
+      padding: 1.2rem;
 
-    ul li {
-      flex-direction: column;
-      align-items: flex-start;
+      .section-header {
+        flex-wrap: wrap;
+        h3 {
+          font-size: 1.2rem;
+        }
+      }
+
+      ul li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
     }
   }
 }

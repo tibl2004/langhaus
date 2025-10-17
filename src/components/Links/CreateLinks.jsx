@@ -25,16 +25,30 @@ const CreateLinks = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('https://jugehoerig-backend.onrender.com/api/links', { subtitle, links });
+      const token = localStorage.getItem('token'); // 🔐 Token holen
+      if (!token) {
+        alert('Bitte zuerst einloggen.');
+        return;
+      }
+
+      await axios.post(
+        'https://jugehoerig-backend.onrender.com/api/links',
+        { subtitle, links },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // ✅ wichtig!
+          },
+        }
+      );
+
       setSubtitle('');
       setLinks([{ text: '', url: '' }]);
-      navigate("/links")
+      navigate("/links");
     } catch (error) {
       console.error('Fehler beim Erstellen:', error);
-      alert('Fehler beim Erstellen des Inhalts.');
+      alert(error.response?.data?.error || 'Fehler beim Erstellen des Inhalts.');
     }
   };
-  
 
   return (
     <div className="create-links-container">

@@ -35,7 +35,7 @@ const SubscribeForm = () => {
 
     try {
       setLoading(true);
-      const res = await axios.post("/api/newsletter/subscribe", formData);
+      const res = await axios.post("https://jugehoerig-backend.onrender.com/api/newsletter/subscribe", formData);
       setMessage({ type: "success", text: res.data.message });
       setFormData({
         vorname: "",
