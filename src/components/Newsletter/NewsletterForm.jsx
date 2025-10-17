@@ -31,7 +31,7 @@ const NewsletterForm = () => {
 
     try {
       const payload = { title, send_date: sendDate, sections };
-      const response = await axios.post('/api/newsletter/create', payload, {
+      const response = await axios.post('https://jugehoerig-backend.onrender.com/api/newsletter', payload, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setMessage(`Newsletter erfolgreich erstellt! ID: ${response.data.newsletterId}`);
