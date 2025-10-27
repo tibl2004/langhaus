@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import {jwtDecode} from "jwt-decode";
+import {jwtDecode} from "jwt-decode"; // Korrektur
 import "./Vorstand.scss";
 
 const Vorstand = () => {
@@ -13,11 +13,11 @@ const Vorstand = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        setIsAdmin(decoded.userTypes.includes("admin"));
+        const roles = decoded?.userTypes || [];
+        setIsAdmin(roles.includes("vorstand"));
       } catch {
         setIsAdmin(false);
       }
@@ -43,26 +43,19 @@ const Vorstand = () => {
   if (loading) return <div className="loading">Lade...</div>;
   if (error) return <div className="error">Fehler: {error}</div>;
 
-  const handleCreateNewClick = () => {
-    navigate("/vorstand-erstellen"); // Route zur Seite für neues Mitglied
-  };
+  const handleCreateNewClick = () => navigate("/vorstand-erstellen");
 
   return (
     <section className="vorstand-fotos">
       <h2>Vorstand Fotos</h2>
       {isAdmin && (
-                <button
-                  className="create-button"
-                  onClick={handleCreateNewClick}
-                  aria-label="Neues Vorstandsmitglied erstellen"
-                  title="Neues Mitglied hinzufügen"
-                >
-                  +
-                </button>
-              )}
+        <button className="create-button" onClick={handleCreateNewClick}>
+          +
+        </button>
+      )}
       <ul>
         {vorstand.map(({ vorname, nachname, foto }, index) => (
-          <li key={index} tabIndex={0} aria-label={`${vorname} ${nachname}`}>
+          <li key={index}>
             {foto ? (
               <img
                 src={`data:image/png;base64,${foto}`}
@@ -72,10 +65,7 @@ const Vorstand = () => {
             ) : (
               <div className="placeholder">Kein Bild</div>
             )}
-            <p>
-              {vorname} {nachname}
-             
-            </p>
+            <p>{vorname} {nachname}</p>
           </li>
         ))}
       </ul>
@@ -84,3 +74,4 @@ const Vorstand = () => {
 };
 
 export default Vorstand;
+

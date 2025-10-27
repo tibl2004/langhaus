@@ -60,7 +60,7 @@ const SubscribeForm = () => {
         Erhalte monatlich exklusive Infos über Events, Berichte und neue Blogartikel.
       </p>
       <p className="history">
-        Letzte Ausgaben findest du hier: <a href="/newsletters">Newsletters Archiv</a>
+        Letzte Ausgaben findest du hier: <a href="/newsletter-archive">Newsletters Archiv</a>
       </p>
 
       <form onSubmit={handleSubmit}>

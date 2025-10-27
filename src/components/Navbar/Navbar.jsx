@@ -37,8 +37,8 @@ function Navbar() {
 
         if (roles.includes("vorstand")) {
           setUserType("vorstand");
-        } else if (roles.includes("admin")) {
-          setUserType("admin");
+        } else if (roles.includes("vorstand")) {
+          setUserType("vorstand");
         } else {
           setUserType(null);
         }
@@ -96,7 +96,7 @@ function Navbar() {
           ) : (
             <>
               {/* Wenn user BOTH admin UND vorstand ist */}
-              {userTypes.includes("admin") && userTypes.includes("vorstand") && (
+              {userTypes.includes("vorstand") && userTypes.includes("vorstand") && (
                 <NavItem to="/vorstand" text="Vorstand" icon={faPeopleGroup} setBurgerMenuActive={setBurgerMenuActive} />
               )}
 

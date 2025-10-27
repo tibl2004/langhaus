@@ -26,6 +26,7 @@ import SpendenKontakt from './components/Kontakt/SpendenKontakt';
 import NotFound from './components/Error/NotFound';
 import EventRegistrations from './components/Events/EventRegistrations';
 import VorstandPDF from './components/Vorstand/VorstandPDF';
+import NewsletterArchive from './components/Newsletter/NewsletterArchive';
 
 const App = () => {
   return (
@@ -48,6 +49,8 @@ const App = () => {
           <Route path="/vorstand-erstellen" element={<VorstandForm />} />
           <Route path="/vorstand" element={<Vorstand />} />
           <Route path="/subscribe-form" element={<SubscribeForm />} />
+          <Route path="/newsletter-archive" element={<NewsletterArchive />} />
+
           <Route path="/newsletter-form" element={<NewsletterForm />} />
           <Route path="/newsletter-import" element={<ImportSubscribersTable />} />
           <Route path="/newsletter-subscribers" element={<NewsletterSubscribersList />} />
