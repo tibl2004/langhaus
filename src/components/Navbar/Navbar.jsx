@@ -99,6 +99,7 @@ function Navbar() {
           <NavItem to="/" text="Home" icon={faHome} setBurgerMenuActive={setBurgerMenuActive} />
           <NavItem to="https://www.lunchgate.ch/restaurant/langhaus/" text="Reservation" icon={faHome} setBurgerMenuActive={setBurgerMenuActive} />
           <NavItem to="/cards" text="Karten" icon={faHome} setBurgerMenuActive={setBurgerMenuActive} />
+          <NavItem to="/galerie" text="Galerie" icon={faHome} setBurgerMenuActive={setBurgerMenuActive} />
 
           {!isLoggedIn ? (
             <NavItem to="/login" text="Login" icon={faSignInAlt} setBurgerMenuActive={setBurgerMenuActive} />
