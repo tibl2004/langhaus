@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import jwt_decode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import "./Galerie.scss";
 
 const Galerie = () => {
@@ -18,7 +18,7 @@ const Galerie = () => {
   useEffect(() => {
     if (token) {
       try {
-        const decoded = jwt_decode(token);
+        const decoded = jwtDecode(token);
         setUserType(decoded.userTypes?.[0] || null);
       } catch (err) {
         console.error("Fehler beim Decodieren des Tokens:", err);
