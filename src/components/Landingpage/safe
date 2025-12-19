@@ -1,0 +1,186 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import "./Home.scss";
+
+const Home = () => {
+  const [homeContent, setHomeContent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [bildFile, setBildFile] = useState(null);
+  const [bildPreview, setBildPreview] = useState(null);
+  const [willkommenText, setWillkommenText] = useState("");
+  const [willkommenLink, setWillkommenLink] = useState("");
+  const [showForm, setShowForm] = useState(false);
+
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user?.userTypes?.includes("admin")) setIsAdmin(true);
+    fetchHomeContent();
+  }, []);
+
+  const fetchHomeContent = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(
+        "https://restaurant-langhaus-backend.onrender.com/api/home"
+      );
+      const data = res.data && Object.keys(res.data).length ? res.data : null;
+      setHomeContent(data);
+
+      setWillkommenText(data?.willkommenText || "");
+      setWillkommenLink(data?.willkommenLink || "");
+      setBildPreview(data?.bild || null);
+    } catch (err) {
+      console.error("Fehler beim Laden:", err);
+      setHomeContent(null);
+      setError(err.response?.data?.error || "Fehler beim Laden des Home-Contents");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBildChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setBildFile(file);
+      setBildPreview(URL.createObjectURL(file)); // Sofort Vorschau anzeigen
+    }
+  };
+
+  const handleCreateOrUpdate = async (e) => {
+    e.preventDefault();
+
+    if (!willkommenText || !willkommenLink || (!bildFile && !homeContent)) {
+      return alert("Bitte Text, Link und Bild angeben");
+    }
+
+    try {
+      const formData = new FormData();
+      if (bildFile) formData.append("bild", bildFile);
+      formData.append("willkommenText", willkommenText);
+      formData.append("willkommenLink", willkommenLink);
+
+      const method = homeContent ? "put" : "post";
+
+      const res = await axios({
+        method,
+        url: "https://restaurant-langhaus-backend.onrender.com/api/home",
+        data: formData,
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+      });
+
+      alert(res.data.message);
+      setHomeContent({
+        ...homeContent,
+        willkommenText: res.data.willkommenText,
+        willkommenLink: res.data.willkommenLink,
+        bild: res.data.bild,
+      });
+      setBildFile(null);
+      setShowForm(false);
+    } catch (err) {
+      console.error("Fehler beim Speichern:", err);
+      alert(err.response?.data?.error || "Fehler beim Speichern");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!homeContent) return;
+    if (!window.confirm("Willst du wirklich löschen?")) return;
+
+    try {
+      const res = await axios.delete(
+        "https://restaurant-langhaus-backend.onrender.com/api/home",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert(res.data.message);
+      setHomeContent(null);
+      setBildFile(null);
+      setBildPreview(null);
+      setWillkommenText("");
+      setWillkommenLink("");
+      setShowForm(false);
+    } catch (err) {
+      console.error("Fehler beim Löschen:", err);
+      alert(err.response?.data?.error || "Fehler beim Löschen");
+    }
+  };
+
+  if (loading) return <p>Lädt...</p>;
+  if (error) return <p className="error">{error}</p>;
+
+  return (
+    <div className="home-content-container">
+      {homeContent ? (
+        <div
+          className="home-display"
+          style={{ backgroundImage: `url(${bildPreview})` }}
+        >
+          <h2>{willkommenText}</h2>
+          <a href={willkommenLink} target="_blank" rel="noreferrer">
+            Zum Link
+          </a>
+        </div>
+      ) : (
+        <p>Kein Home-Content vorhanden.</p>
+      )}
+
+      {isAdmin && !showForm && (
+        <button className="add-button" onClick={() => setShowForm(true)}>
+          {homeContent ? "Home-Content bearbeiten" : "+ Home-Content erstellen"}
+        </button>
+      )}
+
+      {showForm && (
+        <div className="overlay">
+          <form className="home-form" onSubmit={handleCreateOrUpdate}>
+            <h3>{homeContent ? "Home-Content bearbeiten" : "Home-Content erstellen"}</h3>
+
+            <div className="form-group">
+              <label>Bild hochladen:</label>
+              <input type="file" accept="image/*" onChange={handleBildChange} />
+            </div>
+
+
+            <div className="form-group">
+              <label>Willkommen Text:</label>
+              <input
+                type="text"
+                value={willkommenText}
+                onChange={(e) => setWillkommenText(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Willkommen Link:</label>
+              <input
+                type="text"
+                value={willkommenLink}
+                onChange={(e) => setWillkommenLink(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="form-buttons">
+              <button type="submit">{homeContent ? "Aktualisieren" : "Erstellen"}</button>
+              <button type="button" className="cancel-btn" onClick={() => setShowForm(false)}>
+                Abbrechen
+              </button>
+              {homeContent && (
+                <button type="button" className="delete-btn" onClick={handleDelete}>
+                  Löschen
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Home;

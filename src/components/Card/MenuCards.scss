@@ -1,0 +1,198 @@
+/* =========================
+   DESIGN TOKENS
+========================= */
+:root {
+    --bg-main: #f4f6f8;
+    --bg-card: #ffffff;
+    --bg-muted: #f0f2f4;
+    --bg-overlay: rgba(15, 23, 42, 0.55);
+  
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+  
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --danger: #dc2626;
+  
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 18px;
+  
+    --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.12);
+  
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.25s ease;
+  }
+  
+  /* =========================
+     GRID LAYOUT
+  ========================= */
+  .menu-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.25rem;
+    padding: 1.5rem;
+    background: var(--bg-main);
+  }
+  
+  /* =========================
+     CARD
+  ========================= */
+  .menu-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform var(--transition-base),
+                box-shadow var(--transition-base);
+  
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+    }
+  
+    &__title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+  
+    &__count {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+  }
+  
+  /* =========================
+     ADD CARD
+  ========================= */
+  .menu-card.add-card {
+    background: var(--bg-muted);
+    border: 2px dashed #cbd5e1;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--text-secondary);
+    font-weight: 600;
+  
+    &:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: #eef2ff;
+    }
+  }
+  
+  /* =========================
+     MODAL BACKDROP
+  ========================= */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-overlay);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  /* =========================
+     MODAL
+  ========================= */
+  .modal {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 2rem;
+    width: 420px; /* ❗ KEIN max-width */
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    animation: modalFade 0.25s ease-out;
+  
+    h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+  
+    input {
+      padding: 0.7rem 0.85rem;
+      font-size: 0.95rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid #cbd5e1;
+      transition: border var(--transition-fast),
+                  box-shadow var(--transition-fast);
+  
+      &:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+      }
+    }
+  }
+  
+  /* =========================
+     MODAL ACTIONS
+  ========================= */
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  
+    button {
+      padding: 0.55rem 1.1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background var(--transition-fast),
+                  transform var(--transition-fast);
+  
+      &:active {
+        transform: scale(0.97);
+      }
+    }
+  
+    button:first-child {
+      background: var(--accent);
+      color: white;
+  
+      &:hover {
+        background: var(--accent-hover);
+      }
+    }
+  
+    .cancel {
+      background: #e5e7eb;
+      color: var(--text-primary);
+  
+      &:hover {
+        background: #d1d5db;
+      }
+    }
+  }
+  
+  /* =========================
+     ANIMATION
+  ========================= */
+  @keyframes modalFade {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  

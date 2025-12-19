@@ -5,7 +5,7 @@
 }
 
 .navbar {
-  background: #f59422;
+  background: #fbfbfb;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   position: sticky;
   top: 0;
@@ -37,7 +37,7 @@
   .menu-icon {
     display: none;
     font-size: 28px;
-    color: #fff;
+    color: #000000;
     cursor: pointer;
     transition: transform 0.3s ease;
     &:hover {
@@ -57,7 +57,7 @@
         align-items: center;
         gap: 8px;
         text-decoration: none;
-        color: white;
+        color: rgb(0, 0, 0);
         font-size: 17px;
         padding: 8px 14px;
         border-radius: 8px;
@@ -80,7 +80,7 @@
       .logout {
         border: none;
         background: none;
-        color: #fff;
+        color: #000000;
         font-size: 17px;
         cursor: pointer;
         padding: 8px 14px;
@@ -107,7 +107,7 @@
       right: -100%;
       height: 100vh;
       width: 70%;
-      background: #f59422;
+      background: #8cb5cd;
       flex-direction: column;
       justify-content: flex-start;
       align-items: flex-start;

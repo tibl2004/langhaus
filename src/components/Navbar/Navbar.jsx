@@ -1,26 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faHome,
-  faUser,
-  faLink,
-  faBars,
-  faTimes,
-  faSignInAlt,
-  faSignOutAlt,
-  faPeopleGroup,
-  faPaperPlane,
-  faPencil,
-} from "@fortawesome/free-solid-svg-icons";
-import { jwtDecode } from "jwt-decode";
+import { faHome, faUser, faSignInAlt, faSignOutAlt, faBars } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
 import "./Navbar.scss";
-import logo from "../../logo.png";
 
 function Navbar() {
   const [burgerMenuActive, setBurgerMenuActive] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userTypes, setUserTypes] = useState([]);
+  const [logoUrl, setLogoUrl] = useState(null);
   const navigate = useNavigate();
 
   // Loginstatus + Rollen prüfen
@@ -41,6 +30,23 @@ function Navbar() {
     } else {
       setUserTypes([]);
     }
+  }, []);
+
+  // Logo von API laden (Axios)
+  useEffect(() => {
+    const fetchLogo = async () => {
+      try {
+        const response = await axios.get(
+          "https://restaurant-langhaus-backend.onrender.com/api/logo",
+          { headers: { "Content-Type": "application/json" } }
+        );
+        setLogoUrl(response.data.logoUrl || null);
+      } catch (err) {
+        console.error("Fehler beim Laden des Logos:", err);
+        setLogoUrl(null);
+      }
+    };
+    fetchLogo();
   }, []);
 
   // Menü schließen, wenn außerhalb geklickt wird
@@ -72,7 +78,11 @@ function Navbar() {
         {/* Logo */}
         <div className="logo-box">
           <NavLink to="/" onClick={() => setBurgerMenuActive(false)}>
-            <img src={logo} alt="Logo" className="logo" />
+            {logoUrl ? (
+              <img src={logoUrl} alt="Logo" className="logo" />
+            ) : (
+              <span className="logo-placeholder">Logo</span>
+            )}
           </NavLink>
         </div>
 
@@ -81,27 +91,19 @@ function Navbar() {
           className="menu-icon"
           onClick={() => setBurgerMenuActive(!burgerMenuActive)}
         >
-          <FontAwesomeIcon icon={burgerMenuActive ? faTimes : faBars} />
+          <FontAwesomeIcon icon={faBars} />
         </div>
 
         {/* Navigation */}
         <ul className={`nav-items ${burgerMenuActive ? "open" : ""}`}>
           <NavItem to="/" text="Home" icon={faHome} setBurgerMenuActive={setBurgerMenuActive} />
-          <NavItem to="/events" text="Events" icon={faUser} setBurgerMenuActive={setBurgerMenuActive} />
-          <NavItem to="/blogs" text="Blog" icon={faPencil} setBurgerMenuActive={setBurgerMenuActive} />
-          <NavItem to="/subscribe-form" text="Newsletter" icon={faPaperPlane} setBurgerMenuActive={setBurgerMenuActive} />
-          <NavItem to="/links" text="Links" icon={faLink} setBurgerMenuActive={setBurgerMenuActive} />
-          <NavItem to="/ueber-uns" text="Über Uns" icon={faUser} setBurgerMenuActive={setBurgerMenuActive} />
-          <NavItem to="/impressum" text="Impressum" icon={faUser} setBurgerMenuActive={setBurgerMenuActive} />
-          <NavItem to="/kontakt" text="Kontakt" icon={faLink} setBurgerMenuActive={setBurgerMenuActive} />
+          <NavItem to="https://www.lunchgate.ch/restaurant/langhaus/" text="Reservation" icon={faHome} setBurgerMenuActive={setBurgerMenuActive} />
+          <NavItem to="/cards" text="Karten" icon={faHome} setBurgerMenuActive={setBurgerMenuActive} />
 
           {!isLoggedIn ? (
             <NavItem to="/login" text="Login" icon={faSignInAlt} setBurgerMenuActive={setBurgerMenuActive} />
           ) : (
             <>
-              {userTypes.includes("vorstand") && (
-                <NavItem to="/vorstand" text="Vorstand" icon={faPeopleGroup} setBurgerMenuActive={setBurgerMenuActive} />
-              )}
               <NavItem to="/profil" text="Profil" icon={faUser} setBurgerMenuActive={setBurgerMenuActive} />
               <li>
                 <button className="nav-link logout" onClick={handleLogout}>

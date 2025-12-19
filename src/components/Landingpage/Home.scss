@@ -1,208 +1,246 @@
-/* Home.scss */
-
-.home-container {
-  font-family: 'Inter', sans-serif;
-  color: #222;
-  line-height: 1.5;
+.home-content-container {
+  width: 100%;
+  min-height: 100vh;
+  padding: 40px;
+  background: #f4f6f9;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  font-family: "Inter", sans-serif;
 }
 
-/* ================= Hero Section ================= */
-.hero-section {
-  position: relative;
+/* ------------------------- */
+/* Home Display Bereich      */
+/* ------------------------- */
+.home-display {
   width: 100%;
-  height: 60vh;
+  height: 300px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 18px;
+  padding: 40px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  backdrop-filter: brightness(0.8);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+
+  h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  }
+
+  a {
+    font-size: 1.2rem;
+    color: #ffffff;
+    font-weight: 600;
+    text-decoration: underline;
+    transition: 0.2s ease;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+/* ------------------------- */
+/* Buttons allgemein         */
+/* ------------------------- */
+.add-button,
+.add-btn {
+  background: #1456f0;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(20, 86, 240, 0.3);
+  transition: 0.2s ease;
+
+  &:hover {
+    background: #0d47d4;
+    transform: translateY(-2px);
+  }
+}
+
+/* ------------------------- */
+/* Öffnungszeiten Box         */
+/* ------------------------- */
+.oeffnungszeiten-box {
+  background: white;
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+
+  h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+}
+
+.oeff-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fafafa;
+  padding: 14px 18px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #e5e5e5;
+  transition: 0.15s ease;
+
+  &:hover {
+    background: #f0f4ff;
+    border-color: #cdd9ff;
+  }
+
+  .oeff-left {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    .tage {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1d1d1d;
+    }
+
+    .kategorie {
+      background: #ececff;
+      color: #3f3fbf;
+      padding: 3px 9px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+  }
+
+  .oeff-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .zeit {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #1d1d1d;
+    }
+
+    .delete-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1.3rem;
+      padding: 6px;
+      transition: 0.2s;
+
+      &:hover {
+        color: #d60000;
+        transform: scale(1.15);
+      }
+    }
+  }
+}
+
+/* ------------------------- */
+/* Overlay (Formulare)        */
+/* ------------------------- */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.55);
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-
-  .hero-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-
-    .hero-image,
-    .hero-video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .hero-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.4);
-    }
-  }
-
-  .hero-content {
-    position: relative;
-    z-index: 2;
-    text-align: center;
-    color: #fff;
-
-    h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-    }
-
-    .hero-button {
-      display: inline-block;
-      padding: 0.75rem 2rem;
-      background: linear-gradient(135deg, #ff7e5f, #feb47b);
-      color: #fff;
-      text-decoration: none;
-      font-weight: 600;
-      border-radius: 8px;
-      transition: opacity 0.3s ease;
-    }
-  }
+  z-index: 50;
+  padding: 20px;
 }
 
+.home-form {
+  background: white;
+  padding: 30px;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 550px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  animation: fadeIn 0.2s ease;
 
-.events-section {
-  background: #F59422;
-
-}
-
-
-/* ================= Section Titles ================= */
-.events-section,
-.blogs-section,
-.vorstand-section {
-  padding: 3rem 2rem;
-
-  h1 {
-    font-size: 2rem;
+  h3 {
+    margin-bottom: 20px;
+    font-size: 1.6rem;
     font-weight: 700;
-    margin-bottom: 2rem;
-    text-align: center;
-  }
-}
-
-/* ================= Cards Grid ================= */
-.blogs-grid,
-.vorstand-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-}
-
-/* ================= Blog / Event Cards ================= */
-.blogs-card {
-  background: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  display: flex;
-  flex-direction: column;
-
-  .blogs-image {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
   }
 
-  .blogs-date {
-    font-size: 0.85rem;
-    color: #ff7e5f;
-    padding: 0.5rem 1rem 0;
+  label {
+    display: block;
+    margin-bottom: 12px;
     font-weight: 600;
-  }
+    color: #333;
 
-  .blogs-info {
-    padding: 1rem;
-    flex-grow: 1;
+    input,
+    select {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid #d5d5d5;
+      margin-top: 6px;
+      font-size: 1rem;
+      transition: border 0.2s ease;
 
-    h2 {
-      font-size: 1.25rem;
-      margin-bottom: 0.5rem;
-      font-weight: 700;
-      color: #222;
-    }
-
-    p {
-      font-size: 0.95rem;
-      color: #555;
-    }
-  }
-}
-
-/* ================= Vorstand Cards ================= */
-.vorstand-card {
-  background: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  text-align: center;
-  padding: 1rem;
-
-  .vorstand-foto {
-    width: 100%;
-    height: 250px;
-    object-fit: cover;
-    border-radius: 12px;
-    margin-bottom: 1rem;
-  }
-
-  .placeholder-foto {
-    width: 100%;
-    height: 250px;
-    background: #ddd;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #888;
-    margin-bottom: 1rem;
-  }
-
-  .rolle {
-    font-size: 0.9rem;
-    color: #ff7e5f;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
-
-  .vorstand-info {
-    h2 {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #222;
-    }
-  }
-}
-
-/* ================= Loading & Error ================= */
-.loading,
-.error {
-  text-align: center;
-  font-size: 1.2rem;
-  color: #ff7e5f;
-  padding: 2rem;
-}
-
-/* ================= Responsive ================= */
-@media (max-width: 768px) {
-  .hero-section {
-    height: 50vh;
-
-    .hero-content {
-      h1 {
-        font-size: 2rem;
+      &:focus {
+        border-color: #1456f0;
+        outline: none;
       }
     }
   }
 
-  .blogs-card .blogs-info h2,
-  .vorstand-card .vorstand-info h2 {
-    font-size: 1.1rem;
+  .form-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+
+    button {
+      padding: 12px 20px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      transition: 0.2s ease;
+    }
+
+    button[type="submit"] {
+      background: #1456f0;
+      color: white;
+
+      &:hover { background: #0d47d4; }
+    }
+
+    .cancel-btn {
+      background: #ddd;
+
+      &:hover { background: #ccc; }
+    }
+
+    .delete-btn {
+      background: #d60000;
+      color: white;
+
+      &:hover { background: #b00000; }
+    }
   }
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

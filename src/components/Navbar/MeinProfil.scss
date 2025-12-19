@@ -1,0 +1,129 @@
+.mein-profil-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #f7f9fc;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+  
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #2c3e50;
+    }
+  
+    .profil-card {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+  
+      .profil-details {
+        p {
+          margin: 5px 0;
+          b {
+            color: #34495e;
+          }
+        }
+      }
+  
+      button {
+        align-self: flex-end;
+        padding: 8px 16px;
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background-color 0.2s;
+  
+        &:hover {
+          background-color: #2980b9;
+        }
+      }
+    }
+  
+    .profil-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+  
+      label {
+        display: flex;
+        flex-direction: column;
+        font-weight: 500;
+        color: #2c3e50;
+  
+        input,
+        textarea {
+          margin-top: 5px;
+          padding: 8px 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          font-size: 14px;
+          outline: none;
+          transition: border-color 0.2s;
+  
+          &:focus {
+            border-color: #3498db;
+          }
+        }
+  
+        textarea {
+          resize: vertical;
+          min-height: 60px;
+        }
+      }
+  
+      button[type="submit"] {
+        padding: 10px 20px;
+        background-color: #27ae60;
+        color: #fff;
+        font-weight: 600;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+  
+        &:hover {
+          background-color: #1e8449;
+        }
+      }
+  
+      button[type="button"] {
+        padding: 10px 20px;
+        background-color: #c0392b;
+        color: #fff;
+        font-weight: 600;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+  
+        &:hover {
+          background-color: #922b21;
+        }
+      }
+  
+      div {
+        display: flex;
+        justify-content: flex-start;
+        gap: 10px;
+      }
+    }
+  }
+  
+  // Responsive
+  @media (max-width: 650px) {
+    .mein-profil-container {
+      margin: 20px;
+      padding: 15px;
+    }
+  }
+  
