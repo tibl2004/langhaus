@@ -6,6 +6,7 @@ import MeinProfil from './components/Navbar/MeinProfil';
 import LoginForm from './components/Login/LoginForm';
 import MenuCards from './components/Card/MenuCards';
 import MenuCategory from './components/Card/MenuCategory';
+import Galerie from './components/Galerie/Galerie';
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
           <Route path="/login" element={<LoginForm />} />
           <Route path="/cards" element={<MenuCards />} />
           <Route path="/cards/:id" element={<MenuCategory />} />
+          <Route path="/galerie" element={<Galerie />} />
 
         </Routes>
       </div>
