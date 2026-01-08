@@ -4,9 +4,9 @@ import Navbar from './components/Navbar/Navbar';
 import Home from "./components/Landingpage/Home";
 import MeinProfil from './components/Navbar/MeinProfil';
 import LoginForm from './components/Login/LoginForm';
-import MenuCards from './components/Card/MenuCards';
 import MenuCategory from './components/Card/MenuCategory';
 import Galerie from './components/Galerie/Galerie';
+import MenuCardsManager from './components/Card/MenuCardsManager';
 
 const App = () => {
   return (
@@ -15,10 +15,9 @@ const App = () => {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/profil" element={<MeinProfil />} />
           <Route path="/login" element={<LoginForm />} />
-          <Route path="/cards" element={<MenuCards />} />
-          <Route path="/cards/:id" element={<MenuCategory />} />
+          <Route path="/cards" element={<MenuCardsManager />} />
+          <Route path="/card/:cardId" element={<MenuCategory />} />
           <Route path="/galerie" element={<Galerie />} />
 
         </Routes>

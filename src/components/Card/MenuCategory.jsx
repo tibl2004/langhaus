@@ -1,164 +1,202 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import "./MenuCategory.scss";
 import axios from "axios";
+import "./MenuCategory.scss";
 
-const MenuCategory = () => {
-  const { id } = useParams();
+const API = "https://restaurant-langhaus-backend.onrender.com/api/menu";
 
-  const [category, setCategory] = useState(null);
+export default function MenuCategory() {
+  const { cardId } = useParams();
+  const token = localStorage.getItem("token");
+
+  const [cardData, setCardData] = useState(null);
   const [popupOpen, setPopupOpen] = useState(false);
+  const [currentCategoryId, setCurrentCategoryId] = useState(null);
 
-  const [name, setName] = useState("");
-  const [nummer, setNummer] = useState("");
-  const [zutaten, setZutaten] = useState("");
-  const [preis, setPreis] = useState("");
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [itemForm, setItemForm] = useState({
+    nummer: "",
+    name: "",
+    zutaten: "",
+    preis: ""
+  });
 
-  const loadCategory = async () => {
+  // ---------------- LOAD CARD + CATEGORIES ----------------
+  const loadCard = async () => {
     try {
-      const res = await axios.get(
-        `https://restaurant-langhaus-backend.onrender.com/api/menu/category/${id}`
-      );
-      setCategory(res.data);
+      const res = await axios.get(`${API}/card/${cardId}/categories`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined
+      });
+
+      setCardData({
+        card: res.data.card,
+        categories: res.data.categories || []
+      });
     } catch (err) {
-      console.error("Fehler beim Laden der Kategorie:", err);
+      console.error("Fehler beim Laden der Karte:", err);
     }
   };
-  
-  useEffect(() => {
-    loadCategory();
-  }, [id]);
 
-  // 🔹 Item erstellen
-  const handleCreateItem = async (e) => {
+  useEffect(() => {
+    loadCard();
+  }, [cardId]);
+
+  // ---------------- CREATE CATEGORY ----------------
+  const handleCreateCategory = async (e) => {
     e.preventDefault();
+    if (!newCategoryName) return;
+    if (!token) return alert("Bitte anmelden, um Kategorien zu erstellen.");
 
     try {
       await axios.post(
-        "https://restaurant-langhaus-backend.onrender.com/api/menu/item",
-        {
-          nummer,
-          category_id: id,
-          name,
-          zutaten,
-          preis
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "application/json"
-          }
-        }
+        `${API}/card/${cardId}/category`,
+        { name: newCategoryName },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      
+      setNewCategoryName("");
+      loadCard();
+    } catch (err) {
+      console.error("Fehler beim Erstellen der Kategorie:", err);
+    }
+  };
+
+  // ---------------- OPEN POPUP ----------------
+  const openItemPopup = (categoryId) => {
+    setCurrentCategoryId(categoryId);
+    setPopupOpen(true);
+  };
+
+  // ---------------- CREATE ITEM ----------------
+  const handleCreateItem = async (e) => {
+    e.preventDefault();
+    if (!token) return alert("Bitte anmelden, um Items zu erstellen.");
+    if (!currentCategoryId) return;
+   
+    try {
+      await axios.post(
+        `${API}/categories/${currentCategoryId}/items`,
+        { ...itemForm },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setItemForm({ nummer: "", name: "", zutaten: "", preis: "" });
       setPopupOpen(false);
-      setName("");
-      setNummer("");
-      setZutaten("");
-      setPreis("");
-      loadCategory();
+      setCurrentCategoryId(null);
+      loadCard();
     } catch (err) {
       console.error("Fehler beim Erstellen des Items:", err);
     }
   };
 
-  if (!category) {
-    return <div className="category__loading">Lade...</div>;
-  }
+  if (!cardData) return <div>Lade Karte...</div>;
 
   return (
-    <div className="category">
-      <div className="category__header">
-        <h1 className="category__title">{category.name}</h1>
+    <div className="menu-card-view">
+      <h1>{cardData.card.name}</h1>
 
-        <button
-          className="category__add-button"
-          onClick={() => setPopupOpen(true)}
-        >
-          + Neues Gericht
-        </button>
-      </div>
+      {/* ================= NEUE KATEGORIE ================= */}
+      {token && (
+        <section className="new-category">
+          <h2>Neue Kategorie erstellen</h2>
+          <form onSubmit={handleCreateCategory}>
+            <input
+              placeholder="Name der Kategorie"
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              required
+            />
+            <button type="submit">Kategorie erstellen</button>
+          </form>
+        </section>
+      )}
 
-      <ul className="category__items">
-        {category.items.map(item => (
-          <li className="category__item" key={item.id}>
-            <div className="category__item-left">
-              <span className="category__number">{item.nummer}.</span>
-              <div>
-                <h3 className="category__name">{item.name}</h3>
-                {item.zutaten && (
-                  <p className="category__ingredients">{item.zutaten}</p>
-                )}
-              </div>
-            </div>
+      {/* ================= KATEGORIEN ================= */}
+      {cardData.categories.length === 0 && (
+        <p>Keine Kategorien vorhanden. Erstelle zuerst eine Kategorie.</p>
+      )}
 
-            <span className="category__price">
-              CHF {Number(item.preis).toFixed(2)}
-            </span>
-          </li>
-        ))}
-      </ul>
+      {cardData.categories.map((category) => (
+        <div key={category.id} className="category">
+          <h2>{category.name}</h2>
 
-      {/* 🔥 POPUP */}
+          <ul className="category-items">
+            {category.items && category.items.length > 0 ? (
+              category.items.map((item) => (
+                <li key={item.id} className="item">
+                  <span className="nummer">{item.nummer}</span>
+                  <span className="name">{item.name}</span>
+                  {item.zutaten && <span className="zutaten">{item.zutaten}</span>}
+                  <span className="preis">
+                    CHF {Number(item.preis).toFixed(2)}
+                  </span>
+                </li>
+              ))
+            ) : (
+              <li className="no-items">Noch keine Items vorhanden.</li>
+            )}
+          </ul>
+
+          {token && (
+            <button onClick={() => openItemPopup(category.id)}>
+              + Neues Gericht
+            </button>
+          )}
+        </div>
+      ))}
+
+      {/* ================= POPUP ================= */}
       {popupOpen && (
-        <div className="popup">
-          <div
-            className="popup__overlay"
-            onClick={() => setPopupOpen(false)}
-          />
-
-          <div className="popup__content">
-            <div className="popup__header">
-              <h2>Gericht erstellen</h2>
-              <button
-                className="popup__close"
-                onClick={() => setPopupOpen(false)}
-              >
-                ×
-              </button>
-            </div>
-
-            <form className="popup__form" onSubmit={handleCreateItem}>
+        <div className="popup-overlay" onClick={() => setPopupOpen(false)}>
+          <div className="popup-form" onClick={(e) => e.stopPropagation()}>
+            <h2>Neues Gericht erstellen</h2>
+            <form onSubmit={handleCreateItem}>
               <input
-                className="popup__input"
-                placeholder="Nummer"
-                value={nummer}
-                onChange={(e) => setNummer(e.target.value)}
-                required
+                placeholder="Nummer (optional)"
+                value={itemForm.nummer}
+                onChange={(e) =>
+                  setItemForm({ ...itemForm, nummer: e.target.value })
+                }
               />
-
               <input
-                className="popup__input"
                 placeholder="Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={itemForm.name}
+                onChange={(e) =>
+                  setItemForm({ ...itemForm, name: e.target.value })
+                }
                 required
               />
-
               <input
-                className="popup__input"
                 placeholder="Zutaten"
-                value={zutaten}
-                onChange={(e) => setZutaten(e.target.value)}
+                value={itemForm.zutaten}
+                onChange={(e) =>
+                  setItemForm({ ...itemForm, zutaten: e.target.value })
+                }
               />
-
               <input
-                className="popup__input"
                 placeholder="Preis"
-                value={preis}
-                onChange={(e) => setPreis(e.target.value)}
+                type="number"
+                step="0.01"
+                value={itemForm.preis}
+                onChange={(e) =>
+                  setItemForm({ ...itemForm, preis: e.target.value })
+                }
                 required
               />
 
-              <button className="popup__submit">
-                Erstellen
-              </button>
+              <div className="actions">
+                <button type="submit" className="primary">Erstellen</button>
+                <button
+                  type="button"
+                  className="ghost"
+                  onClick={() => setPopupOpen(false)}
+                >
+                  Abbrechen
+                </button>
+              </div>
             </form>
           </div>
         </div>
       )}
     </div>
   );
-};
-
-export default MenuCategory;
+}

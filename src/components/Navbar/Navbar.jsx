@@ -105,7 +105,6 @@ function Navbar() {
             <NavItem to="/login" text="Login" icon={faSignInAlt} setBurgerMenuActive={setBurgerMenuActive} />
           ) : (
             <>
-              <NavItem to="/profil" text="Profil" icon={faUser} setBurgerMenuActive={setBurgerMenuActive} />
               <li>
                 <button className="nav-link logout" onClick={handleLogout}>
                   <FontAwesomeIcon icon={faSignOutAlt} /> Logout
