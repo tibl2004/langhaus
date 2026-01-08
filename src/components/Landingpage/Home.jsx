@@ -83,7 +83,7 @@ const Home = () => {
 
       setShowOeffForm(false);
       setOeffFormData({ id: null, wochentag: "", von: "", bis: "", kategorie: "" });
-      fetchOeffzeiten();
+      fetchOeffnungszeiten(); // automatisch Öffnungszeiten laden
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.error || "Fehler beim Speichern");
@@ -96,7 +96,7 @@ const Home = () => {
       await axios.delete(`https://restaurant-langhaus-backend.onrender.com/api/oeffnungszeiten/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchOeffzeiten();
+      fetchOeffnungszeiten(); // automatisch Öffnungszeiten laden
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.error || "Fehler beim Löschen");
