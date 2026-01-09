@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { FaTrash, FaEdit, FaSave } from "react-icons/fa";
 import "./Home.scss";
+
+const GALERIE_API = "https://restaurant-langhaus-backend.onrender.com/api/galerie";
 
 const WOCHENTAGE = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
 
@@ -10,16 +12,24 @@ const Home = () => {
   const [editTimes, setEditTimes] = useState({});
   const [editingCategory, setEditingCategory] = useState(null);
   const [homeContent, setHomeContent] = useState(null);
+  const [bilder, setBilder] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-
+  const [roles, setRoles] = useState([]);
   const token = localStorage.getItem("token");
 
+  /* Fullscreen für Galerie */
+  const [activeIndex, setActiveIndex] = useState(null);
+
+  const isAdmin = roles.includes("admin");
+
+  // Daten laden
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
-    if (user?.userTypes?.includes("admin")) setIsAdmin(true);
+    if (user?.userTypes) setRoles(user.userTypes);
+
     fetchHomeContent();
     fetchOeffnungszeiten();
+    fetchGalerieBilder();
   }, []);
 
   const fetchHomeContent = async () => {
@@ -57,8 +67,8 @@ const Home = () => {
   };
 
   const handleEditTime = (catKey, id, field, value) => {
-    setEditTimes((prev) => {
-      const updated = prev[catKey].map((item) =>
+    setEditTimes(prev => {
+      const updated = prev[catKey].map(item =>
         item.id === id ? { ...item, [field]: value } : item
       );
       return { ...prev, [catKey]: updated };
@@ -103,16 +113,39 @@ const Home = () => {
     }
   };
 
+  // Galerie laden
+  const fetchGalerieBilder = async () => {
+    try {
+      const res = await axios.get(GALERIE_API);
+      setBilder(res.data);
+    } catch (err) {
+      console.error("Galerie konnte nicht geladen werden", err);
+    }
+  };
+
+  // Fullscreen
+  const closeFullscreen = () => setActiveIndex(null);
+  const nextBild = useCallback(() => setActiveIndex((i) => (i + 1) % bilder.length), [bilder.length]);
+  const prevBild = useCallback(() => setActiveIndex((i) => (i - 1 + bilder.length) % bilder.length), [bilder.length]);
+
+  useEffect(() => {
+    if (activeIndex === null) return;
+    const handleKey = (e) => {
+      if (e.key === "Escape") closeFullscreen();
+      if (e.key === "ArrowRight") nextBild();
+      if (e.key === "ArrowLeft") prevBild();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [activeIndex, nextBild, prevBild]);
+
   if (loading) return <p>Lädt...</p>;
 
   return (
     <div className="home-container">
       {/* HEADER */}
       {homeContent && (
-        <div
-          className="home-header"
-          style={{ backgroundImage: `url(${homeContent.bild || ""})` }}
-        >
+        <div className="home-header" style={{ backgroundImage: `url(${homeContent.bild || ""})` }}>
           <div className="overlay">
             <h1>{homeContent.willkommenText}</h1>
             {homeContent.willkommenLink && (
@@ -123,11 +156,29 @@ const Home = () => {
           </div>
         </div>
       )}
+   {/* GALERIE ANZEIGEN */}
+   <section className="galerie-section">
+        <h2>Galerie</h2>
+        <div className="grid">
+          {bilder.map((bild, index) => (
+            <div key={bild.id} className="item">
+              <img src={bild.bild} alt="" onClick={() => setActiveIndex(index)} />
+            </div>
+          ))}
+        </div>
 
+        {activeIndex !== null && (
+          <div className="lightbox" onClick={closeFullscreen}>
+            <button className="nav prev" onClick={(e) => { e.stopPropagation(); prevBild(); }}>‹</button>
+            <img src={bilder[activeIndex].bild} alt="" onClick={(e) => e.stopPropagation()} />
+            <button className="nav next" onClick={(e) => { e.stopPropagation(); nextBild(); }}>›</button>
+            <button className="close" onClick={closeFullscreen}>✕</button>
+          </div>
+        )}
+      </section>
       {/* ÖFFNUNGSZEITEN */}
       <section className="oeffnungszeiten-section">
         <h2>Öffnungszeiten</h2>
-
         {oeffnungszeiten.map((cat, idx) => {
           const catKey = cat.kategorie ?? "__DEFAULT__";
           const isEditing = editingCategory === catKey;
@@ -142,20 +193,8 @@ const Home = () => {
                   {editTimes[catKey]?.map((entry) => (
                     <div key={entry.id} className="edit-row">
                       <span>{entry.wochentag}</span>
-                      <input
-                        type="time"
-                        value={entry.von || ""}
-                        onChange={(e) =>
-                          handleEditTime(catKey, entry.id, "von", e.target.value)
-                        }
-                      />
-                      <input
-                        type="time"
-                        value={entry.bis || ""}
-                        onChange={(e) =>
-                          handleEditTime(catKey, entry.id, "bis", e.target.value)
-                        }
-                      />
+                      <input type="time" value={entry.von || ""} onChange={(e) => handleEditTime(catKey, entry.id, "von", e.target.value)} />
+                      <input type="time" value={entry.bis || ""} onChange={(e) => handleEditTime(catKey, entry.id, "bis", e.target.value)} />
                       <FaTrash className="icon delete" onClick={() => handleDelete(entry.id)} />
                     </div>
                   ))}
@@ -167,14 +206,9 @@ const Home = () => {
                 <div className="times-list">
                   {entries.map((entry, i) =>
                     (entry.wochentage ?? []).map((day, j) => (
-                      <div
-                        key={`${i}-${j}`}
-                        className={`time-item ${entry.geschlossen ? "closed" : ""}`}
-                      >
+                      <div key={`${i}-${j}`} className={`time-item ${entry.geschlossen ? "closed" : ""}`}>
                         <span className="day">{day}</span>
-                        <span className="time">
-                          {entry.geschlossen ? "geschlossen" : (entry.zeiten ?? []).join(", ")}
-                        </span>
+                        <span className="time">{entry.geschlossen ? "geschlossen" : (entry.zeiten ?? []).join(", ")}</span>
                       </div>
                     ))
                   )}
@@ -190,6 +224,8 @@ const Home = () => {
           );
         })}
       </section>
+
+   
     </div>
   );
 };
