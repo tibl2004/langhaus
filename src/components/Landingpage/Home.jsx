@@ -1,24 +1,25 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { FaTrash, FaEdit, FaSave } from "react-icons/fa";
 import "./Home.scss";
 
 const WOCHENTAGE = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
 
 const Home = () => {
-  const [oeffnungszeiten, setoeffnungszeiten] = useState([]); // komprimierte Ansicht
-  const [editoeffnungszeiten, setEditoeffnungszeiten] = useState({}); // Bearbeiten pro Kategorie
-  const [editingCategory, setEditingCategory] = useState(null); // Kategorie aktuell bearbeiten
+  const [oeffnungszeiten, setOeffnungszeiten] = useState([]);
+  const [editTimes, setEditTimes] = useState({});
+  const [editingCategory, setEditingCategory] = useState(null);
   const [homeContent, setHomeContent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+
   const token = localStorage.getItem("token");
 
-  // Home Content
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (user?.userTypes?.includes("admin")) setIsAdmin(true);
     fetchHomeContent();
-    fetchoeffnungszeiten();
+    fetchOeffnungszeiten();
   }, []);
 
   const fetchHomeContent = async () => {
@@ -32,73 +33,70 @@ const Home = () => {
     }
   };
 
-  // Komprimierte Ansicht
-  const fetchoeffnungszeiten = async () => {
+  const fetchOeffnungszeiten = async () => {
     try {
       const res = await axios.get("https://restaurant-langhaus-backend.onrender.com/api/oeffnungszeiten", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setoeffnungszeiten(res.data);
+      setOeffnungszeiten(res.data);
     } catch (err) {
       console.error(err);
     }
   };
 
-  // Unkomprimierte Öffnungszeiten für Bearbeiten
-  const fetchoeffnungszeitenForEdit = async (catKey) => {
+  const fetchOeffzeitenForEdit = async (catKey) => {
     try {
       const res = await axios.get("https://restaurant-langhaus-backend.onrender.com/api/oeffnungszeiten/edit", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setEditoeffnungszeiten({ [catKey]: res.data[catKey] || [] });
+      setEditTimes({ [catKey]: res.data[catKey] || [] });
       setEditingCategory(catKey);
     } catch (err) {
       console.error(err);
     }
   };
 
-  // Änderungen pro Zeitblock
   const handleEditTime = (catKey, id, field, value) => {
-    setEditoeffnungszeiten((prev) => {
-      const catData = prev[catKey].map((eintrag) =>
-        eintrag.id === id ? { ...eintrag, [field]: value } : eintrag
+    setEditTimes((prev) => {
+      const updated = prev[catKey].map((item) =>
+        item.id === id ? { ...item, [field]: value } : item
       );
-      return { ...prev, [catKey]: catData };
+      return { ...prev, [catKey]: updated };
     });
   };
 
-  // Speichern pro Kategorie
-  const handleSaveKategorie = async (catKey) => {
+  const handleSaveCategory = async (catKey) => {
     try {
-      const updates = editoeffnungszeiten[catKey];
-      for (const eintrag of updates) {
-        await axios.put(`https://restaurant-langhaus-backend.onrender.com/api/oeffnungszeiten/${eintrag.id}`, {
-          wochentag: eintrag.wochentag,
-          von: eintrag.von,
-          bis: eintrag.bis,
-          kategorie: catKey === "__DEFAULT__" ? null : catKey,
-        }, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+      const updates = editTimes[catKey];
+      for (const item of updates) {
+        await axios.put(
+          `https://restaurant-langhaus-backend.onrender.com/api/oeffnungszeiten/${item.id}`,
+          {
+            wochentag: item.wochentag,
+            von: item.von,
+            bis: item.bis,
+            kategorie: catKey === "__DEFAULT__" ? null : catKey,
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
       }
       alert(`Kategorie "${catKey === "__DEFAULT__" ? "Restaurant" : catKey}" gespeichert!`);
       setEditingCategory(null);
-      fetchoeffnungszeiten();
+      fetchOeffnungszeiten();
     } catch (err) {
       console.error(err);
       alert("Fehler beim Speichern");
     }
   };
 
-  // Löschen eines Zeitblocks
-  const handleOeffDelete = async (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm("Willst du diesen Eintrag wirklich löschen?")) return;
     try {
       await axios.delete(`https://restaurant-langhaus-backend.onrender.com/api/oeffnungszeiten/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (editingCategory) fetchoeffnungszeitenForEdit(editingCategory);
-      else fetchoeffnungszeiten();
+      if (editingCategory) fetchOeffzeitenForEdit(editingCategory);
+      else fetchOeffnungszeiten();
     } catch (err) {
       console.error(err);
       alert("Fehler beim Löschen");
@@ -108,95 +106,90 @@ const Home = () => {
   if (loading) return <p>Lädt...</p>;
 
   return (
-    <div className="home-content-container">
-      {/* Home Display */}
+    <div className="home-container">
+      {/* HEADER */}
       {homeContent && (
         <div
-          className="home-display"
-          style={{
-            backgroundImage: `url(${homeContent.bild || ""})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
+          className="home-header"
+          style={{ backgroundImage: `url(${homeContent.bild || ""})` }}
         >
-          <h2>{homeContent.willkommenText}</h2>
-          {homeContent.willkommenLink && (
-            <a href={homeContent.willkommenLink} target="_blank" rel="noreferrer">
-              {homeContent.blinkText || "Zum Link"}
-            </a>
-          )}
+          <div className="overlay">
+            <h1>{homeContent.willkommenText}</h1>
+            {homeContent.willkommenLink && (
+              <a href={homeContent.willkommenLink} target="_blank" rel="noreferrer">
+                {homeContent.blinkText || "Zum Link"}
+              </a>
+            )}
+          </div>
         </div>
       )}
 
-      {/* Öffnungszeiten */}
-      <div className="oeffnungszeiten-box">
-        <h3>Öffnungszeiten</h3>
+      {/* ÖFFNUNGSZEITEN */}
+      <section className="oeffnungszeiten-section">
+        <h2>Öffnungszeiten</h2>
 
-        {oeffnungszeiten.map((item, index) => {
-          const title = item.kategorie ?? "Restaurant";
-          const eintraege = item.eintraege ?? [];
-          const catKey = item.kategorie ?? "__DEFAULT__";
+        {oeffnungszeiten.map((cat, idx) => {
+          const catKey = cat.kategorie ?? "__DEFAULT__";
           const isEditing = editingCategory === catKey;
+          const entries = cat.eintraege ?? [];
 
           return (
-            <div key={index} className="oeff-kategorie-block">
-              <h4>{title}</h4>
+            <div key={idx} className="category-block">
+              <h3>{cat.kategorie ?? "Restaurant"}</h3>
 
               {isEditing ? (
-                // Bearbeiten-Ansicht pro Kategorie
-                editoeffnungszeiten[catKey]?.map((eintrag) => (
-                  <div key={eintrag.id} className="oeff-item">
-                    <label>
-                      {eintrag.wochentag}:
+                <div className="edit-times">
+                  {editTimes[catKey]?.map((entry) => (
+                    <div key={entry.id} className="edit-row">
+                      <span>{entry.wochentag}</span>
                       <input
                         type="time"
-                        value={eintrag.von || ""}
+                        value={entry.von || ""}
                         onChange={(e) =>
-                          handleEditTime(catKey, eintrag.id, "von", e.target.value)
+                          handleEditTime(catKey, entry.id, "von", e.target.value)
                         }
                       />
                       <input
                         type="time"
-                        value={eintrag.bis || ""}
+                        value={entry.bis || ""}
                         onChange={(e) =>
-                          handleEditTime(catKey, eintrag.id, "bis", e.target.value)
+                          handleEditTime(catKey, entry.id, "bis", e.target.value)
                         }
                       />
-                    </label>
-                    <button onClick={() => handleOeffDelete(eintrag.id)}>Löschen</button>
-                  </div>
-                ))
-              ) : (
-                // Komprimierte Ansicht
-                eintraege.map((eintrag, i) =>
-                  (eintrag.wochentage ?? []).map((tage, j) => (
-                    <div key={`${i}-${j}`} className="oeff-item">
-                      <strong>{tage}:</strong>
-                      {eintrag.geschlossen ? (
-                        <span> geschlossen</span>
-                      ) : (
-                        <span>{(eintrag.zeiten ?? []).join(", ")}</span>
-                      )}
+                      <FaTrash className="icon delete" onClick={() => handleDelete(entry.id)} />
                     </div>
-                  ))
-                )
+                  ))}
+                  <button className="save-btn" onClick={() => handleSaveCategory(catKey)}>
+                    <FaSave /> Speichern
+                  </button>
+                </div>
+              ) : (
+                <div className="times-list">
+                  {entries.map((entry, i) =>
+                    (entry.wochentage ?? []).map((day, j) => (
+                      <div
+                        key={`${i}-${j}`}
+                        className={`time-item ${entry.geschlossen ? "closed" : ""}`}
+                      >
+                        <span className="day">{day}</span>
+                        <span className="time">
+                          {entry.geschlossen ? "geschlossen" : (entry.zeiten ?? []).join(", ")}
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
               )}
 
-              {/* Admin Buttons */}
               {isAdmin && !isEditing && (
-                <button onClick={() => fetchoeffnungszeitenForEdit(catKey)}>
-                  Bearbeiten
-                </button>
-              )}
-              {isAdmin && isEditing && (
-                <button onClick={() => handleSaveKategorie(catKey)}>
-                  Speichern
+                <button className="edit-btn" onClick={() => fetchOeffzeitenForEdit(catKey)}>
+                  <FaEdit /> Bearbeiten
                 </button>
               )}
             </div>
           );
         })}
-      </div>
+      </section>
     </div>
   );
 };

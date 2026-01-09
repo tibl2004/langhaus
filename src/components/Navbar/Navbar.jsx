@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHome, faUser, faSignInAlt, faSignOutAlt, faBars } from "@fortawesome/free-solid-svg-icons";
+import {
+  faHome,
+  faUser,
+  faSignInAlt,
+  faSignOutAlt,
+  faBars,
+  faBook,
+  faImage,
+  faCalendarCheck
+} from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import "./Navbar.scss";
 
@@ -12,7 +21,6 @@ function Navbar() {
   const [logoUrl, setLogoUrl] = useState(null);
   const navigate = useNavigate();
 
-  // Loginstatus + Rollen prüfen
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
@@ -32,7 +40,6 @@ function Navbar() {
     }
   }, []);
 
-  // Logo von API laden (Axios)
   useEffect(() => {
     const fetchLogo = async () => {
       try {
@@ -49,7 +56,6 @@ function Navbar() {
     fetchLogo();
   }, []);
 
-  // Menü schließen, wenn außerhalb geklickt wird
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -97,20 +103,18 @@ function Navbar() {
         {/* Navigation */}
         <ul className={`nav-items ${burgerMenuActive ? "open" : ""}`}>
           <NavItem to="/" text="Home" icon={faHome} setBurgerMenuActive={setBurgerMenuActive} />
-          <NavItem to="https://www.lunchgate.ch/restaurant/langhaus/" text="Reservation" icon={faHome} setBurgerMenuActive={setBurgerMenuActive} />
-          <NavItem to="/cards" text="Karten" icon={faHome} setBurgerMenuActive={setBurgerMenuActive} />
-          <NavItem to="/galerie" text="Galerie" icon={faHome} setBurgerMenuActive={setBurgerMenuActive} />
+          <NavItem to="https://www.lunchgate.ch/restaurant/langhaus/" text="Reservation" icon={faCalendarCheck} setBurgerMenuActive={setBurgerMenuActive} />
+          <NavItem to="/cards" text="Karten" icon={faBook} setBurgerMenuActive={setBurgerMenuActive} />
+          <NavItem to="/galerie" text="Galerie" icon={faImage} setBurgerMenuActive={setBurgerMenuActive} />
 
           {!isLoggedIn ? (
             <NavItem to="/login" text="Login" icon={faSignInAlt} setBurgerMenuActive={setBurgerMenuActive} />
           ) : (
-            <>
-              <li>
-                <button className="nav-link logout" onClick={handleLogout}>
-                  <FontAwesomeIcon icon={faSignOutAlt} /> Logout
-                </button>
-              </li>
-            </>
+            <li>
+              <button className="nav-link logout" onClick={handleLogout}>
+                <FontAwesomeIcon icon={faSignOutAlt} /> Logout
+              </button>
+            </li>
           )}
         </ul>
       </div>
