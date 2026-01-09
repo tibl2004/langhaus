@@ -2,134 +2,115 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./Home.scss";
 
+const WOCHENTAGE = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+
 const Home = () => {
-  const WOCHENTAGE = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
-  const [oeffnungszeiten, setOeffnungszeiten] = useState([]);
-  const [showOeffForm, setShowOeffForm] = useState(false);
-  const [oeffFormData, setOeffFormData] = useState({ id: null, wochentag: "", von: "", bis: "", kategorie: "" });
-  const [editOeff, setEditOeff] = useState(null);
+  const [oeffnungszeiten, setoeffnungszeiten] = useState([]); // komprimierte Ansicht
+  const [editoeffnungszeiten, setEditoeffnungszeiten] = useState({}); // Bearbeiten pro Kategorie
+  const [editingCategory, setEditingCategory] = useState(null); // Kategorie aktuell bearbeiten
   const [homeContent, setHomeContent] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
-  const [showForm, setShowForm] = useState(false);
-
-  const [willkommenText, setWillkommenText] = useState("");
-  const [willkommenLink, setWillkommenLink] = useState("");
-  const [blinkText, setBlinkText] = useState("");
-
   const token = localStorage.getItem("token");
 
+  // Home Content
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (user?.userTypes?.includes("admin")) setIsAdmin(true);
     fetchHomeContent();
-    fetchOeffnungszeiten(); // automatisch Öffnungszeiten laden
+    fetchoeffnungszeiten();
   }, []);
 
   const fetchHomeContent = async () => {
     try {
-      setLoading(true);
       const res = await axios.get("https://restaurant-langhaus-backend.onrender.com/api/home");
-      const data = res.data;
-      setHomeContent(data);
-      setWillkommenText(data?.willkommenText || "");
-      setWillkommenLink(data?.willkommenLink || "");
-      setBlinkText(data?.blinkText || "");
+      setHomeContent(res.data);
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.error || "Fehler beim Laden des Home-Contents");
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchOeffnungszeiten = async () => {
+  // Komprimierte Ansicht
+  const fetchoeffnungszeiten = async () => {
     try {
       const res = await axios.get("https://restaurant-langhaus-backend.onrender.com/api/oeffnungszeiten", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setOeffnungszeiten(res.data);
+      setoeffnungszeiten(res.data);
     } catch (err) {
       console.error(err);
     }
   };
 
-  // 🟢 NEU: handleOeffChange
-  const handleOeffChange = (e) => {
-    const { name, value } = e.target;
-    setOeffFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleOeffSubmit = async (e) => {
-    e.preventDefault();
-    if (!oeffFormData.wochentag) return alert("Bitte einen Wochentag auswählen");
-
+  // Unkomprimierte Öffnungszeiten für Bearbeiten
+  const fetchoeffnungszeitenForEdit = async (catKey) => {
     try {
-      if (editOeff) {
-        await axios.put(
-          `https://restaurant-langhaus-backend.onrender.com/api/oeffnungszeiten/${editOeff.id}`,
-          oeffFormData,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setEditOeff(null);
-      } else {
-        await axios.post(
-          "https://restaurant-langhaus-backend.onrender.com/api/oeffnungszeiten",
-          oeffFormData,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-      }
-
-      setShowOeffForm(false);
-      setOeffFormData({ id: null, wochentag: "", von: "", bis: "", kategorie: "" });
-      fetchOeffnungszeiten(); // automatisch Öffnungszeiten laden
+      const res = await axios.get("https://restaurant-langhaus-backend.onrender.com/api/oeffnungszeiten/edit", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setEditoeffnungszeiten({ [catKey]: res.data[catKey] || [] });
+      setEditingCategory(catKey);
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.error || "Fehler beim Speichern");
     }
   };
 
+  // Änderungen pro Zeitblock
+  const handleEditTime = (catKey, id, field, value) => {
+    setEditoeffnungszeiten((prev) => {
+      const catData = prev[catKey].map((eintrag) =>
+        eintrag.id === id ? { ...eintrag, [field]: value } : eintrag
+      );
+      return { ...prev, [catKey]: catData };
+    });
+  };
+
+  // Speichern pro Kategorie
+  const handleSaveKategorie = async (catKey) => {
+    try {
+      const updates = editoeffnungszeiten[catKey];
+      for (const eintrag of updates) {
+        await axios.put(`https://restaurant-langhaus-backend.onrender.com/api/oeffnungszeiten/${eintrag.id}`, {
+          wochentag: eintrag.wochentag,
+          von: eintrag.von,
+          bis: eintrag.bis,
+          kategorie: catKey === "__DEFAULT__" ? null : catKey,
+        }, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+      alert(`Kategorie "${catKey === "__DEFAULT__" ? "Restaurant" : catKey}" gespeichert!`);
+      setEditingCategory(null);
+      fetchoeffnungszeiten();
+    } catch (err) {
+      console.error(err);
+      alert("Fehler beim Speichern");
+    }
+  };
+
+  // Löschen eines Zeitblocks
   const handleOeffDelete = async (id) => {
     if (!window.confirm("Willst du diesen Eintrag wirklich löschen?")) return;
     try {
       await axios.delete(`https://restaurant-langhaus-backend.onrender.com/api/oeffnungszeiten/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchOeffnungszeiten(); // automatisch Öffnungszeiten laden
+      if (editingCategory) fetchoeffnungszeitenForEdit(editingCategory);
+      else fetchoeffnungszeiten();
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.error || "Fehler beim Löschen");
-    }
-  };
-
-  const handleUpdateHome = async (e) => {
-    e.preventDefault();
-    if (!willkommenText || !willkommenLink) return alert("Bitte Text und Link angeben");
-
-    try {
-      const res = await axios.put(
-        "https://restaurant-langhaus-backend.onrender.com/api/home",
-        { willkommenText, willkommenLink, blinkText },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      alert(res.data.message);
-      setShowForm(false);
-      fetchHomeContent();
-    } catch (err) {
-      console.error(err);
-      alert(err.response?.data?.error || "Fehler beim Speichern");
+      alert("Fehler beim Löschen");
     }
   };
 
   if (loading) return <p>Lädt...</p>;
-  if (error) return <p className="error">{error}</p>;
 
   return (
     <div className="home-content-container">
       {/* Home Display */}
-      {homeContent ? (
+      {homeContent && (
         <div
           className="home-display"
           style={{
@@ -145,125 +126,77 @@ const Home = () => {
             </a>
           )}
         </div>
-      ) : (
-        <p>Kein Home-Content vorhanden.</p>
       )}
 
       {/* Öffnungszeiten */}
       <div className="oeffnungszeiten-box">
         <h3>Öffnungszeiten</h3>
-        {oeffnungszeiten.length === 0 && <p>Keine Öffnungszeiten hinterlegt.</p>}
-        {oeffnungszeiten.map((item) => (
-          <div key={item.id} className="oeff-item">
-            {item.kategorie && <h4>{item.kategorie}</h4>}
-            {item.wochentage.map((tag, i) => (
-              <div key={i} className="oeff-range">
-                <strong>{tag}:</strong>
-                {item.geschlossen ? (
-                  <div>geschlossen</div>
-                ) : (
-                  item.zeiten.map((z, j) => (
-                    <div key={j}>
-                      {z}
-                      {isAdmin && (
-                        <>
-                          <button onClick={() => {
-                            setEditOeff({ id: item.id });
-                            setOeffFormData({
-                              id: item.id,
-                              wochentag: tag,
-                              von: z.split(" – ")[0],
-                              bis: z.split(" – ")[1],
-                              kategorie: item.kategorie || "",
-                            });
-                            setShowOeffForm(true);
-                          }}>Bearbeiten</button>
-                          <button onClick={() => handleOeffDelete(item.id)}>Löschen</button>
-                        </>
+
+        {oeffnungszeiten.map((item, index) => {
+          const title = item.kategorie ?? "Restaurant";
+          const eintraege = item.eintraege ?? [];
+          const catKey = item.kategorie ?? "__DEFAULT__";
+          const isEditing = editingCategory === catKey;
+
+          return (
+            <div key={index} className="oeff-kategorie-block">
+              <h4>{title}</h4>
+
+              {isEditing ? (
+                // Bearbeiten-Ansicht pro Kategorie
+                editoeffnungszeiten[catKey]?.map((eintrag) => (
+                  <div key={eintrag.id} className="oeff-item">
+                    <label>
+                      {eintrag.wochentag}:
+                      <input
+                        type="time"
+                        value={eintrag.von || ""}
+                        onChange={(e) =>
+                          handleEditTime(catKey, eintrag.id, "von", e.target.value)
+                        }
+                      />
+                      <input
+                        type="time"
+                        value={eintrag.bis || ""}
+                        onChange={(e) =>
+                          handleEditTime(catKey, eintrag.id, "bis", e.target.value)
+                        }
+                      />
+                    </label>
+                    <button onClick={() => handleOeffDelete(eintrag.id)}>Löschen</button>
+                  </div>
+                ))
+              ) : (
+                // Komprimierte Ansicht
+                eintraege.map((eintrag, i) =>
+                  (eintrag.wochentage ?? []).map((tage, j) => (
+                    <div key={`${i}-${j}`} className="oeff-item">
+                      <strong>{tage}:</strong>
+                      {eintrag.geschlossen ? (
+                        <span> geschlossen</span>
+                      ) : (
+                        <span>{(eintrag.zeiten ?? []).join(", ")}</span>
                       )}
                     </div>
                   ))
-                )}
-              </div>
-            ))}
-          </div>
-        ))}
+                )
+              )}
+
+              {/* Admin Buttons */}
+              {isAdmin && !isEditing && (
+                <button onClick={() => fetchoeffnungszeitenForEdit(catKey)}>
+                  Bearbeiten
+                </button>
+              )}
+              {isAdmin && isEditing && (
+                <button onClick={() => handleSaveKategorie(catKey)}>
+                  Speichern
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
-
-      {/* Öffnungszeiten Form */}
-      {showOeffForm && (
-        <div className="overlay">
-          <form className="home-form" onSubmit={handleOeffSubmit}>
-            <h3>{editOeff ? "Öffnungszeiten bearbeiten" : "Öffnungszeiten hinzufügen"}</h3>
-            <label>
-              Wochentag:
-              <select name="wochentag" value={oeffFormData.wochentag} onChange={handleOeffChange} required>
-                <option value="">– auswählen –</option>
-                {WOCHENTAGE.map((tag) => <option key={tag} value={tag}>{tag}</option>)}
-              </select>
-            </label>
-            <label>
-              Von:
-              <input type="time" name="von" value={oeffFormData.von} onChange={handleOeffChange} />
-            </label>
-            <label>
-              Bis:
-              <input type="time" name="bis" value={oeffFormData.bis} onChange={handleOeffChange} />
-            </label>
-            <label>
-              Kategorie:
-              <input type="text" name="kategorie" value={oeffFormData.kategorie} onChange={handleOeffChange} placeholder="z.B. Küche" />
-            </label>
-            <div className="form-buttons">
-              <button type="submit">{editOeff ? "Aktualisieren" : "Speichern"}</button>
-              <button type="button" onClick={() => {
-                setShowOeffForm(false);
-                setEditOeff(null);
-                setOeffFormData({ id: null, wochentag: "", von: "", bis: "", kategorie: "" });
-              }}>Abbrechen</button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {isAdmin && !showOeffForm && (
-        <button className="add-button" onClick={() => {
-          setShowOeffForm(true);
-          setEditOeff(null);
-          setOeffFormData({ id: null, wochentag: "", von: "", bis: "", kategorie: "" });
-        }}>+ Öffnungszeit hinzufügen</button>
-      )}
-
-      {/* Admin Home Form */}
-      {isAdmin && !showForm && (
-        <button className="add-button" onClick={() => setShowForm(true)}>
-          {homeContent ? "Home-Content bearbeiten" : "+ Home-Content erstellen"}
-        </button>
-      )}
-
-      {showForm && (
-        <div className="overlay">
-          <form className="home-form" onSubmit={handleUpdateHome}>
-            <h3>{homeContent ? "Home-Content bearbeiten" : "Home-Content erstellen"}</h3>
-            <div className="form-group">
-              <label>Willkommen Text:</label>
-              <input type="text" value={willkommenText} onChange={(e) => setWillkommenText(e.target.value)} required />
-            </div>
-            <div className="form-group">
-              <label>Willkommen Link:</label>
-              <input type="text" value={willkommenLink} onChange={(e) => setWillkommenLink(e.target.value)} required />
-            </div>
-            <div className="form-group">
-              <label>Link Text:</label>
-              <input type="text" value={blinkText} onChange={(e) => setBlinkText(e.target.value)} />
-            </div>
-            <div className="form-buttons">
-              <button type="submit">Speichern</button>
-              <button type="button" className="cancel-btn" onClick={() => setShowForm(false)}>Abbrechen</button>
-            </div>
-          </form>
-        </div>
-      )}
     </div>
   );
 };
