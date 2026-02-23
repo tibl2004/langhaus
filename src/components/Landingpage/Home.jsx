@@ -19,27 +19,19 @@ const Home = () => {
   const [bilder, setBilder] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  /* Galerie Lightbox */
   const [activeIndex, setActiveIndex] = useState(null);
 
-  /* ================= FETCH ================= */
-
-  useEffect(() => {
-    fetchHomeContent();
-    fetchOeffnungszeiten();
-    fetchGalerie();
-  }, []);
-
-  const fetchHomeContent = async () => {
+  // ---------------- FETCH FUNCTIONS ----------------
+  const fetchHomeContent = useCallback(async () => {
     try {
       const res = await axios.get(`${API}/home`);
       setHomeContent(res.data);
     } catch (err) {
       console.error(err);
     }
-  };
+  }, []);
 
-  const fetchOeffnungszeiten = async () => {
+  const fetchOeffnungszeiten = useCallback(async () => {
     try {
       const res = await axios.get(`${API}/oeffnungszeiten`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -50,7 +42,7 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   const fetchOeffzeitenForEdit = async (catKey) => {
     try {
@@ -64,17 +56,23 @@ const Home = () => {
     }
   };
 
-  const fetchGalerie = async () => {
+  const fetchGalerie = useCallback(async () => {
     try {
       const res = await axios.get(GALERIE_API);
       setBilder(res.data);
     } catch (err) {
       console.error("Galerie Fehler", err);
     }
-  };
+  }, []);
 
-  /* ================= ÖFFNUNGSZEITEN EDIT ================= */
+  // ---------------- USE EFFECT ----------------
+  useEffect(() => {
+    fetchHomeContent();
+    fetchOeffnungszeiten();
+    fetchGalerie();
+  }, [fetchHomeContent, fetchOeffnungszeiten, fetchGalerie]);
 
+  // ---------------- EDIT HANDLERS ----------------
   const handleAddTime = (catKey) => {
     const newEntry = {
       id: `new-${Date.now()}`,
@@ -83,7 +81,6 @@ const Home = () => {
       bis: "18:00",
       isNew: true,
     };
-
     setEditTimes((prev) => ({
       ...prev,
       [catKey]: [...(prev[catKey] || []), newEntry],
@@ -126,7 +123,6 @@ const Home = () => {
           bis: item.bis,
           kategorie: catKey === "__DEFAULT__" ? null : catKey,
         };
-
         if (item.isNew) {
           await axios.post(`${API}/oeffnungszeiten`, payload, {
             headers: { Authorization: `Bearer ${token}` },
@@ -147,8 +143,7 @@ const Home = () => {
     }
   };
 
-  /* ================= GALERIE LIGHTBOX ================= */
-
+  // ---------------- GALERIE LIGHTBOX ----------------
   const closeFullscreen = () => setActiveIndex(null);
   const nextBild = useCallback(
     () => setActiveIndex((i) => (i + 1) % bilder.length),
@@ -170,10 +165,9 @@ const Home = () => {
     return () => window.removeEventListener("keydown", handleKey);
   }, [activeIndex, nextBild, prevBild]);
 
-  /* ================= RENDER ================= */
-
   if (loading) return <p>Lädt…</p>;
 
+  // ---------------- RENDER ----------------
   return (
     <div className="home-container">
       {/* HEADER */}
@@ -196,13 +190,10 @@ const Home = () => {
       {/* ÖFFNUNGSZEITEN */}
       <section className="oeffnungszeiten-section">
         <h2>Öffnungszeiten</h2>
-
         {oeffnungszeiten.map((cat, idx) => {
           const catKey = cat.kategorie ?? "__DEFAULT__";
           const isEditing = editingCategory === catKey;
-          const entries = isEditing
-            ? editTimes[catKey] || []
-            : cat.eintraege || [];
+          const entries = isEditing ? editTimes[catKey] || [] : cat.eintraege || [];
 
           return (
             <div key={idx} className="category-block">
@@ -234,10 +225,11 @@ const Home = () => {
                         }
                       >
                         {WOCHENTAGE.map((d) => (
-                          <option key={d} value={d}>{d}</option>
+                          <option key={d} value={d}>
+                            {d}
+                          </option>
                         ))}
                       </select>
-
                       <input
                         type="time"
                         value={e.von}
@@ -245,7 +237,6 @@ const Home = () => {
                           handleEditTime(catKey, e.id, "von", ev.target.value)
                         }
                       />
-
                       <input
                         type="time"
                         value={e.bis}
@@ -253,7 +244,6 @@ const Home = () => {
                           handleEditTime(catKey, e.id, "bis", ev.target.value)
                         }
                       />
-
                       <FaTrash
                         className="icon delete"
                         onClick={() => handleDelete(e.id)}
@@ -302,10 +292,32 @@ const Home = () => {
 
         {activeIndex !== null && (
           <div className="lightbox" onClick={closeFullscreen}>
-            <button className="nav prev" onClick={(e) => { e.stopPropagation(); prevBild(); }}>‹</button>
-            <img src={bilder[activeIndex].bild} alt="" onClick={(e) => e.stopPropagation()} />
-            <button className="nav next" onClick={(e) => { e.stopPropagation(); nextBild(); }}>›</button>
-            <button className="close" onClick={closeFullscreen}>✕</button>
+            <button
+              className="nav prev"
+              onClick={(e) => {
+                e.stopPropagation();
+                prevBild();
+              }}
+            >
+              ‹
+            </button>
+            <img
+              src={bilder[activeIndex].bild}
+              alt=""
+              onClick={(e) => e.stopPropagation()}
+            />
+            <button
+              className="nav next"
+              onClick={(e) => {
+                e.stopPropagation();
+                nextBild();
+              }}
+            >
+              ›
+            </button>
+            <button className="close" onClick={closeFullscreen}>
+              ✕
+            </button>
           </div>
         )}
       </section>
