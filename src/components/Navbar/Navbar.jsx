@@ -3,7 +3,6 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faHome,
-  faUser,
   faSignInAlt,
   faSignOutAlt,
   faBars,
@@ -17,45 +16,31 @@ import "./Navbar.scss";
 function Navbar() {
   const [burgerMenuActive, setBurgerMenuActive] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userTypes, setUserTypes] = useState([]);
   const [logoUrl, setLogoUrl] = useState(null);
   const navigate = useNavigate();
 
+  // ✅ Check Login Status
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const userData = localStorage.getItem("user");
-
     setIsLoggedIn(!!token);
-
-    if (userData) {
-      try {
-        const parsedUser = JSON.parse(userData);
-        setUserTypes(parsedUser?.userTypes || []);
-      } catch (err) {
-        console.error("Fehler beim Parsen von user:", err);
-        setUserTypes([]);
-      }
-    } else {
-      setUserTypes([]);
-    }
   }, []);
 
+  // ✅ Load Logo
   useEffect(() => {
     const fetchLogo = async () => {
       try {
         const response = await axios.get(
-          "https://restaurant-langhaus-backend.onrender.com/api/logo",
-          { headers: { "Content-Type": "application/json" } }
+          "https://restaurant-langhaus-backend.onrender.com/api/logo"
         );
         setLogoUrl(response.data.logoUrl || null);
       } catch (err) {
         console.error("Fehler beim Laden des Logos:", err);
-        setLogoUrl(null);
       }
     };
     fetchLogo();
   }, []);
 
+  // ✅ Close menu on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -70,17 +55,18 @@ function Navbar() {
     return () => document.removeEventListener("click", handleClickOutside);
   }, [burgerMenuActive]);
 
+  // ✅ Logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setIsLoggedIn(false);
-    setUserTypes([]);
     navigate("/login");
   };
 
   return (
     <nav className={`navbar ${burgerMenuActive ? "active" : ""}`}>
       <div className="navbar-container">
+
         {/* Logo */}
         <div className="logo-box">
           <NavLink to="/" onClick={() => setBurgerMenuActive(false)}>
@@ -92,7 +78,7 @@ function Navbar() {
           </NavLink>
         </div>
 
-        {/* Burger Icon */}
+        {/* Burger */}
         <div
           className="menu-icon"
           onClick={() => setBurgerMenuActive(!burgerMenuActive)}
@@ -107,6 +93,7 @@ function Navbar() {
           <NavItem to="/cards" text="Karten" icon={faBook} setBurgerMenuActive={setBurgerMenuActive} />
           <NavItem to="/galerie" text="Galerie" icon={faImage} setBurgerMenuActive={setBurgerMenuActive} />
 
+          {/* 🔐 Login / Logout */}
           {!isLoggedIn ? (
             <NavItem to="/login" text="Login" icon={faSignInAlt} setBurgerMenuActive={setBurgerMenuActive} />
           ) : (
@@ -137,3 +124,4 @@ function NavItem({ to, text, icon, setBurgerMenuActive }) {
 }
 
 export default Navbar;
+

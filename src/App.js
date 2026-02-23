@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar/Navbar';
 import Home from "./components/Landingpage/Home";
-import MeinProfil from './components/Navbar/MeinProfil';
 import LoginForm from './components/Login/LoginForm';
 import MenuCategory from './components/Card/MenuCategory';
 import Galerie from './components/Galerie/Galerie';
