@@ -9,7 +9,7 @@ export default function MenuCategory() {
   const { cardId } = useParams();
   const token = localStorage.getItem("token");
 
-  const [cardData, setCardData] = useState(null);
+  const [cardData, setCardData] = useState({ card: {}, categories: [] });
   const [popupOpen, setPopupOpen] = useState(false);
   const [currentCategoryId, setCurrentCategoryId] = useState(null);
 
@@ -21,17 +21,40 @@ export default function MenuCategory() {
     preis: ""
   });
 
+  const isMainMenuCard = cardId === "1"; // Karte 1 = Hauptspeisekarte
+
   // ---------------- LOAD CARD + CATEGORIES ----------------
   const loadCard = async () => {
     try {
-      const res = await axios.get(`${API}/card/${cardId}/categories`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined
-      });
+      if (isMainMenuCard) {
+        // Hauptspeisekarte: alle Karten, die include_in_main_menu=1
+        const res = await axios.get(`${API}/main-menu`);
+        const combinedCategories = [];
 
-      setCardData({
-        card: res.data.card,
-        categories: res.data.categories || []
-      });
+        res.data.forEach(({ card, categories }) => {
+          categories.forEach((cat) => {
+            combinedCategories.push({
+              ...cat,
+              cardName: card.name
+            });
+          });
+        });
+
+        setCardData({
+          card: { id: "1", name: "Hauptspeisekarte" },
+          categories: combinedCategories
+        });
+      } else {
+        // Normale Karte
+        const res = await axios.get(`${API}/cards/${cardId}/categories`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined
+        });
+
+        setCardData({
+          card: { id: cardId, name: res.data.card?.name || "Karte" },
+          categories: res.data.categories || []
+        });
+      }
     } catch (err) {
       console.error("Fehler beim Laden der Karte:", err);
     }
@@ -49,7 +72,7 @@ export default function MenuCategory() {
 
     try {
       await axios.post(
-        `${API}/card/${cardId}/category`,
+        `${API}/cards/${cardId}/categories`,
         { name: newCategoryName },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -69,9 +92,9 @@ export default function MenuCategory() {
   // ---------------- CREATE ITEM ----------------
   const handleCreateItem = async (e) => {
     e.preventDefault();
-    if (!token) return alert("Bitte anmelden, um Items zu erstellen.");
+    if (!token) return alert("Bitte anmelden.");
     if (!currentCategoryId) return;
-   
+
     try {
       await axios.post(
         `${API}/categories/${currentCategoryId}/items`,
@@ -87,8 +110,6 @@ export default function MenuCategory() {
       console.error("Fehler beim Erstellen des Items:", err);
     }
   };
-
-  if (!cardData) return <div>Lade Karte...</div>;
 
   return (
     <div className="menu-card-view">
@@ -112,12 +133,14 @@ export default function MenuCategory() {
 
       {/* ================= KATEGORIEN ================= */}
       {cardData.categories.length === 0 && (
-        <p>Keine Kategorien vorhanden. Erstelle zuerst eine Kategorie.</p>
+        <p>Keine Kategorien vorhanden.</p>
       )}
 
       {cardData.categories.map((category) => (
         <div key={category.id} className="category">
-          <h2>{category.name}</h2>
+          <h2>
+            {category.name} {category.cardName && `(von ${category.cardName})`}
+          </h2>
 
           <ul className="category-items">
             {category.items && category.items.length > 0 ? (
@@ -126,9 +149,7 @@ export default function MenuCategory() {
                   <span className="nummer">{item.nummer}</span>
                   <span className="name">{item.name}</span>
                   {item.zutaten && <span className="zutaten">{item.zutaten}</span>}
-                  <span className="preis">
-                    CHF {Number(item.preis).toFixed(2)}
-                  </span>
+                  <span className="preis">CHF {Number(item.preis).toFixed(2)}</span>
                 </li>
               ))
             ) : (

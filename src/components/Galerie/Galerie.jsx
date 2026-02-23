@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 import "./Galerie.scss";
 
 const GALERIE_API = "https://restaurant-langhaus-backend.onrender.com/api/galerie";
@@ -15,7 +15,6 @@ export default function Galerie() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  /* FULLSCREEN */
   const [activeIndex, setActiveIndex] = useState(null);
 
   const token = localStorage.getItem("token");
@@ -34,9 +33,7 @@ export default function Galerie() {
   const isAdmin = roles.includes("admin");
   const isVorstand = roles.includes("vorstand");
 
-  /* =========================
-     Galerie & Logo laden
-  ========================= */
+  // Lade Galerie & Logo
   const loadGalerie = async () => {
     try {
       const res = await axios.get(GALERIE_API);
@@ -60,9 +57,7 @@ export default function Galerie() {
     loadLogo();
   }, []);
 
-  /* =========================
-     Upload Galerie-Bilder
-  ========================= */
+  // Upload Galerie
   const handleGalerieUpload = async () => {
     if (!galerieFiles.length || !token) return;
 
@@ -77,15 +72,13 @@ export default function Galerie() {
       setGalerieFiles([]);
       loadGalerie();
     } catch (err) {
-      setError(err.response?.data?.error || "Galerie-Upload fehlgeschlagen");
+      setError(err.response?.data?.error || "Upload fehlgeschlagen");
     } finally {
       setLoading(false);
     }
   };
 
-  /* =========================
-     Upload Logo
-  ========================= */
+  // Upload Logo
   const handleLogoUpload = async () => {
     if (!logoFile || !token) return;
 
@@ -99,36 +92,36 @@ export default function Galerie() {
       });
       setLogoFile(null);
       loadLogo();
-    } catch (err) {
-      setError(err.response?.data?.error || "Logo-Upload fehlgeschlagen");
+    } catch {
+      setError("Logo-Upload fehlgeschlagen");
     } finally {
       setLoading(false);
     }
   };
 
-  /* =========================
-     Delete Bild
-  ========================= */
-  const handleDeleteBild = async (id, isLogo = false) => {
+  // Löschen
+  const handleDeleteBild = async (id) => {
     if (!window.confirm("Wirklich löschen?")) return;
     try {
-      const api = isLogo ? LOGO_API : GALERIE_API;
-      await axios.delete(`${api}/${id}`, {
+      await axios.delete(`${GALERIE_API}/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (isLogo) loadLogo();
-      else loadGalerie();
+      loadGalerie();
     } catch {
       setError("Löschen fehlgeschlagen");
     }
   };
 
-  /* =========================
-     FULLSCREEN LOGIC
-  ========================= */
+  // Fullscreen
   const closeFullscreen = () => setActiveIndex(null);
-  const nextBild = useCallback(() => setActiveIndex((i) => (i + 1) % bilder.length), [bilder.length]);
-  const prevBild = useCallback(() => setActiveIndex((i) => (i - 1 + bilder.length) % bilder.length), [bilder.length]);
+  const nextBild = useCallback(
+    () => setActiveIndex((i) => (i + 1) % bilder.length),
+    [bilder.length]
+  );
+  const prevBild = useCallback(
+    () => setActiveIndex((i) => (i - 1 + bilder.length) % bilder.length),
+    [bilder.length]
+  );
 
   useEffect(() => {
     if (activeIndex === null) return;
@@ -141,19 +134,15 @@ export default function Galerie() {
     return () => window.removeEventListener("keydown", handleKey);
   }, [activeIndex, nextBild, prevBild]);
 
-  /* =========================
-     Render
-  ========================= */
   return (
     <div className="galerie">
-      <h1>Logo Upload</h1>
-      {logo && <img src={logo} alt="Logo" className="logo-preview" />}
+      <h1>Logo</h1>
+      {logo && <img src={logo.startsWith("http") ? logo : `${LOGO_API}/${logo}`} alt="Logo" className="logo-preview" />}
+
       {isAdmin && (
         <div className="upload">
           <input type="file" accept="image/*" onChange={(e) => setLogoFile(e.target.files[0])} />
-          <button onClick={handleLogoUpload} disabled={loading}>
-            {loading ? "Hochladen…" : "Logo hochladen"}
-          </button>
+          <button onClick={handleLogoUpload}>{loading ? "…" : "Logo hochladen"}</button>
         </div>
       )}
 
@@ -163,27 +152,33 @@ export default function Galerie() {
       {isAdmin && (
         <div className="upload">
           <input type="file" multiple accept="image/*" onChange={(e) => setGalerieFiles([...e.target.files])} />
-          <button onClick={handleGalerieUpload} disabled={loading}>
-            {loading ? "Hochladen…" : "Bilder hochladen"}
-          </button>
+          <button onClick={handleGalerieUpload}>{loading ? "…" : "Bilder hochladen"}</button>
         </div>
       )}
 
       <div className="grid">
         {bilder.map((bild, index) => (
           <div key={bild.id} className="item">
-            <img src={bild.bild} alt="" onClick={() => setActiveIndex(index)} />
+            <img
+              src={bild.bild.startsWith("http") ? bild.bild : `${GALERIE_API}/${bild.bild}`}
+              alt=""
+              onClick={() => setActiveIndex(index)}
+            />
             {(isAdmin || isVorstand) && (
-              <button className="delete-btn" onClick={() => handleDeleteBild(bild.id)}>✖</button>
+              <button className="delete-btn" onClick={() => handleDeleteBild(bild.id)}>✕</button>
             )}
           </div>
         ))}
       </div>
 
-      {activeIndex !== null && (
+      {activeIndex !== null && bilder[activeIndex] && (
         <div className="lightbox" onClick={closeFullscreen}>
           <button className="nav prev" onClick={(e) => { e.stopPropagation(); prevBild(); }}>‹</button>
-          <img src={bilder[activeIndex].bild} alt="" onClick={(e) => e.stopPropagation()} />
+          <img
+            src={bilder[activeIndex].bild.startsWith("http") ? bilder[activeIndex].bild : `${GALERIE_API}/${bilder[activeIndex].bild}`}
+            alt=""
+            onClick={(e) => e.stopPropagation()}
+          />
           <button className="nav next" onClick={(e) => { e.stopPropagation(); nextBild(); }}>›</button>
           <button className="close" onClick={closeFullscreen}>✕</button>
         </div>

@@ -1,296 +1,270 @@
-// ---------------------------
-//  HOME CONTAINER
-// ---------------------------
-.home-container {
-  font-family: 'Poppins', sans-serif;
-  color: #333;
-  line-height: 1.6;
+/* ===============================
+   VARIABLES
+================================= */
+$primary: #c8a96a;
+$dark: #1f1f1f;
+$light: #f8f6f2;
+$text: #2e2e2e;
+$shadow: 0 8px 24px rgba(0,0,0,0.12);
+$radius: 14px;
+
+/* ===============================
+   MIXINS
+================================= */
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-// ---------------------------
-//  HEADER / HERO IMAGE
-// ---------------------------
+@mixin card {
+  background: white;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  padding: 1.5rem;
+}
+
+/* ===============================
+   GLOBAL
+================================= */
+.home-container {
+  font-family: "Poppins", sans-serif;
+  color: $text;
+  background: $light;
+}
+
+/* ===============================
+   HERO HEADER
+================================= */
 .home-header {
-  width: 100%;
   height: 70vh;
   background-size: cover;
   background-position: center;
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 
   .overlay {
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.45);
-    display: flex;
+    @include flex-center;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
     text-align: center;
-    padding: 0 1rem;
+    height: 100%;
+    background: rgba(0,0,0,0.45);
+    color: white;
+    padding: 2rem;
 
     h1 {
-      font-size: 4rem;
-      font-weight: 700;
-      color: #fff;
+      font-size: 3rem;
+      font-weight: 600;
       margin-bottom: 1rem;
-      text-shadow: 2px 2px 10px rgba(0,0,0,0.6);
+      letter-spacing: 1px;
     }
 
     a {
-      color: #ffcc00;
-      font-weight: 600;
-      font-size: 1.25rem;
-      text-decoration: none;
-      padding: 0.75rem 2rem;
-      border: 2px solid #ffcc00;
+      background: $primary;
+      color: white;
+      padding: 0.8rem 1.6rem;
       border-radius: 50px;
-      transition: all 0.3s ease;
+      text-decoration: none;
+      font-weight: 500;
+      transition: 0.3s;
 
       &:hover {
-        background-color: #ffcc00;
-        color: #000;
+        background: darken($primary, 8%);
         transform: translateY(-2px);
       }
     }
   }
-
-  @media(max-width: 768px) {
-    height: 50vh;
-    .overlay h1 {
-      font-size: 2.5rem;
-    }
-    .overlay a {
-      font-size: 1rem;
-    }
-  }
 }
 
-// ---------------------------
-//  GALERIE SECTION
-// ---------------------------
-.galerie-section {
-  padding: 4rem 2rem;
-  background-color: #fafafa;
-
-  h2 {
-    text-align: center;
-    font-size: 2.5rem;
-    margin-bottom: 3rem;
-    color: #222;
-    font-weight: 700;
-    position: relative;
-
-    &:after {
-      content: '';
-      display: block;
-      width: 60px;
-      height: 4px;
-      background: #ffcc00;
-      margin: 0.5rem auto 0;
-      border-radius: 2px;
-    }
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1.5rem;
-
-    .item {
-      position: relative;
-      overflow: hidden;
-      border-radius: 15px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      transition: transform 0.3s, box-shadow 0.3s;
-      cursor: pointer;
-
-      img {
-        width: 100%;
-        height: 200px;
-        object-fit: cover;
-        display: block;
-        transition: transform 0.3s;
-      }
-
-      &:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-
-        img {
-          transform: scale(1.05);
-        }
-      }
-    }
-  }
-
-  /* Fullscreen Lightbox */
-  .lightbox {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.9);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-
-    img {
-      max-width: 90%;
-      max-height: 80%;
-      border-radius: 10px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-    }
-
-    .close, .nav {
-      position: absolute;
-      background: rgba(255,255,255,0.2);
-      border: none;
-      color: #fff;
-      font-size: 2rem;
-      padding: 0.5rem 1rem;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-
-      &:hover {
-        background: rgba(255,255,255,0.5);
-        color: #000;
-      }
-    }
-
-    .close {
-      top: 20px;
-      right: 20px;
-    }
-
-    .nav.prev {
-      left: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
-    .nav.next {
-      right: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-  }
-
-  @media(max-width: 768px) {
-    padding: 2rem 1rem;
-    .grid .item img {
-      height: 150px;
-    }
-  }
-}
-
-// ---------------------------
-//  ÖFFNUNGSZEITEN SECTION
-// ---------------------------
+/* ===============================
+   ÖFFNUNGSZEITEN
+================================= */
 .oeffnungszeiten-section {
   padding: 4rem 2rem;
-  background-color: #f5f5f5;
+  max-width: 1100px;
+  margin: auto;
 
   h2 {
     text-align: center;
-    font-size: 2.5rem;
     margin-bottom: 3rem;
-    color: #222;
-    font-weight: 700;
-    position: relative;
-
-    &:after {
-      content: '';
-      display: block;
-      width: 60px;
-      height: 4px;
-      background: #ffcc00;
-      margin: 0.5rem auto 0;
-      border-radius: 2px;
-    }
+    font-size: 2.2rem;
   }
 
   .category-block {
-    background: #fff;
-    padding: 2rem;
+    @include card;
     margin-bottom: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    transition: transform 0.3s ease;
+    transition: 0.3s;
 
     &:hover {
-      transform: translateY(-5px);
+      transform: translateY(-4px);
     }
 
     h3 {
-      font-size: 1.75rem;
-      margin-bottom: 1.5rem;
-      border-bottom: 2px solid #ffcc00;
-      padding-bottom: 0.5rem;
-      color: #444;
+      margin-bottom: 1rem;
+      color: $primary;
     }
 
     .times-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.8rem;
+    }
+
+    .time-item {
+      background: $light;
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
       display: flex;
-      flex-direction: column;
-      gap: 1rem;
+      justify-content: space-between;
+      font-size: 0.95rem;
 
-      .time-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.75rem 1rem;
-        border-radius: 8px;
-        transition: background 0.3s;
-
-        &:hover {
-          background: #f0f0f0;
-        }
-
-        .day { font-weight: 600; flex: 1; color: #222; }
-        .time { flex: 2; text-align: right; color: #555; }
-
-        &.closed {
-          background: #ffeaea;
-          color: #d33;
-          font-weight: 600;
-        }
+      .day {
+        font-weight: 600;
       }
     }
 
-    .edit-btn, .save-btn {
-      margin-top: 1.5rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1.2rem;
-      font-weight: 600;
-      border-radius: 50px;
-      cursor: pointer;
-      border: none;
-      transition: all 0.3s ease;
-    }
-
     .edit-btn {
-      background: #ffcc00;
-      color: #000;
+      margin-top: 1rem;
+      background: $primary;
+      border: none;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.2s;
 
-      &:hover { background: #e6b800; }
+      &:hover {
+        background: darken($primary, 10%);
+      }
+    }
+  }
+}
+
+/* ===============================
+   EDIT MODE
+================================= */
+.edit-times {
+  .edit-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+
+    select,
+    input {
+      padding: 0.4rem;
+      border-radius: 6px;
+      border: 1px solid #ddd;
     }
 
-    .save-btn {
-      background: #28a745;
-      color: #fff;
+    .icon {
+      cursor: pointer;
+      color: #b02a2a;
+      transition: 0.2s;
 
-      &:hover { background: #218838; }
+      &:hover {
+        transform: scale(1.15);
+      }
     }
   }
 
-  @media(max-width: 768px) {
-    padding: 2rem 1rem;
-    .category-block { padding: 1.5rem; }
+  .edit-actions {
+    margin-top: 1rem;
+    display: flex;
+    gap: 1rem;
+
+    button {
+      border: none;
+      background: $primary;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+
+      &:hover {
+        background: darken($primary, 10%);
+      }
+    }
+  }
+}
+
+/* ===============================
+   GALERIE
+================================= */
+.galerie-section {
+  padding: 4rem 2rem;
+  background: white;
+
+  h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .grid {
+    max-width: 1100px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+
+  .item {
+    overflow: hidden;
+    border-radius: $radius;
+    box-shadow: $shadow;
+    cursor: pointer;
+
+    img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      transition: 0.4s;
+    }
+
+    &:hover img {
+      transform: scale(1.08);
+    }
+  }
+}
+
+/* ===============================
+   LIGHTBOX
+================================= */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  @include flex-center;
+  z-index: 999;
+
+  img {
+    max-width: 90%;
+    max-height: 80%;
+    border-radius: 10px;
+  }
+
+  .nav, .close {
+    position: absolute;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2.5rem;
+    cursor: pointer;
+  }
+
+  .prev { left: 2%; }
+  .next { right: 2%; }
+  .close { top: 2%; right: 2%; font-size: 2rem; }
+}
+
+/* ===============================
+   RESPONSIVE
+================================= */
+@media (max-width: 768px) {
+  .home-header .overlay h1 {
+    font-size: 2rem;
+  }
+
+  .time-item {
+    flex-direction: column;
+    gap: 4px;
   }
 }

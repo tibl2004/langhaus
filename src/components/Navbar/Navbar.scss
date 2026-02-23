@@ -1,134 +1,163 @@
-@import url("https://fonts.googleapis.com/css2?family=Dosis:wght@400;500;600&display=swap");
+/* ===============================
+   VARIABLES
+================================= */
+$primary: #c8a96a;
+$dark: rgba(20, 20, 20, 0.85);
+$text-light: #ffffff;
+$shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 
-* {
-  font-family: "Dosis", sans-serif;
-}
-
+/* ===============================
+   NAVBAR BASE
+================================= */
 .navbar {
-  background: #fbfbfb;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   position: sticky;
   top: 0;
   z-index: 1000;
-  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  background: $dark;
+  box-shadow: $shadow;
+  transition: 0.3s;
 
-  .navbar-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
+  &.active {
+    background: rgba(20, 20, 20, 0.95);
+  }
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 0.6rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ===============================
+   LOGO
+================================= */
+.logo-box {
+  .logo {
+    height: 48px;
+    object-fit: contain;
+    transition: 0.3s;
   }
 
-  .logo-box {
+  .logo-placeholder {
+    color: $text-light;
+    font-weight: 600;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+  }
+
+  &:hover .logo {
+    transform: scale(1.05);
+  }
+}
+
+/* ===============================
+   NAV ITEMS
+================================= */
+.nav-items {
+  list-style: none;
+  display: flex;
+  gap: 1.8rem;
+  align-items: center;
+  margin: 0;
+
+  .nav-link {
+    color: $text-light;
+    text-decoration: none;
+    font-weight: 500;
+    position: relative;
     display: flex;
     align-items: center;
-    .logo {
-      height: 50px;
-      transition: transform 0.3s ease;
-      &:hover {
-        transform: scale(1.05);
-      }
+    gap: 6px;
+    transition: 0.3s;
+
+    .icon {
+      font-size: 0.9rem;
     }
-  }
 
-  .menu-icon {
-    display: none;
-    font-size: 28px;
-    color: #000000;
-    cursor: pointer;
-    transition: transform 0.3s ease;
     &:hover {
-      transform: rotate(90deg);
+      color: $primary;
     }
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 0;
+      height: 2px;
+      background: $primary;
+      transition: 0.3s;
+    }
+
+    &:hover::after,
+    &.active::after {
+      width: 100%;
+    }
+  }
+
+  .logout {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    color: $text-light;
+    cursor: pointer;
+    transition: 0.3s;
+
+    &:hover {
+      border-color: $primary;
+      color: $primary;
+    }
+  }
+}
+
+/* ===============================
+   BURGER MENU
+================================= */
+.menu-icon {
+  display: none;
+  font-size: 1.4rem;
+  color: $text-light;
+  cursor: pointer;
+  transition: 0.3s;
+
+  &:hover {
+    color: $primary;
+  }
+}
+
+/* ===============================
+   MOBILE
+================================= */
+@media (max-width: 900px) {
+  .menu-icon {
+    display: block;
   }
 
   .nav-items {
-    display: flex;
-    gap: 20px;
-    list-style: none;
-    transition: all 0.3s ease;
+    position: absolute;
+    top: 70px;
+    right: 20px;
+    flex-direction: column;
+    background: rgba(25, 25, 25, 0.98);
+    backdrop-filter: blur(12px);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: $shadow;
+    gap: 1.2rem;
+    transform: translateY(-10px);
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.3s;
 
-    li {
-      .nav-link {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        text-decoration: none;
-        color: rgb(0, 0, 0);
-        font-size: 17px;
-        padding: 8px 14px;
-        border-radius: 8px;
-        position: relative;
-        transition: background 0.3s ease;
-
-        &:hover {
-          background: rgba(255, 255, 255, 0.2);
-        }
-
-        &.active {
-          background: rgba(255, 255, 255, 0.25);
-        }
-
-        .icon {
-          font-size: 16px;
-        }
-      }
-
-      .logout {
-        border: none;
-        background: none;
-        color: #000000;
-        font-size: 17px;
-        cursor: pointer;
-        padding: 8px 14px;
-        border-radius: 8px;
-        transition: background 0.3s ease;
-
-        &:hover {
-          background: rgba(0, 0, 0, 0.2);
-        }
-      }
-    }
-  }
-
-  /* --- MOBILE DESIGN --- */
-  @media (max-width: 900px) {
-    .menu-icon {
-      display: block;
-      z-index: 1100;
-    }
-
-    .nav-items {
-      position: fixed;
-      top: 0;
-      right: -100%;
-      height: 100vh;
-      width: 70%;
-      background: #8cb5cd;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: flex-start;
-      padding: 100px 30px 30px;
-      gap: 20px;
-      transition: right 0.4s ease-in-out;
-
-      &.open {
-        right: 0;
-      }
-
-      li {
-        width: 100%;
-
-        .nav-link,
-        .logout {
-          width: 100%;
-          text-align: left;
-          font-size: 18px;
-        }
-      }
+    &.open {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
     }
   }
 }
