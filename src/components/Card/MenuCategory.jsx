@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import "./MenuCategory.scss";
@@ -24,13 +24,12 @@ export default function MenuCategory() {
   const isMainMenuCard = cardId === "1"; // Karte 1 = Hauptspeisekarte
 
   // ---------------- LOAD CARD + CATEGORIES ----------------
-  const loadCard = async () => {
+  const loadCard = useCallback(async () => {
     try {
       if (isMainMenuCard) {
-        // Hauptspeisekarte: alle Karten, die include_in_main_menu=1
         const res = await axios.get(`${API}/main-menu`);
         const combinedCategories = [];
-
+  
         res.data.forEach(({ card, categories }) => {
           categories.forEach((cat) => {
             combinedCategories.push({
@@ -39,17 +38,16 @@ export default function MenuCategory() {
             });
           });
         });
-
+  
         setCardData({
           card: { id: "1", name: "Hauptspeisekarte" },
           categories: combinedCategories
         });
       } else {
-        // Normale Karte
         const res = await axios.get(`${API}/cards/${cardId}/categories`, {
           headers: token ? { Authorization: `Bearer ${token}` } : undefined
         });
-
+  
         setCardData({
           card: { id: cardId, name: res.data.card?.name || "Karte" },
           categories: res.data.categories || []
@@ -58,11 +56,11 @@ export default function MenuCategory() {
     } catch (err) {
       console.error("Fehler beim Laden der Karte:", err);
     }
-  };
+  }, [cardId, token, isMainMenuCard]);
 
   useEffect(() => {
     loadCard();
-  }, [cardId]);
+  }, [loadCard]);
 
   // ---------------- CREATE CATEGORY ----------------
   const handleCreateCategory = async (e) => {
