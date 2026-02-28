@@ -1,29 +1,54 @@
-/* LoginForm.scss */
+/* ===============================
+   VARIABLES
+================================= */
+$primary: #c8a96a;        // warme Akzentfarbe
+$light: #f8f6f2;          // Hintergrund hell
+$text: #111111;           // Schrift schwarz
+$radius: 12px;            // abgerundete Ecken
+$font: "Poppins", sans-serif;
 
-.login-container {
+/* ===============================
+   MIXINS
+================================= */
+@mixin flex-center {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(120deg, #ece9e6, #ffffff);
-  padding: 40px 20px;
-  color: #222;
+}
 
+/* ===============================
+   LOGIN CONTAINER
+================================= */
+.login-container {
+  @include flex-center;
+  min-height: 100vh;
+  font-family: $font;
+  padding: 20px;
+
+  /* ✨ Professioneller Restaurant-Hintergrund */
+  background: linear-gradient(
+    135deg,
+    #f8f6f2 0%,
+    #f1ede6 50%,
+    #ece6dc 100%
+  );
+
+  /* 👇 login-form gehört hier hinein */
   .login-form {
     width: 100%;
     max-width: 400px;
+    background: #ffffff;
+    padding: 40px 30px;
+    border-radius: $radius;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 20px;
 
-    .login-title {
-      font-size: 2.2rem;
+    h2.login-title {
+      font-size: 2rem;
       font-weight: 700;
-      color: #F59422;
+      color: $primary;
       text-align: center;
-      letter-spacing: 1px;
       margin-bottom: 10px;
     }
 
@@ -35,30 +60,29 @@
       .form-label {
         font-size: 0.95rem;
         font-weight: 500;
-        color: #F59422;
+        color: $text;
       }
 
       .form-input {
-        padding: 14px 16px;
+        padding: 12px 14px;
         font-size: 1rem;
-        border: none;
-        border-bottom: 2px solid #bdc3c7;
-        border-radius: 0;
+        border: 1px solid #ddd;
+        border-radius: $radius;
         outline: none;
-        background: transparent;
-        transition: border-color 0.3s;
-      }
+        background: #ffffff;
+        color: $text;
+        transition: border-color 0.2s;
 
-      .form-input:focus {
-        border-bottom-color: #cb791b;
+        &:focus {
+          border-color: $primary;
+        }
       }
     }
 
     .error-message {
       font-size: 0.9rem;
-      color: #e74c3c;
       font-weight: 600;
-      margin-top: -5px;
+      color: #e74c3c;
       text-align: center;
     }
 
@@ -66,29 +90,38 @@
       padding: 14px;
       font-size: 1rem;
       font-weight: 600;
-      background: #F59422;
-      color: #fff;
+      color: #ffffff;
+      background: $primary;
       border: none;
       border-radius: 50px;
       cursor: pointer;
-      transition: transform 0.2s, background 0.2s;
+      transition: 0.2s;
 
       &:hover {
-        transform: scale(1.03);
-        background: #a46216;
+        background: darken($primary, 8%);
+        transform: translateY(-1px);
       }
     }
   }
 }
 
-/* Mobile Anpassung */
+/* ===============================
+   RESPONSIVE
+================================= */
 @media (max-width: 480px) {
-  .login-form {
-    max-width: 90%;
-    gap: 18px;
-  }
+  .login-container {
+    .login-form {
+      padding: 30px 20px;
+      gap: 15px;
 
-  .login-title {
-    font-size: 1.8rem;
+      h2.login-title {
+        font-size: 1.6rem;
+      }
+
+      .submit-button {
+        padding: 12px;
+        font-size: 0.95rem;
+      }
+    }
   }
 }

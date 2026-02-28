@@ -129,11 +129,19 @@ export default function MenuCardsManager() {
           cards.map((card) => (
             <div key={card.id} className="card-row" onClick={() => goToCard(card)} style={{ cursor: "pointer" }}>
               <div className="info">
-                <span className="title">{card.name}</span>
-                <span className="meta">
-                  {card.start_date && `Start: ${card.start_date}`} {card.end_date && `Ende: ${card.end_date}`} | {card.include_in_main_menu ? "Im Hauptmenü sichtbar" : "Nicht im Hauptmenü"}
-                </span>
-              </div>
+  <span className="title">{card.name}</span>
+
+  {token && (
+    <span className="meta">
+      {card.start_date && <>Start: {card.start_date} </>}
+      {card.end_date && <>Ende: {card.end_date} </>}
+      {" | "}
+      {card.include_in_main_menu
+        ? "Im Hauptmenü sichtbar"
+        : "Nicht im Hauptmenü"}
+    </span>
+  )}
+</div>
               {token && (
                 <div className="buttons">
                   <button onClick={(e) => { e.stopPropagation(); edit(card); }}>Bearbeiten</button>

@@ -14,31 +14,25 @@ export default function MenuCategory() {
   const [currentCategoryId, setCurrentCategoryId] = useState(null);
 
   const [newCategoryName, setNewCategoryName] = useState("");
-  const [itemForm, setItemForm] = useState({
+  const [gerichtForm, setGerichtForm] = useState({
     nummer: "",
     name: "",
     zutaten: "",
     preis: ""
   });
 
-  const isMainMenuCard = cardId === "1"; // Karte 1 = Hauptspeisekarte
+  const isMainMenuCard = cardId === "1";
 
-  // ---------------- LOAD CARD + CATEGORIES ----------------
   const loadCard = useCallback(async () => {
     try {
       if (isMainMenuCard) {
         const res = await axios.get(`${API}/main-menu`);
         const combinedCategories = [];
-  
         res.data.forEach(({ card, categories }) => {
           categories.forEach((cat) => {
-            combinedCategories.push({
-              ...cat,
-              cardName: card.name
-            });
+            combinedCategories.push({ ...cat, cardName: card.name });
           });
         });
-  
         setCardData({
           card: { id: "1", name: "Hauptspeisekarte" },
           categories: combinedCategories
@@ -47,14 +41,13 @@ export default function MenuCategory() {
         const res = await axios.get(`${API}/cards/${cardId}/categories`, {
           headers: token ? { Authorization: `Bearer ${token}` } : undefined
         });
-  
         setCardData({
           card: { id: cardId, name: res.data.card?.name || "Karte" },
           categories: res.data.categories || []
         });
       }
     } catch (err) {
-      console.error("Fehler beim Laden der Karte:", err);
+      console.error("Fehler beim Laden:", err);
     }
   }, [cardId, token, isMainMenuCard]);
 
@@ -62,61 +55,51 @@ export default function MenuCategory() {
     loadCard();
   }, [loadCard]);
 
-  // ---------------- CREATE CATEGORY ----------------
+  // Kategorie erstellen
   const handleCreateCategory = async (e) => {
     e.preventDefault();
-    if (!newCategoryName) return;
-    if (!token) return alert("Bitte anmelden, um Kategorien zu erstellen.");
+    if (!newCategoryName || !token) return;
 
-    try {
-      await axios.post(
-        `${API}/cards/${cardId}/categories`,
-        { name: newCategoryName },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setNewCategoryName("");
-      loadCard();
-    } catch (err) {
-      console.error("Fehler beim Erstellen der Kategorie:", err);
-    }
+    await axios.post(
+      `${API}/cards/${cardId}/categories`,
+      { name: newCategoryName },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    setNewCategoryName("");
+    loadCard();
   };
 
-  // ---------------- OPEN POPUP ----------------
-  const openItemPopup = (categoryId) => {
+  // Popup öffnen
+  const openGerichtPopup = (categoryId) => {
     setCurrentCategoryId(categoryId);
     setPopupOpen(true);
   };
 
-  // ---------------- CREATE ITEM ----------------
-  const handleCreateItem = async (e) => {
+  // Gericht erstellen
+  const handleCreateGericht = async (e) => {
     e.preventDefault();
-    if (!token) return alert("Bitte anmelden.");
-    if (!currentCategoryId) return;
+    if (!token || !currentCategoryId) return;
 
-    try {
-      await axios.post(
-        `${API}/categories/${currentCategoryId}/items`,
-        { ...itemForm },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+    await axios.post(
+      `${API}/categories/${currentCategoryId}/items`,
+      gerichtForm,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-      setItemForm({ nummer: "", name: "", zutaten: "", preis: "" });
-      setPopupOpen(false);
-      setCurrentCategoryId(null);
-      loadCard();
-    } catch (err) {
-      console.error("Fehler beim Erstellen des Items:", err);
-    }
+    setGerichtForm({ nummer: "", name: "", zutaten: "", preis: "" });
+    setPopupOpen(false);
+    loadCard();
   };
 
   return (
     <div className="menu-card-view">
       <h1>{cardData.card.name}</h1>
 
-      {/* ================= NEUE KATEGORIE ================= */}
+      {/* Kategorie erstellen */}
       {token && (
         <section className="new-category">
-          <h2>Neue Kategorie erstellen</h2>
+          <h2>Neue Kategorie</h2>
           <form onSubmit={handleCreateCategory}>
             <input
               placeholder="Name der Kategorie"
@@ -124,86 +107,90 @@ export default function MenuCategory() {
               onChange={(e) => setNewCategoryName(e.target.value)}
               required
             />
-            <button type="submit">Kategorie erstellen</button>
+            <button type="submit" className="primary">
+              Kategorie erstellen
+            </button>
           </form>
         </section>
       )}
 
-      {/* ================= KATEGORIEN ================= */}
-      {cardData.categories.length === 0 && (
-        <p>Keine Kategorien vorhanden.</p>
-      )}
-
+      {/* Kategorien */}
       {cardData.categories.map((category) => (
         <div key={category.id} className="category">
-          <h2>
-            {category.name} {category.cardName && `(von ${category.cardName})`}
-          </h2>
+          <h2>{category.name}</h2>
 
-          <ul className="category-items">
-            {category.items && category.items.length > 0 ? (
-              category.items.map((item) => (
-                <li key={item.id} className="item">
-                  <span className="nummer">{item.nummer}</span>
-                  <span className="name">{item.name}</span>
-                  {item.zutaten && <span className="zutaten">{item.zutaten}</span>}
-                  <span className="preis">CHF {Number(item.preis).toFixed(2)}</span>
+          <ul className="category-gerichte">
+            {category.items?.length > 0 ? (
+              category.items.map((gericht) => (
+                <li key={gericht.id} className="gericht">
+                  <div className="gericht-row">
+                    <span className="name">{gericht.name}</span>
+                    <span className="preis">
+                      CHF {Number(gericht.preis).toFixed(2)}
+                    </span>
+                  </div>
+                  {gericht.zutaten && (
+                    <div className="zutaten">{gericht.zutaten}</div>
+                  )}
                 </li>
               ))
             ) : (
-              <li className="no-items">Noch keine Items vorhanden.</li>
+              <li className="no-gerichte">Noch keine Gerichte vorhanden</li>
             )}
           </ul>
 
           {token && (
-            <button onClick={() => openItemPopup(category.id)}>
+            <button
+              className="add-gericht"
+              onClick={() => openGerichtPopup(category.id)}
+            >
               + Neues Gericht
             </button>
           )}
         </div>
       ))}
 
-      {/* ================= POPUP ================= */}
+      {/* Popup */}
       {popupOpen && (
         <div className="popup-overlay" onClick={() => setPopupOpen(false)}>
           <div className="popup-form" onClick={(e) => e.stopPropagation()}>
-            <h2>Neues Gericht erstellen</h2>
-            <form onSubmit={handleCreateItem}>
+            <h2>Neues Gericht</h2>
+            <form onSubmit={handleCreateGericht}>
               <input
-                placeholder="Nummer (optional)"
-                value={itemForm.nummer}
+                placeholder="Nummer"
+                value={gerichtForm.nummer}
                 onChange={(e) =>
-                  setItemForm({ ...itemForm, nummer: e.target.value })
+                  setGerichtForm({ ...gerichtForm, nummer: e.target.value })
                 }
               />
               <input
                 placeholder="Name"
-                value={itemForm.name}
-                onChange={(e) =>
-                  setItemForm({ ...itemForm, name: e.target.value })
-                }
                 required
+                value={gerichtForm.name}
+                onChange={(e) =>
+                  setGerichtForm({ ...gerichtForm, name: e.target.value })
+                }
               />
               <input
                 placeholder="Zutaten"
-                value={itemForm.zutaten}
+                value={gerichtForm.zutaten}
                 onChange={(e) =>
-                  setItemForm({ ...itemForm, zutaten: e.target.value })
+                  setGerichtForm({ ...gerichtForm, zutaten: e.target.value })
                 }
               />
               <input
-                placeholder="Preis"
                 type="number"
                 step="0.01"
-                value={itemForm.preis}
-                onChange={(e) =>
-                  setItemForm({ ...itemForm, preis: e.target.value })
-                }
+                placeholder="Preis"
                 required
+                value={gerichtForm.preis}
+                onChange={(e) =>
+                  setGerichtForm({ ...gerichtForm, preis: e.target.value })
+                }
               />
 
               <div className="actions">
-                <button type="submit" className="primary">Erstellen</button>
+                <button className="primary">Erstellen</button>
                 <button
                   type="button"
                   className="ghost"
