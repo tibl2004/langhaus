@@ -11,7 +11,10 @@ export default function MenuCategory() {
 
   const [cardData, setCardData] = useState({ card: {}, categories: [] });
   const [popupOpen, setPopupOpen] = useState(false);
+  const [editPopupOpen, setEditPopupOpen] = useState(false);
+
   const [currentCategoryId, setCurrentCategoryId] = useState(null);
+  const [currentItemId, setCurrentItemId] = useState(null);
 
   const [newCategoryName, setNewCategoryName] = useState("");
   const [gerichtForm, setGerichtForm] = useState({
@@ -70,7 +73,7 @@ export default function MenuCategory() {
     loadCard();
   };
 
-  // Popup öffnen
+  // Popup öffnen (Create)
   const openGerichtPopup = (categoryId) => {
     setCurrentCategoryId(categoryId);
     setPopupOpen(true);
@@ -89,6 +92,47 @@ export default function MenuCategory() {
 
     setGerichtForm({ nummer: "", name: "", zutaten: "", preis: "" });
     setPopupOpen(false);
+    loadCard();
+  };
+
+  // Edit Popup öffnen
+  const openEditPopup = (gericht) => {
+    setCurrentItemId(gericht.id);
+    setGerichtForm({
+      nummer: gericht.nummer || "",
+      name: gericht.name || "",
+      zutaten: gericht.zutaten || "",
+      preis: gericht.preis || ""
+    });
+    setEditPopupOpen(true);
+  };
+
+  // Gericht aktualisieren
+  const handleUpdateGericht = async (e) => {
+    e.preventDefault();
+    if (!token || !currentItemId) return;
+
+    await axios.put(
+      `${API}/items/${currentItemId}`,
+      gerichtForm,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    setEditPopupOpen(false);
+    setGerichtForm({ nummer: "", name: "", zutaten: "", preis: "" });
+    setCurrentItemId(null);
+    loadCard();
+  };
+
+  // Gericht löschen
+  const handleDeleteGericht = async (itemId) => {
+    if (!token) return;
+    if (!window.confirm("Gericht wirklich löschen?")) return;
+
+    await axios.delete(`${API}/items/${itemId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
     loadCard();
   };
 
@@ -129,8 +173,23 @@ export default function MenuCategory() {
                       CHF {Number(gericht.preis).toFixed(2)}
                     </span>
                   </div>
+
                   {gericht.zutaten && (
                     <div className="zutaten">{gericht.zutaten}</div>
+                  )}
+
+                  {token && (
+                    <div className="actions">
+                      <button onClick={() => openEditPopup(gericht)}>
+                        Bearbeiten
+                      </button>
+                      <button
+                        className="danger"
+                        onClick={() => handleDeleteGericht(gericht.id)}
+                      >
+                        Löschen
+                      </button>
+                    </div>
                   )}
                 </li>
               ))
@@ -150,7 +209,7 @@ export default function MenuCategory() {
         </div>
       ))}
 
-      {/* Popup */}
+      {/* CREATE POPUP */}
       {popupOpen && (
         <div className="popup-overlay" onClick={() => setPopupOpen(false)}>
           <div className="popup-form" onClick={(e) => e.stopPropagation()}>
@@ -195,6 +254,60 @@ export default function MenuCategory() {
                   type="button"
                   className="ghost"
                   onClick={() => setPopupOpen(false)}
+                >
+                  Abbrechen
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* EDIT POPUP */}
+      {editPopupOpen && (
+        <div className="popup-overlay" onClick={() => setEditPopupOpen(false)}>
+          <div className="popup-form" onClick={(e) => e.stopPropagation()}>
+            <h2>Gericht bearbeiten</h2>
+            <form onSubmit={handleUpdateGericht}>
+              <input
+                placeholder="Nummer"
+                value={gerichtForm.nummer}
+                onChange={(e) =>
+                  setGerichtForm({ ...gerichtForm, nummer: e.target.value })
+                }
+              />
+              <input
+                placeholder="Name"
+                required
+                value={gerichtForm.name}
+                onChange={(e) =>
+                  setGerichtForm({ ...gerichtForm, name: e.target.value })
+                }
+              />
+              <input
+                placeholder="Zutaten"
+                value={gerichtForm.zutaten}
+                onChange={(e) =>
+                  setGerichtForm({ ...gerichtForm, zutaten: e.target.value })
+                }
+              />
+              <input
+                type="number"
+                step="0.01"
+                placeholder="Preis"
+                required
+                value={gerichtForm.preis}
+                onChange={(e) =>
+                  setGerichtForm({ ...gerichtForm, preis: e.target.value })
+                }
+              />
+
+              <div className="actions">
+                <button className="primary">Speichern</button>
+                <button
+                  type="button"
+                  className="ghost"
+                  onClick={() => setEditPopupOpen(false)}
                 >
                   Abbrechen
                 </button>
