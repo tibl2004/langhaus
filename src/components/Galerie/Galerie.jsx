@@ -27,21 +27,6 @@ export default function Galerie() {
 
   const token = localStorage.getItem("token");
 
-  /* =========================
-     ROLE
-  ========================= */
-  useEffect(() => {
-    if (!token) return setRoles([]);
-    try {
-      const decoded = jwtDecode(token);
-      setRoles(decoded.userTypes || []);
-    } catch {
-      setRoles([]);
-    }
-  }, [token]);
-
-  const isAdmin = roles.includes("admin");
-  const isVorstand = roles.includes("vorstand");
 
   /* =========================
      LOAD
@@ -159,7 +144,7 @@ export default function Galerie() {
       {/* =========================
           ADMIN BUTTONS (WIE MENU)
       ========================= */}
-      {isAdmin && (
+      {token && (
         <div className="upload-actions">
           <button onClick={() => setShowUploadGalerie(true)}>
             + Bilder hochladen
@@ -249,7 +234,7 @@ export default function Galerie() {
               onClick={() => setActiveIndex(index)}
             />
 
-            {(isAdmin || isVorstand) && (
+            {token && (
               <button
                 className="delete-btn"
                 onClick={() => handleDeleteBild(bild.id)}
