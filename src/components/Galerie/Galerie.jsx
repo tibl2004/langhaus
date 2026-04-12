@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import "./Galerie.scss";
 
-const GALERIE_API = "https://restaurant-langhaus-backend.onrender.com/api/galerie";
-const LOGO_API = "https://restaurant-langhaus-backend.onrender.com/api/logo";
+const API = "https://restaurant-langhaus-backend.onrender.com/api";
+const GALERIE_API = `${API}/galerie`;
+const LOGO_API = `${API}/logo`;
 
 export default function Galerie() {
   const [bilder, setBilder] = useState([]);
@@ -14,12 +15,13 @@ export default function Galerie() {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
   const [activeIndex, setActiveIndex] = useState(null);
 
   const token = localStorage.getItem("token");
 
-  // Rollen aus JWT
+  /* =========================
+     ROLE DECODE
+  ========================= */
   useEffect(() => {
     if (!token) return setRoles([]);
     try {
@@ -33,7 +35,9 @@ export default function Galerie() {
   const isAdmin = roles.includes("admin");
   const isVorstand = roles.includes("vorstand");
 
-  // Lade Galerie & Logo
+  /* =========================
+     LOAD DATA
+  ========================= */
   const loadGalerie = async () => {
     try {
       const res = await axios.get(GALERIE_API);
@@ -57,7 +61,9 @@ export default function Galerie() {
     loadLogo();
   }, []);
 
-  // Upload Galerie
+  /* =========================
+     UPLOAD GALERIE
+  ========================= */
   const handleGalerieUpload = async () => {
     if (!galerieFiles.length || !token) return;
 
@@ -69,6 +75,7 @@ export default function Galerie() {
       await axios.post(`${GALERIE_API}/upload`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       setGalerieFiles([]);
       loadGalerie();
     } catch (err) {
@@ -78,7 +85,9 @@ export default function Galerie() {
     }
   };
 
-  // Upload Logo
+  /* =========================
+     UPLOAD LOGO
+  ========================= */
   const handleLogoUpload = async () => {
     if (!logoFile || !token) return;
 
@@ -90,6 +99,7 @@ export default function Galerie() {
       await axios.post(`${LOGO_API}`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       setLogoFile(null);
       loadLogo();
     } catch {
@@ -99,25 +109,33 @@ export default function Galerie() {
     }
   };
 
-  // Löschen
+  /* =========================
+     DELETE
+  ========================= */
   const handleDeleteBild = async (id) => {
     if (!window.confirm("Wirklich löschen?")) return;
+
     try {
       await axios.delete(`${GALERIE_API}/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       loadGalerie();
     } catch {
       setError("Löschen fehlgeschlagen");
     }
   };
 
-  // Fullscreen
+  /* =========================
+     LIGHTBOX
+  ========================= */
   const closeFullscreen = () => setActiveIndex(null);
+
   const nextBild = useCallback(
     () => setActiveIndex((i) => (i + 1) % bilder.length),
     [bilder.length]
   );
+
   const prevBild = useCallback(
     () => setActiveIndex((i) => (i - 1 + bilder.length) % bilder.length),
     [bilder.length]
@@ -125,63 +143,118 @@ export default function Galerie() {
 
   useEffect(() => {
     if (activeIndex === null) return;
+
     const handleKey = (e) => {
       if (e.key === "Escape") closeFullscreen();
       if (e.key === "ArrowRight") nextBild();
       if (e.key === "ArrowLeft") prevBild();
     };
+
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [activeIndex, nextBild, prevBild]);
 
+  /* =========================
+     RENDER
+  ========================= */
   return (
     <div className="galerie">
-      {logo && <img src={logo.startsWith("http") ? logo : `${LOGO_API}/${logo}`} alt="Logo" className="logo-preview" />}
 
+      {/* LOGO */}
+      {logo && (
+        <img src={logo} alt="Logo" className="logo-preview" />
+      )}
+
+      {/* ADMIN LOGO UPLOAD */}
       {isAdmin && (
         <div className="upload">
-                <h1>Logo</h1>
-
-          <input type="file" accept="image/*" onChange={(e) => setLogoFile(e.target.files[0])} />
-          <button onClick={handleLogoUpload}>{loading ? "…" : "Logo hochladen"}</button>
+          <h2>Logo</h2>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setLogoFile(e.target.files[0])}
+          />
+          <button onClick={handleLogoUpload}>
+            {loading ? "..." : "Logo hochladen"}
+          </button>
         </div>
       )}
 
       <h1>Galerie</h1>
+
       {error && <div className="error">{error}</div>}
 
+      {/* ADMIN UPLOAD */}
       {isAdmin && (
         <div className="upload">
-          <input type="file" multiple accept="image/*" onChange={(e) => setGalerieFiles([...e.target.files])} />
-          <button onClick={handleGalerieUpload}>{loading ? "…" : "Bilder hochladen"}</button>
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={(e) => setGalerieFiles([...e.target.files])}
+          />
+          <button onClick={handleGalerieUpload}>
+            {loading ? "..." : "Bilder hochladen"}
+          </button>
         </div>
       )}
 
+      {/* GRID */}
       <div className="grid">
         {bilder.map((bild, index) => (
           <div key={bild.id} className="item">
+
+            {/* ✅ FIX: KEINE URL ZUSAMMENBAUEN! */}
             <img
-              src={bild.bild.startsWith("http") ? bild.bild : `${GALERIE_API}/${bild.bild}`}
+              src={bild.bild}
               alt=""
               onClick={() => setActiveIndex(index)}
             />
+
             {(isAdmin || isVorstand) && (
-              <button className="delete-btn" onClick={() => handleDeleteBild(bild.id)}>✕</button>
+              <button
+                className="delete-btn"
+                onClick={() => handleDeleteBild(bild.id)}
+              >
+                ✕
+              </button>
             )}
           </div>
         ))}
       </div>
 
+      {/* LIGHTBOX */}
       {activeIndex !== null && bilder[activeIndex] && (
         <div className="lightbox" onClick={closeFullscreen}>
-          <button className="nav prev" onClick={(e) => { e.stopPropagation(); prevBild(); }}>‹</button>
+          <button
+            className="nav prev"
+            onClick={(e) => {
+              e.stopPropagation();
+              prevBild();
+            }}
+          >
+            ‹
+          </button>
+
           <img
-            src={bilder[activeIndex].bild.startsWith("http") ? bilder[activeIndex].bild : `${GALERIE_API}/${bilder[activeIndex].bild}`}
+            src={bilder[activeIndex].bild}
             alt=""
             onClick={(e) => e.stopPropagation()}
           />
-          <button className="nav next" onClick={(e) => { e.stopPropagation(); nextBild(); }}>›</button>
-          <button className="close" onClick={closeFullscreen}>✕</button>
+
+          <button
+            className="nav next"
+            onClick={(e) => {
+              e.stopPropagation();
+              nextBild();
+            }}
+          >
+            ›
+          </button>
+
+          <button className="close" onClick={closeFullscreen}>
+            ✕
+          </button>
         </div>
       )}
     </div>
