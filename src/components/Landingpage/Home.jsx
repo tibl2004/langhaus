@@ -18,61 +18,57 @@ const Home = () => {
   const [editingCategory, setEditingCategory] = useState(null);
   const [bilder, setBilder] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [activeIndex, setActiveIndex] = useState(null);
 
-  // ---------------- FETCH FUNCTIONS ----------------
+  // 🔥 Betriebsferien Popup
+  const [ferienPopup, setFerienPopup] = useState(null);
+
+  /* ================= FETCH ================= */
+
   const fetchHomeContent = useCallback(async () => {
-    try {
-      const res = await axios.get(`${API}/home`);
-      setHomeContent(res.data);
-    } catch (err) {
-      console.error(err);
-    }
+    const res = await axios.get(`${API}/home`);
+    setHomeContent(res.data);
   }, []);
 
   const fetchOeffnungszeiten = useCallback(async () => {
-    try {
-      const res = await axios.get(`${API}/oeffnungszeiten`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setOeffnungszeiten(res.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
-
-  const fetchOeffzeitenForEdit = async (catKey) => {
-    try {
-      const res = await axios.get(`${API}/oeffnungszeiten/edit`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setEditTimes({ [catKey]: res.data[catKey] || [] });
-      setEditingCategory(catKey);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+    const res = await axios.get(`${API}/oeffnungszeiten`);
+    setOeffnungszeiten(res.data);
+    setLoading(false);
+  }, []);
 
   const fetchGalerie = useCallback(async () => {
+    const res = await axios.get(GALERIE_API);
+    setBilder(res.data);
+  }, []);
+
+  const fetchBetriebsferien = useCallback(async () => {
     try {
-      const res = await axios.get(GALERIE_API);
-      setBilder(res.data);
+      const res = await axios.get(`${API}/betriebsferien/active`);
+      if (res.data.active) {
+        setFerienPopup(res.data.ferien[0]);
+      }
     } catch (err) {
-      console.error("Galerie Fehler", err);
+      console.error(err);
     }
   }, []);
 
-  // ---------------- USE EFFECT ----------------
   useEffect(() => {
     fetchHomeContent();
     fetchOeffnungszeiten();
     fetchGalerie();
-  }, [fetchHomeContent, fetchOeffnungszeiten, fetchGalerie]);
+    fetchBetriebsferien();
+  }, [fetchHomeContent, fetchOeffnungszeiten, fetchGalerie, fetchBetriebsferien]);
 
-  // ---------------- EDIT HANDLERS ----------------
+  /* ================= EDIT ================= */
+
+  const fetchOeffzeitenForEdit = async (catKey) => {
+    const res = await axios.get(`${API}/oeffnungszeiten/edit`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setEditTimes({ [catKey]: res.data[catKey] || [] });
+    setEditingCategory(catKey);
+  };
+
   const handleAddTime = (catKey) => {
     const newEntry = {
       id: `new-${Date.now()}`,
@@ -81,6 +77,7 @@ const Home = () => {
       bis: "18:00",
       isNew: true,
     };
+
     setEditTimes((prev) => ({
       ...prev,
       [catKey]: [...(prev[catKey] || []), newEntry],
@@ -97,15 +94,7 @@ const Home = () => {
   };
 
   const handleDelete = async (id) => {
-    if (String(id).startsWith("new-")) {
-      setEditTimes((prev) => ({
-        ...prev,
-        [editingCategory]: prev[editingCategory].filter((e) => e.id !== id),
-      }));
-      return;
-    }
-
-    if (!window.confirm("Eintrag wirklich löschen?")) return;
+    if (String(id).startsWith("new-")) return;
 
     await axios.delete(`${API}/oeffnungszeiten/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -115,40 +104,39 @@ const Home = () => {
   };
 
   const handleSaveCategory = async (catKey) => {
-    try {
-      for (const item of editTimes[catKey]) {
-        const payload = {
-          wochentag: item.wochentag,
-          von: item.von,
-          bis: item.bis,
-          kategorie: catKey === "__DEFAULT__" ? null : catKey,
-        };
-        if (item.isNew) {
-          await axios.post(`${API}/oeffnungszeiten`, payload, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-        } else {
-          await axios.put(`${API}/oeffnungszeiten/${item.id}`, payload, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-        }
-      }
+    for (const item of editTimes[catKey]) {
+      const payload = {
+        wochentag: item.wochentag,
+        von: item.von,
+        bis: item.bis,
+        kategorie: catKey === "__DEFAULT__" ? null : catKey,
+      };
 
-      setEditingCategory(null);
-      fetchOeffnungszeiten();
-      alert("Gespeichert ✅");
-    } catch (err) {
-      console.error(err);
-      alert("Fehler beim Speichern");
+      if (item.isNew) {
+        await axios.post(`${API}/oeffnungszeiten`, payload, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } else {
+        await axios.put(`${API}/oeffnungszeiten/${item.id}`, payload, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
     }
+
+    setEditingCategory(null);
+    fetchOeffnungszeiten();
+    alert("Gespeichert ✅");
   };
 
-  // ---------------- GALERIE LIGHTBOX ----------------
+  /* ================= GALERIE ================= */
+
   const closeFullscreen = () => setActiveIndex(null);
+
   const nextBild = useCallback(
     () => setActiveIndex((i) => (i + 1) % bilder.length),
     [bilder.length]
   );
+
   const prevBild = useCallback(
     () => setActiveIndex((i) => (i - 1 + bilder.length) % bilder.length),
     [bilder.length]
@@ -156,20 +144,49 @@ const Home = () => {
 
   useEffect(() => {
     if (activeIndex === null) return;
+
     const handleKey = (e) => {
       if (e.key === "Escape") closeFullscreen();
       if (e.key === "ArrowRight") nextBild();
       if (e.key === "ArrowLeft") prevBild();
     };
+
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [activeIndex, nextBild, prevBild]);
 
   if (loading) return <p>Lädt…</p>;
 
-  // ---------------- RENDER ----------------
+  /* ================= RENDER ================= */
+
   return (
     <div className="home-container">
+
+      {/* 🔥 POPUP */}
+      {ferienPopup && (
+        <div className="ferien-popup">
+          <div className="popup-box">
+            <h2>⚠️ Betriebsferien</h2>
+
+            <p>
+              Geschlossen von <b>{ferienPopup.von}</b> bis{" "}
+              <b>{ferienPopup.bis}</b>
+            </p>
+
+            {ferienPopup.beschreibung && (
+              <p className="desc">{ferienPopup.beschreibung}</p>
+            )}
+
+            <div className="actions">
+              <button onClick={() => setFerienPopup(null)}>OK</button>
+              <button onClick={() => setFerienPopup(null)}>
+                Schließen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* HEADER */}
       {homeContent && (
         <div
@@ -178,11 +195,6 @@ const Home = () => {
         >
           <div className="overlay">
             <h1>{homeContent.willkommenText}</h1>
-            {homeContent.willkommenLink && (
-              <a href={homeContent.willkommenLink} target="_blank" rel="noreferrer">
-                {homeContent.blinkText || "Mehr erfahren"}
-              </a>
-            )}
           </div>
         </div>
       )}
@@ -190,10 +202,11 @@ const Home = () => {
       {/* ÖFFNUNGSZEITEN */}
       <section className="oeffnungszeiten-section">
         <h2>Öffnungszeiten</h2>
+
         {oeffnungszeiten.map((cat, idx) => {
           const catKey = cat.kategorie ?? "__DEFAULT__";
           const isEditing = editingCategory === catKey;
-          const entries = isEditing ? editTimes[catKey] || [] : cat.eintraege || [];
+          const entries = isEditing ? editTimes[catKey] || [] : cat.eintraege;
 
           return (
             <div key={idx} className="category-block">
@@ -202,11 +215,13 @@ const Home = () => {
               {!isEditing && (
                 <div className="times-list">
                   {entries.map((e, i) =>
-                    e.wochentage.map((day, j) => (
-                      <div key={`${i}-${j}`} className="time-item">
-                        <span className="day">{day}</span>
-                        <span className="time">
-                          {e.geschlossen ? "geschlossen" : e.zeiten.join(", ")}
+                    e.wochentage.map((d, j) => (
+                      <div key={i + "-" + j} className="time-item">
+                        <span>{d}</span>
+                        <span>
+                          {e.geschlossen
+                            ? "geschlossen"
+                            : e.zeiten.join(", ")}
                         </span>
                       </div>
                     ))
@@ -225,11 +240,10 @@ const Home = () => {
                         }
                       >
                         {WOCHENTAGE.map((d) => (
-                          <option key={d} value={d}>
-                            {d}
-                          </option>
+                          <option key={d}>{d}</option>
                         ))}
                       </select>
+
                       <input
                         type="time"
                         value={e.von}
@@ -237,6 +251,7 @@ const Home = () => {
                           handleEditTime(catKey, e.id, "von", ev.target.value)
                         }
                       />
+
                       <input
                         type="time"
                         value={e.bis}
@@ -244,29 +259,22 @@ const Home = () => {
                           handleEditTime(catKey, e.id, "bis", ev.target.value)
                         }
                       />
-                      <FaTrash
-                        className="icon delete"
-                        onClick={() => handleDelete(e.id)}
-                      />
+
+                      <FaTrash onClick={() => handleDelete(e.id)} />
                     </div>
                   ))}
 
-                  <div className="edit-actions">
-                    <button onClick={() => handleAddTime(catKey)}>
-                      <FaPlus /> Öffnungszeit
-                    </button>
-                    <button onClick={() => handleSaveCategory(catKey)}>
-                      <FaSave /> Speichern
-                    </button>
-                  </div>
+                  <button onClick={() => handleAddTime(catKey)}>
+                    <FaPlus /> Add
+                  </button>
+                  <button onClick={() => handleSaveCategory(catKey)}>
+                    <FaSave /> Save
+                  </button>
                 </div>
               )}
 
               {isAdmin && !isEditing && (
-                <button
-                  className="edit-btn"
-                  onClick={() => fetchOeffzeitenForEdit(catKey)}
-                >
+                <button onClick={() => fetchOeffzeitenForEdit(catKey)}>
                   <FaEdit /> Bearbeiten
                 </button>
               )}
@@ -278,46 +286,16 @@ const Home = () => {
       {/* GALERIE */}
       <section className="galerie-section">
         <h2>Galerie</h2>
+
         <div className="grid">
-          {bilder.map((bild, index) => (
-            <div key={bild.id} className="item">
-              <img
-                src={bild.bild}
-                alt=""
-                onClick={() => setActiveIndex(index)}
-              />
-            </div>
+          {bilder.map((b, i) => (
+            <img key={b.id} src={b.bild} onClick={() => setActiveIndex(i)} />
           ))}
         </div>
 
         {activeIndex !== null && (
           <div className="lightbox" onClick={closeFullscreen}>
-            <button
-              className="nav prev"
-              onClick={(e) => {
-                e.stopPropagation();
-                prevBild();
-              }}
-            >
-              ‹
-            </button>
-            <img
-              src={bilder[activeIndex].bild}
-              alt=""
-              onClick={(e) => e.stopPropagation()}
-            />
-            <button
-              className="nav next"
-              onClick={(e) => {
-                e.stopPropagation();
-                nextBild();
-              }}
-            >
-              ›
-            </button>
-            <button className="close" onClick={closeFullscreen}>
-              ✕
-            </button>
+            <img src={bilder[activeIndex].bild} alt="" />
           </div>
         )}
       </section>

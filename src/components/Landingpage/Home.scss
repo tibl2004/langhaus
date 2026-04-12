@@ -5,7 +5,7 @@ $primary: #c8a96a;
 $dark: #1f1f1f;
 $light: #f8f6f2;
 $text: #2e2e2e;
-$shadow: 0 8px 24px rgba(0,0,0,0.12);
+$shadow: 0 10px 30px rgba(0,0,0,0.15);
 $radius: 14px;
 
 /* ===============================
@@ -34,43 +34,75 @@ $radius: 14px;
 }
 
 /* ===============================
-   HERO HEADER
+   POPUP BETRIEBSFERIEN
+================================= */
+.ferien-popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 9999;
+  @include flex-center;
+
+  .popup-box {
+    background: white;
+    padding: 2rem;
+    border-radius: $radius;
+    box-shadow: $shadow;
+    text-align: center;
+    width: 90%;
+    max-width: 420px;
+
+    h2 {
+      color: #b02a2a;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      margin-bottom: 0.5rem;
+    }
+
+    .actions {
+      margin-top: 1.5rem;
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+
+      button {
+        padding: 0.6rem 1.2rem;
+        border-radius: 50px;
+        border: none;
+        cursor: pointer;
+
+        &:first-child {
+          background: $primary;
+          color: white;
+        }
+
+        &:last-child {
+          background: #eee;
+        }
+      }
+    }
+  }
+}
+
+/* ===============================
+   HEADER
 ================================= */
 .home-header {
   height: 70vh;
   background-size: cover;
   background-position: center;
-  position: relative;
 
   .overlay {
     @include flex-center;
     flex-direction: column;
-    text-align: center;
     height: 100%;
     background: rgba(0,0,0,0.45);
     color: white;
-    padding: 2rem;
 
     h1 {
       font-size: 3rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-      letter-spacing: 1px;
-    }
-
-    a {
-      background: $primary;
-      color: white;
-      padding: 0.8rem 1.6rem;
-      border-radius: 50px;
-      text-decoration: none;
-      font-weight: 500;
-      transition: 0.3s;
-
-      &:hover {
-        background: darken($primary, 8%);
-        transform: translateY(-2px);
-      }
     }
   }
 }
@@ -85,21 +117,14 @@ $radius: 14px;
 
   h2 {
     text-align: center;
-    margin-bottom: 3rem;
-    font-size: 2.2rem;
+    margin-bottom: 2rem;
   }
 
   .category-block {
     @include card;
     margin-bottom: 2rem;
-    transition: 0.3s;
-
-    &:hover {
-      transform: translateY(-4px);
-    }
 
     h3 {
-      margin-bottom: 1rem;
       color: $primary;
     }
 
@@ -111,30 +136,19 @@ $radius: 14px;
 
     .time-item {
       background: $light;
-      border-radius: 8px;
       padding: 0.6rem 1rem;
+      border-radius: 8px;
       display: flex;
       justify-content: space-between;
-      font-size: 0.95rem;
-
-      .day {
-        font-weight: 600;
-      }
     }
 
-    .edit-btn {
+    button {
       margin-top: 1rem;
       background: $primary;
       border: none;
       color: white;
       padding: 0.6rem 1.2rem;
       border-radius: 6px;
-      cursor: pointer;
-      transition: 0.2s;
-
-      &:hover {
-        background: darken($primary, 10%);
-      }
     }
   }
 }
@@ -155,34 +169,19 @@ $radius: 14px;
       border: 1px solid #ddd;
     }
 
-    .icon {
+    svg {
       cursor: pointer;
       color: #b02a2a;
-      transition: 0.2s;
-
-      &:hover {
-        transform: scale(1.15);
-      }
     }
   }
 
-  .edit-actions {
-    margin-top: 1rem;
-    display: flex;
-    gap: 1rem;
-
-    button {
-      border: none;
-      background: $primary;
-      color: white;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-
-      &:hover {
-        background: darken($primary, 10%);
-      }
-    }
+  button {
+    margin-top: 0.5rem;
+    background: $primary;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
   }
 }
 
@@ -195,32 +194,25 @@ $radius: 14px;
 
   h2 {
     text-align: center;
-    margin-bottom: 2rem;
   }
 
   .grid {
-    max-width: 1100px;
-    margin: auto;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 1rem;
+    max-width: 1100px;
+    margin: auto;
   }
 
-  .item {
-    overflow: hidden;
+  img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
     border-radius: $radius;
-    box-shadow: $shadow;
     cursor: pointer;
 
-    img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      transition: 0.4s;
-    }
-
-    &:hover img {
-      transform: scale(1.08);
+    &:hover {
+      transform: scale(1.05);
     }
   }
 }
@@ -233,26 +225,25 @@ $radius: 14px;
   inset: 0;
   background: rgba(0,0,0,0.9);
   @include flex-center;
-  z-index: 999;
 
   img {
     max-width: 90%;
     max-height: 80%;
     border-radius: 10px;
   }
+}
 
-  .nav, .close {
-    position: absolute;
-    background: none;
-    border: none;
-    color: white;
-    font-size: 2.5rem;
-    cursor: pointer;
-  }
+/* ===============================
+   ANIMATION
+================================= */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
-  .prev { left: 2%; }
-  .next { right: 2%; }
-  .close { top: 2%; right: 2%; font-size: 2rem; }
+@keyframes scaleIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 /* ===============================
@@ -265,6 +256,5 @@ $radius: 14px;
 
   .time-item {
     flex-direction: column;
-    gap: 4px;
   }
 }
