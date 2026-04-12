@@ -28,7 +28,7 @@ export default function Galerie() {
     try {
       const res = await axios.get(GALERIE_API);
       setBilder(res.data);
-    } catch {
+    } catch (err) {
       setError("Galerie konnte nicht geladen werden.");
     }
   };
@@ -49,29 +49,41 @@ export default function Galerie() {
 
   /* ================= UPLOAD GALERIE ================= */
   const handleGalerieUpload = async () => {
-    if (!galerieFiles.length) return;
+    if (!galerieFiles.length) {
+      setError("Keine Dateien ausgewählt");
+      return;
+    }
 
     const formData = new FormData();
-    galerieFiles.forEach((f) => formData.append("bilder", f));
+
+    // 🔥 WICHTIG: MUSS "bilder" heißen (Multer)
+    galerieFiles.forEach((file) => {
+      formData.append("bilder", file);
+    });
 
     try {
       setLoading(true);
+      setError("");
 
       await axios.post(`${GALERIE_API}/upload`, formData, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // ❌ KEIN Content-Type!
+        },
       });
 
       setGalerieFiles([]);
       setShowUploadGalerie(false);
       loadGalerie();
+
     } catch (err) {
-      setError("Upload fehlgeschlagen");
+      console.error(err);
+      setError(err.response?.data?.error || "Upload fehlgeschlagen");
     } finally {
       setLoading(false);
     }
   };
 
-  /* ================= UPLOAD LOGO ================= */
   const handleLogoUpload = async () => {
     if (!logoFile) return;
 
@@ -80,16 +92,21 @@ export default function Galerie() {
 
     try {
       setLoading(true);
+      setError("");
 
       await axios.post(`${LOGO_API}`, formData, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       setLogoFile(null);
       setShowUploadLogo(false);
       loadLogo();
-    } catch {
-      setError("Logo Upload fehlgeschlagen");
+
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.error || "Logo Upload fehlgeschlagen");
     } finally {
       setLoading(false);
     }
@@ -99,25 +116,27 @@ export default function Galerie() {
   const handleDeleteBild = async (id) => {
     if (!window.confirm("Wirklich löschen?")) return;
 
-    await axios.delete(`${GALERIE_API}/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    try {
+      await axios.delete(`${GALERIE_API}/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    loadGalerie();
+      loadGalerie();
+    } catch (err) {
+      setError("Löschen fehlgeschlagen");
+    }
   };
 
   /* ================= LIGHTBOX ================= */
   const closeFullscreen = () => setActiveIndex(null);
 
-  const nextBild = useCallback(
-    () => setActiveIndex((i) => (i + 1) % bilder.length),
-    [bilder.length]
-  );
+  const nextBild = useCallback(() => {
+    setActiveIndex((i) => (i + 1) % bilder.length);
+  }, [bilder.length]);
 
-  const prevBild = useCallback(
-    () => setActiveIndex((i) => (i - 1 + bilder.length) % bilder.length),
-    [bilder.length]
-  );
+  const prevBild = useCallback(() => {
+    setActiveIndex((i) => (i - 1 + bilder.length) % bilder.length);
+  }, [bilder.length]);
 
   return (
     <div className="galerie">
@@ -126,7 +145,7 @@ export default function Galerie() {
 
       {error && <div className="error">{error}</div>}
 
-      {/* 🔥 FIX: TOKEN CHECK */}
+      {/* UPLOAD BUTTONS */}
       {token && (
         <div className="upload-actions">
           <button onClick={() => setShowUploadGalerie(true)}>
@@ -153,9 +172,10 @@ export default function Galerie() {
             />
 
             <div className="actions">
-              <button onClick={handleGalerieUpload}>
-                {loading ? "..." : "Upload"}
+              <button onClick={handleGalerieUpload} disabled={loading}>
+                {loading ? "Upload..." : "Upload"}
               </button>
+
               <button onClick={() => setShowUploadGalerie(false)}>
                 Abbrechen
               </button>
@@ -177,9 +197,10 @@ export default function Galerie() {
             />
 
             <div className="actions">
-              <button onClick={handleLogoUpload}>
-                {loading ? "..." : "Upload"}
+              <button onClick={handleLogoUpload} disabled={loading}>
+                {loading ? "Upload..." : "Upload"}
               </button>
+
               <button onClick={() => setShowUploadLogo(false)}>
                 Abbrechen
               </button>
