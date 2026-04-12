@@ -9,18 +9,26 @@ const LOGO_API = `${API}/logo`;
 
 export default function Galerie() {
   const [bilder, setBilder] = useState([]);
-  const [galerieFiles, setGalerieFiles] = useState([]);
   const [logo, setLogo] = useState(null);
-  const [logoFile, setLogoFile] = useState(null);
+
   const [roles, setRoles] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
   const [activeIndex, setActiveIndex] = useState(null);
+
+  // POPUPS (WIE MENUCARDS)
+  const [showUploadGalerie, setShowUploadGalerie] = useState(false);
+  const [showUploadLogo, setShowUploadLogo] = useState(false);
+
+  const [galerieFiles, setGalerieFiles] = useState([]);
+  const [logoFile, setLogoFile] = useState(null);
+
+  const [loading, setLoading] = useState(false);
 
   const token = localStorage.getItem("token");
 
   /* =========================
-     ROLE DECODE
+     ROLE
   ========================= */
   useEffect(() => {
     if (!token) return setRoles([]);
@@ -36,7 +44,7 @@ export default function Galerie() {
   const isVorstand = roles.includes("vorstand");
 
   /* =========================
-     LOAD DATA
+     LOAD
   ========================= */
   const loadGalerie = async () => {
     try {
@@ -65,18 +73,20 @@ export default function Galerie() {
      UPLOAD GALERIE
   ========================= */
   const handleGalerieUpload = async () => {
-    if (!galerieFiles.length || !token) return;
+    if (!galerieFiles.length) return;
 
     const formData = new FormData();
     galerieFiles.forEach((f) => formData.append("bilder", f));
 
     try {
       setLoading(true);
+
       await axios.post(`${GALERIE_API}/upload`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       setGalerieFiles([]);
+      setShowUploadGalerie(false); // CLOSE POPUP
       loadGalerie();
     } catch (err) {
       setError(err.response?.data?.error || "Upload fehlgeschlagen");
@@ -89,18 +99,20 @@ export default function Galerie() {
      UPLOAD LOGO
   ========================= */
   const handleLogoUpload = async () => {
-    if (!logoFile || !token) return;
+    if (!logoFile) return;
 
     const formData = new FormData();
     formData.append("logo", logoFile);
 
     try {
       setLoading(true);
+
       await axios.post(`${LOGO_API}`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       setLogoFile(null);
+      setShowUploadLogo(false); // CLOSE POPUP
       loadLogo();
     } catch {
       setError("Logo-Upload fehlgeschlagen");
@@ -115,15 +127,11 @@ export default function Galerie() {
   const handleDeleteBild = async (id) => {
     if (!window.confirm("Wirklich löschen?")) return;
 
-    try {
-      await axios.delete(`${GALERIE_API}/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+    await axios.delete(`${GALERIE_API}/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-      loadGalerie();
-    } catch {
-      setError("Löschen fehlgeschlagen");
-    }
+    loadGalerie();
   };
 
   /* =========================
@@ -141,70 +149,100 @@ export default function Galerie() {
     [bilder.length]
   );
 
-  useEffect(() => {
-    if (activeIndex === null) return;
-
-    const handleKey = (e) => {
-      if (e.key === "Escape") closeFullscreen();
-      if (e.key === "ArrowRight") nextBild();
-      if (e.key === "ArrowLeft") prevBild();
-    };
-
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [activeIndex, nextBild, prevBild]);
-
-  /* =========================
-     RENDER
-  ========================= */
   return (
     <div className="galerie">
-
-      {/* LOGO */}
-      {logo && (
-        <img src={logo} alt="Logo" className="logo-preview" />
-      )}
-
-      {/* ADMIN LOGO UPLOAD */}
-      {isAdmin && (
-        <div className="upload">
-          <h2>Logo</h2>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setLogoFile(e.target.files[0])}
-          />
-          <button onClick={handleLogoUpload}>
-            {loading ? "..." : "Logo hochladen"}
-          </button>
-        </div>
-      )}
 
       <h1>Galerie</h1>
 
       {error && <div className="error">{error}</div>}
 
-      {/* ADMIN UPLOAD */}
+      {/* =========================
+          ADMIN BUTTONS (WIE MENU)
+      ========================= */}
       {isAdmin && (
-        <div className="upload">
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={(e) => setGalerieFiles([...e.target.files])}
-          />
-          <button onClick={handleGalerieUpload}>
-            {loading ? "..." : "Bilder hochladen"}
+        <div className="upload-actions">
+          <button onClick={() => setShowUploadGalerie(true)}>
+            + Bilder hochladen
+          </button>
+
+          <button onClick={() => setShowUploadLogo(true)}>
+            + Logo ändern
           </button>
         </div>
       )}
 
-      {/* GRID */}
+      {/* =========================
+          POPUP GALERIE UPLOAD
+      ========================= */}
+      {showUploadGalerie && (
+        <div className="popup-overlay">
+          <div className="popup-form">
+            <h2>Bilder hochladen</h2>
+
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={(e) => setGalerieFiles([...e.target.files])}
+            />
+
+            <div className="actions">
+              <button onClick={handleGalerieUpload}>
+                {loading ? "..." : "Upload"}
+              </button>
+
+              <button
+                className="ghost"
+                onClick={() => setShowUploadGalerie(false)}
+              >
+                Abbrechen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================
+          POPUP LOGO UPLOAD
+      ========================= */}
+      {showUploadLogo && (
+        <div className="popup-overlay">
+          <div className="popup-form">
+            <h2>Logo ändern</h2>
+
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setLogoFile(e.target.files[0])}
+            />
+
+            <div className="actions">
+              <button onClick={handleLogoUpload}>
+                {loading ? "..." : "Upload"}
+              </button>
+
+              <button
+                className="ghost"
+                onClick={() => setShowUploadLogo(false)}
+              >
+                Abbrechen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================
+          LOGO
+      ========================= */}
+      {logo && <img src={logo} alt="Logo" className="logo-preview" />}
+
+      {/* =========================
+          GRID
+      ========================= */}
       <div className="grid">
         {bilder.map((bild, index) => (
           <div key={bild.id} className="item">
-
-            {/* ✅ FIX: KEINE URL ZUSAMMENBAUEN! */}
             <img
               src={bild.bild}
               alt=""
@@ -223,7 +261,9 @@ export default function Galerie() {
         ))}
       </div>
 
-      {/* LIGHTBOX */}
+      {/* =========================
+          LIGHTBOX
+      ========================= */}
       {activeIndex !== null && bilder[activeIndex] && (
         <div className="lightbox" onClick={closeFullscreen}>
           <button
