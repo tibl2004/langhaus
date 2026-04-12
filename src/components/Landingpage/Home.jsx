@@ -289,8 +289,12 @@ const Home = () => {
 
         <div className="grid">
           {bilder.map((b, i) => (
-            <img key={b.id} src={b.bild} onClick={() => setActiveIndex(i)} />
-          ))}
+            <img
+  key={b.id}
+  src={b.bild}
+  alt="Galerie Bild"
+  onClick={() => setActiveIndex(i)}
+/>          ))}
         </div>
 
         {activeIndex !== null && (
