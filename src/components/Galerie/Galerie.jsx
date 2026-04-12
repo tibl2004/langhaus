@@ -136,11 +136,12 @@ export default function Galerie() {
 
   return (
     <div className="galerie">
-      <h1>Logo</h1>
       {logo && <img src={logo.startsWith("http") ? logo : `${LOGO_API}/${logo}`} alt="Logo" className="logo-preview" />}
 
       {isAdmin && (
         <div className="upload">
+                <h1>Logo</h1>
+
           <input type="file" accept="image/*" onChange={(e) => setLogoFile(e.target.files[0])} />
           <button onClick={handleLogoUpload}>{loading ? "…" : "Logo hochladen"}</button>
         </div>
