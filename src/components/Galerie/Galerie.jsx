@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import "./Galerie.scss";
 
 const API = "https://restaurant-langhaus-backend.onrender.com/api";
@@ -11,12 +10,8 @@ export default function Galerie() {
   const [bilder, setBilder] = useState([]);
   const [logo, setLogo] = useState(null);
 
-  const [roles, setRoles] = useState([]);
-  const [error, setError] = useState("");
-
   const [activeIndex, setActiveIndex] = useState(null);
 
-  // POPUPS (WIE MENUCARDS)
   const [showUploadGalerie, setShowUploadGalerie] = useState(false);
   const [showUploadLogo, setShowUploadLogo] = useState(false);
 
@@ -24,13 +19,11 @@ export default function Galerie() {
   const [logoFile, setLogoFile] = useState(null);
 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const token = localStorage.getItem("token");
 
-
-  /* =========================
-     LOAD
-  ========================= */
+  /* ================= LOAD ================= */
   const loadGalerie = async () => {
     try {
       const res = await axios.get(GALERIE_API);
@@ -54,9 +47,7 @@ export default function Galerie() {
     loadLogo();
   }, []);
 
-  /* =========================
-     UPLOAD GALERIE
-  ========================= */
+  /* ================= UPLOAD GALERIE ================= */
   const handleGalerieUpload = async () => {
     if (!galerieFiles.length) return;
 
@@ -71,18 +62,16 @@ export default function Galerie() {
       });
 
       setGalerieFiles([]);
-      setShowUploadGalerie(false); // CLOSE POPUP
+      setShowUploadGalerie(false);
       loadGalerie();
     } catch (err) {
-      setError(err.response?.data?.error || "Upload fehlgeschlagen");
+      setError("Upload fehlgeschlagen");
     } finally {
       setLoading(false);
     }
   };
 
-  /* =========================
-     UPLOAD LOGO
-  ========================= */
+  /* ================= UPLOAD LOGO ================= */
   const handleLogoUpload = async () => {
     if (!logoFile) return;
 
@@ -97,18 +86,16 @@ export default function Galerie() {
       });
 
       setLogoFile(null);
-      setShowUploadLogo(false); // CLOSE POPUP
+      setShowUploadLogo(false);
       loadLogo();
     } catch {
-      setError("Logo-Upload fehlgeschlagen");
+      setError("Logo Upload fehlgeschlagen");
     } finally {
       setLoading(false);
     }
   };
 
-  /* =========================
-     DELETE
-  ========================= */
+  /* ================= DELETE ================= */
   const handleDeleteBild = async (id) => {
     if (!window.confirm("Wirklich löschen?")) return;
 
@@ -119,9 +106,7 @@ export default function Galerie() {
     loadGalerie();
   };
 
-  /* =========================
-     LIGHTBOX
-  ========================= */
+  /* ================= LIGHTBOX ================= */
   const closeFullscreen = () => setActiveIndex(null);
 
   const nextBild = useCallback(
@@ -141,9 +126,7 @@ export default function Galerie() {
 
       {error && <div className="error">{error}</div>}
 
-      {/* =========================
-          ADMIN BUTTONS (WIE MENU)
-      ========================= */}
+      {/* 🔥 FIX: TOKEN CHECK */}
       {token && (
         <div className="upload-actions">
           <button onClick={() => setShowUploadGalerie(true)}>
@@ -156,9 +139,7 @@ export default function Galerie() {
         </div>
       )}
 
-      {/* =========================
-          POPUP GALERIE UPLOAD
-      ========================= */}
+      {/* GALERIE UPLOAD */}
       {showUploadGalerie && (
         <div className="popup-overlay">
           <div className="popup-form">
@@ -175,11 +156,7 @@ export default function Galerie() {
               <button onClick={handleGalerieUpload}>
                 {loading ? "..." : "Upload"}
               </button>
-
-              <button
-                className="ghost"
-                onClick={() => setShowUploadGalerie(false)}
-              >
+              <button onClick={() => setShowUploadGalerie(false)}>
                 Abbrechen
               </button>
             </div>
@@ -187,9 +164,7 @@ export default function Galerie() {
         </div>
       )}
 
-      {/* =========================
-          POPUP LOGO UPLOAD
-      ========================= */}
+      {/* LOGO UPLOAD */}
       {showUploadLogo && (
         <div className="popup-overlay">
           <div className="popup-form">
@@ -205,11 +180,7 @@ export default function Galerie() {
               <button onClick={handleLogoUpload}>
                 {loading ? "..." : "Upload"}
               </button>
-
-              <button
-                className="ghost"
-                onClick={() => setShowUploadLogo(false)}
-              >
+              <button onClick={() => setShowUploadLogo(false)}>
                 Abbrechen
               </button>
             </div>
@@ -217,14 +188,10 @@ export default function Galerie() {
         </div>
       )}
 
-      {/* =========================
-          LOGO
-      ========================= */}
+      {/* LOGO */}
       {logo && <img src={logo} alt="Logo" className="logo-preview" />}
 
-      {/* =========================
-          GRID
-      ========================= */}
+      {/* GRID */}
       <div className="grid">
         {bilder.map((bild, index) => (
           <div key={bild.id} className="item">
@@ -246,40 +213,16 @@ export default function Galerie() {
         ))}
       </div>
 
-      {/* =========================
-          LIGHTBOX
-      ========================= */}
+      {/* LIGHTBOX */}
       {activeIndex !== null && bilder[activeIndex] && (
         <div className="lightbox" onClick={closeFullscreen}>
-          <button
-            className="nav prev"
-            onClick={(e) => {
-              e.stopPropagation();
-              prevBild();
-            }}
-          >
-            ‹
-          </button>
+          <button onClick={(e) => { e.stopPropagation(); prevBild(); }}>‹</button>
 
-          <img
-            src={bilder[activeIndex].bild}
-            alt=""
-            onClick={(e) => e.stopPropagation()}
-          />
+          <img src={bilder[activeIndex].bild} alt="" />
 
-          <button
-            className="nav next"
-            onClick={(e) => {
-              e.stopPropagation();
-              nextBild();
-            }}
-          >
-            ›
-          </button>
+          <button onClick={(e) => { e.stopPropagation(); nextBild(); }}>›</button>
 
-          <button className="close" onClick={closeFullscreen}>
-            ✕
-          </button>
+          <button onClick={closeFullscreen}>✕</button>
         </div>
       )}
     </div>
