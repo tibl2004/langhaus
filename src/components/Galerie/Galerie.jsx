@@ -242,7 +242,7 @@ export default function Galerie() {
   src={
     bilder[activeIndex].bild.startsWith("http")
       ? bilder[activeIndex].bild
-      : `https://restaurant-langhaus-backend.onrender.com${bilder[activeIndex].bild}`
+      : `https://restaurant-langhaus-backend.onrender.com/${bilder[activeIndex].bild}`
   }
 />
           <button onClick={(e) => { e.stopPropagation(); nextBild(); }}>
