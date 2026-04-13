@@ -23,6 +23,14 @@ export default function Galerie() {
 
   const token = localStorage.getItem("token");
 
+  /* ================= IMAGE FIX ================= */
+  const fixImageUrl = (url) => {
+    if (!url) return "";
+    return url.startsWith("http")
+      ? url
+      : `https://restaurant-langhaus-backend.onrender.com${url}`;
+  };
+
   /* ================= LOAD ================= */
   const loadGalerie = async () => {
     try {
@@ -49,17 +57,10 @@ export default function Galerie() {
 
   /* ================= UPLOAD GALERIE ================= */
   const handleGalerieUpload = async () => {
-    if (!galerieFiles.length) {
-      setError("Keine Dateien ausgewählt");
-      return;
-    }
+    if (!galerieFiles.length) return;
 
     const formData = new FormData();
-
-    // 🔥 WICHTIG: MUSS "bilder" heißen (Multer)
-    galerieFiles.forEach((file) => {
-      formData.append("bilder", file);
-    });
+    galerieFiles.forEach((file) => formData.append("bilder", file));
 
     try {
       setLoading(true);
@@ -68,22 +69,20 @@ export default function Galerie() {
       await axios.post(`${GALERIE_API}/upload`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          // ❌ KEIN Content-Type!
         },
       });
 
       setGalerieFiles([]);
       setShowUploadGalerie(false);
       loadGalerie();
-
     } catch (err) {
-      console.error(err);
       setError(err.response?.data?.error || "Upload fehlgeschlagen");
     } finally {
       setLoading(false);
     }
   };
 
+  /* ================= UPLOAD LOGO ================= */
   const handleLogoUpload = async () => {
     if (!logoFile) return;
 
@@ -92,7 +91,6 @@ export default function Galerie() {
 
     try {
       setLoading(true);
-      setError("");
 
       await axios.post(`${LOGO_API}`, formData, {
         headers: {
@@ -103,10 +101,8 @@ export default function Galerie() {
       setLogoFile(null);
       setShowUploadLogo(false);
       loadLogo();
-
-    } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.error || "Logo Upload fehlgeschlagen");
+    } catch {
+      setError("Logo Upload fehlgeschlagen");
     } finally {
       setLoading(false);
     }
@@ -122,7 +118,7 @@ export default function Galerie() {
       });
 
       loadGalerie();
-    } catch (err) {
+    } catch {
       setError("Löschen fehlgeschlagen");
     }
   };
@@ -210,14 +206,20 @@ export default function Galerie() {
       )}
 
       {/* LOGO */}
-      {logo && <img src={logo} alt="Logo" className="logo-preview" />}
+      {logo && (
+        <img
+          src={fixImageUrl(logo)}
+          alt="Logo"
+          className="logo-preview"
+        />
+      )}
 
       {/* GRID */}
       <div className="grid">
         {bilder.map((bild, index) => (
           <div key={bild.id} className="item">
             <img
-              src={bild.bild}
+              src={fixImageUrl(bild.bild)}
               alt=""
               onClick={() => setActiveIndex(index)}
             />
@@ -237,11 +239,28 @@ export default function Galerie() {
       {/* LIGHTBOX */}
       {activeIndex !== null && bilder[activeIndex] && (
         <div className="lightbox" onClick={closeFullscreen}>
-          <button onClick={(e) => { e.stopPropagation(); prevBild(); }}>‹</button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              prevBild();
+            }}
+          >
+            ‹
+          </button>
 
-          <img src={bilder[activeIndex].bild} alt="" />
+          <img
+            src={fixImageUrl(bilder[activeIndex].bild)}
+            alt=""
+          />
 
-          <button onClick={(e) => { e.stopPropagation(); nextBild(); }}>›</button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              nextBild();
+            }}
+          >
+            ›
+          </button>
 
           <button onClick={closeFullscreen}>✕</button>
         </div>
