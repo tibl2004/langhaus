@@ -210,11 +210,17 @@ export default function Galerie() {
       <div className="grid">
         {bilder.map((bild, index) => (
           <div key={bild.id} className="item">
-            <img
-              src={fixImage(bild.bild)}
-              alt=""
-              onClick={() => setActiveIndex(index)}
-            />
+          <img
+  src={
+    bild.bild.startsWith("http")
+      ? bild.bild
+      : `https://restaurant-langhaus-backend.onrender.com${bild.bild}`
+  }
+  alt=""
+  onError={(e) => {
+    e.target.src = "/fallback.png";
+  }}
+/>
 
             {token && (
               <button
@@ -235,8 +241,13 @@ export default function Galerie() {
             ‹
           </button>
 
-          <img src={fixImage(bilder[activeIndex].bild)} alt="" />
-
+          <img
+  src={
+    bilder[activeIndex].bild.startsWith("http")
+      ? bilder[activeIndex].bild
+      : `https://restaurant-langhaus-backend.onrender.com${bilder[activeIndex].bild}`
+  }
+/>
           <button onClick={(e) => { e.stopPropagation(); nextBild(); }}>
             ›
           </button>
