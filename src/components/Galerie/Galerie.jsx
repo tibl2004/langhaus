@@ -2,14 +2,12 @@ import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import "./Galerie.scss";
 
-const API = "https://restaurant-langhaus-backend.onrender.com/api";
-const GALERIE_API = `${API}/galerie`;
-const LOGO_API = `${API}/logo`;
+const API_BASE = "https://restaurant-langhaus-backend.onrender.com";
+const API = `${API_BASE}/api`;
 
 export default function Galerie() {
   const [bilder, setBilder] = useState([]);
   const [logo, setLogo] = useState(null);
-
   const [activeIndex, setActiveIndex] = useState(null);
 
   const [showUploadGalerie, setShowUploadGalerie] = useState(false);
@@ -23,27 +21,25 @@ export default function Galerie() {
 
   const token = localStorage.getItem("token");
 
-  /* ================= IMAGE FIX ================= */
-  const fixImageUrl = (url) => {
+  /* ================= FIX IMAGE URL ================= */
+  const fixImage = (url) => {
     if (!url) return "";
-    return url.startsWith("http")
-      ? url
-      : `https://restaurant-langhaus-backend.onrender.com${url}`;
+    return url.startsWith("http") ? url : `${API_BASE}${url}`;
   };
 
-  /* ================= LOAD ================= */
+  /* ================= LOAD DATA ================= */
   const loadGalerie = async () => {
     try {
-      const res = await axios.get(GALERIE_API);
+      const res = await axios.get(`${API}/galerie`);
       setBilder(res.data);
-    } catch (err) {
+    } catch {
       setError("Galerie konnte nicht geladen werden.");
     }
   };
 
   const loadLogo = async () => {
     try {
-      const res = await axios.get(`${LOGO_API}/current`);
+      const res = await axios.get(`${API}/logo/current`);
       setLogo(res.data.logoUrl);
     } catch {
       setLogo(null);
@@ -66,7 +62,7 @@ export default function Galerie() {
       setLoading(true);
       setError("");
 
-      await axios.post(`${GALERIE_API}/upload`, formData, {
+      await axios.post(`${API}/galerie/upload`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -92,7 +88,7 @@ export default function Galerie() {
     try {
       setLoading(true);
 
-      await axios.post(`${LOGO_API}`, formData, {
+      await axios.post(`${API}/logo`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -113,7 +109,7 @@ export default function Galerie() {
     if (!window.confirm("Wirklich löschen?")) return;
 
     try {
-      await axios.delete(`${GALERIE_API}/${id}`, {
+      await axios.delete(`${API}/galerie/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -141,7 +137,7 @@ export default function Galerie() {
 
       {error && <div className="error">{error}</div>}
 
-      {/* UPLOAD BUTTONS */}
+      {/* BUTTONS */}
       {token && (
         <div className="upload-actions">
           <button onClick={() => setShowUploadGalerie(true)}>
@@ -154,7 +150,7 @@ export default function Galerie() {
         </div>
       )}
 
-      {/* GALERIE UPLOAD */}
+      {/* UPLOAD GALERIE */}
       {showUploadGalerie && (
         <div className="popup-overlay">
           <div className="popup-form">
@@ -180,7 +176,7 @@ export default function Galerie() {
         </div>
       )}
 
-      {/* LOGO UPLOAD */}
+      {/* UPLOAD LOGO */}
       {showUploadLogo && (
         <div className="popup-overlay">
           <div className="popup-form">
@@ -207,11 +203,7 @@ export default function Galerie() {
 
       {/* LOGO */}
       {logo && (
-        <img
-          src={fixImageUrl(logo)}
-          alt="Logo"
-          className="logo-preview"
-        />
+        <img src={fixImage(logo)} alt="Logo" className="logo-preview" />
       )}
 
       {/* GRID */}
@@ -219,7 +211,7 @@ export default function Galerie() {
         {bilder.map((bild, index) => (
           <div key={bild.id} className="item">
             <img
-              src={fixImageUrl(bild.bild)}
+              src={fixImage(bild.bild)}
               alt=""
               onClick={() => setActiveIndex(index)}
             />
@@ -239,26 +231,13 @@ export default function Galerie() {
       {/* LIGHTBOX */}
       {activeIndex !== null && bilder[activeIndex] && (
         <div className="lightbox" onClick={closeFullscreen}>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              prevBild();
-            }}
-          >
+          <button onClick={(e) => { e.stopPropagation(); prevBild(); }}>
             ‹
           </button>
 
-          <img
-            src={fixImageUrl(bilder[activeIndex].bild)}
-            alt=""
-          />
+          <img src={fixImage(bilder[activeIndex].bild)} alt="" />
 
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              nextBild();
-            }}
-          >
+          <button onClick={(e) => { e.stopPropagation(); nextBild(); }}>
             ›
           </button>
 
