@@ -212,14 +212,11 @@ export default function Galerie() {
           <div key={bild.id} className="item">
           <img
   src={
-    bild.bild.startsWith("http")
-      ? bild.bild
-      : `https://restaurant-langhaus-backend.onrender.com${bild.bild}`
+    bilder[activeIndex].bild.startsWith("http")
+      ? bilder[activeIndex].bild
+      : `https://restaurant-langhaus-backend.onrender.com${bilder[activeIndex].bild}`
   }
   alt=""
-  onError={(e) => {
-    e.target.src = "/fallback.png";
-  }}
 />
 
             {token && (
