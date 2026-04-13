@@ -208,27 +208,28 @@ export default function Galerie() {
 
       {/* GRID */}
       <div className="grid">
-        {bilder.map((bild, index) => (
-          <div key={bild.id} className="item">
-          <img
-  src={
-    bilder[activeIndex].bild.startsWith("http")
-      ? bilder[activeIndex].bild
-      : `https://restaurant-langhaus-backend.onrender.com/${bilder[activeIndex].bild}`
-  }
-  alt=""
-/>
+      {bilder.map((bild, index) => (
+  <div key={bild.id} className="item">
+    <img
+      src={
+        bild.bild.startsWith("http")
+          ? bild.bild
+          : `${API_BASE}/${bild.bild}`
+      }
+      alt={`Galeriebild ${index + 1}`}
+      onClick={() => setActiveIndex(index)}
+    />
 
-            {token && (
-              <button
-                className="delete-btn"
-                onClick={() => handleDeleteBild(bild.id)}
-              >
-                ✕
-              </button>
-            )}
-          </div>
-        ))}
+    {token && (
+      <button
+        className="delete-btn"
+        onClick={() => handleDeleteBild(bild.id)}
+      >
+        ✕
+      </button>
+    )}
+  </div>
+))}
       </div>
 
       {/* LIGHTBOX */}
@@ -244,6 +245,7 @@ export default function Galerie() {
       ? bilder[activeIndex].bild
       : `https://restaurant-langhaus-backend.onrender.com/${bilder[activeIndex].bild}`
   }
+  alt="Galeriebild"
 />
           <button onClick={(e) => { e.stopPropagation(); nextBild(); }}>
             ›
