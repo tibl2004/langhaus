@@ -6,6 +6,7 @@ const API_BASE = "https://restaurant-langhaus-backend.onrender.com";
 const API = `${API_BASE}/api`;
 
 export default function Galerie() {
+
   const [bilder, setBilder] = useState([]);
   const [logo, setLogo] = useState(null);
   const [activeIndex, setActiveIndex] = useState(null);
@@ -21,239 +22,484 @@ export default function Galerie() {
 
   const token = localStorage.getItem("token");
 
-  /* ================= FIX IMAGE URL ================= */
+  /*
+  ====================================
+  FIX IMAGE URL
+  ====================================
+  */
+
   const fixImage = (url) => {
+
     if (!url) return "";
-    return url.startsWith("http") ? url : `${API_BASE}${url}`;
+
+    // Bereits vollständige URL
+    if (url.startsWith("http")) {
+      return url;
+    }
+
+    // Falls DB nur /galerie/... liefert
+    if (url.startsWith("/galerie")) {
+      return `${API_BASE}/uploads${url}`;
+    }
+
+    // Falls DB bereits /uploads/... liefert
+    if (url.startsWith("/uploads")) {
+      return `${API_BASE}${url}`;
+    }
+
+    // Fallback
+    return `${API_BASE}/${url}`;
   };
 
-  /* ================= LOAD DATA ================= */
+  /*
+  ====================================
+  LOAD GALERIE
+  ====================================
+  */
+
   const loadGalerie = async () => {
+
     try {
+
       const res = await axios.get(`${API}/galerie`);
+
       setBilder(res.data);
-    } catch {
+
+    } catch (err) {
+
+      console.error(err);
+
       setError("Galerie konnte nicht geladen werden.");
     }
   };
 
+  /*
+  ====================================
+  LOAD LOGO
+  ====================================
+  */
+
   const loadLogo = async () => {
+
     try {
+
       const res = await axios.get(`${API}/logo/current`);
-      setLogo(res.data.logoUrl);
-    } catch {
+
+      if (res.data?.logoUrl) {
+        setLogo(res.data.logoUrl);
+      }
+
+    } catch (err) {
+
+      console.error(err);
+
       setLogo(null);
     }
   };
 
+  /*
+  ====================================
+  INITIAL LOAD
+  ====================================
+  */
+
   useEffect(() => {
+
     loadGalerie();
     loadLogo();
+
   }, []);
 
-  /* ================= UPLOAD GALERIE ================= */
+  /*
+  ====================================
+  UPLOAD GALERIE
+  ====================================
+  */
+
   const handleGalerieUpload = async () => {
+
     if (!galerieFiles.length) return;
 
     const formData = new FormData();
-    galerieFiles.forEach((file) => formData.append("bilder", file));
+
+    galerieFiles.forEach((file) => {
+      formData.append("bilder", file);
+    });
 
     try {
+
       setLoading(true);
       setError("");
 
-      await axios.post(`${API}/galerie/upload`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axios.post(
+        `${API}/galerie/upload`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       setGalerieFiles([]);
       setShowUploadGalerie(false);
-      loadGalerie();
+
+      await loadGalerie();
+
     } catch (err) {
-      setError(err.response?.data?.error || "Upload fehlgeschlagen");
+
+      console.error(err);
+
+      setError(
+        err.response?.data?.error ||
+        "Upload fehlgeschlagen"
+      );
+
     } finally {
+
       setLoading(false);
     }
   };
 
-  /* ================= UPLOAD LOGO ================= */
+  /*
+  ====================================
+  UPLOAD LOGO
+  ====================================
+  */
+
   const handleLogoUpload = async () => {
+
     if (!logoFile) return;
 
     const formData = new FormData();
+
     formData.append("logo", logoFile);
 
     try {
-      setLoading(true);
 
-      await axios.post(`${API}/logo`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      setLoading(true);
+      setError("");
+
+      await axios.post(
+        `${API}/logo`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       setLogoFile(null);
       setShowUploadLogo(false);
-      loadLogo();
-    } catch {
+
+      await loadLogo();
+
+    } catch (err) {
+
+      console.error(err);
+
       setError("Logo Upload fehlgeschlagen");
+
     } finally {
+
       setLoading(false);
     }
   };
 
-  /* ================= DELETE ================= */
+  /*
+  ====================================
+  DELETE BILD
+  ====================================
+  */
+
   const handleDeleteBild = async (id) => {
-    if (!window.confirm("Wirklich löschen?")) return;
+
+    const confirmDelete = window.confirm(
+      "Wirklich löschen?"
+    );
+
+    if (!confirmDelete) return;
 
     try {
-      await axios.delete(`${API}/galerie/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
 
-      loadGalerie();
-    } catch {
+      await axios.delete(
+        `${API}/galerie/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      await loadGalerie();
+
+    } catch (err) {
+
+      console.error(err);
+
       setError("Löschen fehlgeschlagen");
     }
   };
 
-  /* ================= LIGHTBOX ================= */
-  const closeFullscreen = () => setActiveIndex(null);
+  /*
+  ====================================
+  LIGHTBOX
+  ====================================
+  */
+
+  const closeFullscreen = () => {
+    setActiveIndex(null);
+  };
 
   const nextBild = useCallback(() => {
-    setActiveIndex((i) => (i + 1) % bilder.length);
+
+    setActiveIndex((i) =>
+      (i + 1) % bilder.length
+    );
+
   }, [bilder.length]);
 
   const prevBild = useCallback(() => {
-    setActiveIndex((i) => (i - 1 + bilder.length) % bilder.length);
+
+    setActiveIndex((i) =>
+      (i - 1 + bilder.length) % bilder.length
+    );
+
   }, [bilder.length]);
 
+  /*
+  ====================================
+  JSX
+  ====================================
+  */
+
   return (
+
     <div className="galerie">
 
       <h1>Galerie</h1>
 
-      {error && <div className="error">{error}</div>}
-
-      {/* BUTTONS */}
-      {token && (
-        <div className="upload-actions">
-          <button onClick={() => setShowUploadGalerie(true)}>
-            + Bilder hochladen
-          </button>
-
-          <button onClick={() => setShowUploadLogo(true)}>
-            + Logo ändern
-          </button>
+      {error && (
+        <div className="error">
+          {error}
         </div>
       )}
 
-      {/* UPLOAD GALERIE */}
+      {/* ================= BUTTONS ================= */}
+
+      {token && (
+        <div className="upload-actions">
+
+          <button
+            onClick={() =>
+              setShowUploadGalerie(true)
+            }
+          >
+            + Bilder hochladen
+          </button>
+
+          <button
+            onClick={() =>
+              setShowUploadLogo(true)
+            }
+          >
+            + Logo ändern
+          </button>
+
+        </div>
+      )}
+
+      {/* ================= UPLOAD GALERIE ================= */}
+
       {showUploadGalerie && (
+
         <div className="popup-overlay">
+
           <div className="popup-form">
+
             <h2>Bilder hochladen</h2>
 
             <input
               type="file"
               multiple
               accept="image/*"
-              onChange={(e) => setGalerieFiles([...e.target.files])}
+              onChange={(e) =>
+                setGalerieFiles([
+                  ...e.target.files,
+                ])
+              }
             />
 
             <div className="actions">
-              <button onClick={handleGalerieUpload} disabled={loading}>
-                {loading ? "Upload..." : "Upload"}
+
+              <button
+                onClick={handleGalerieUpload}
+                disabled={loading}
+              >
+                {loading
+                  ? "Upload läuft..."
+                  : "Upload"}
               </button>
 
-              <button onClick={() => setShowUploadGalerie(false)}>
+              <button
+                onClick={() =>
+                  setShowUploadGalerie(false)
+                }
+              >
                 Abbrechen
               </button>
+
             </div>
+
           </div>
+
         </div>
       )}
 
-      {/* UPLOAD LOGO */}
+      {/* ================= UPLOAD LOGO ================= */}
+
       {showUploadLogo && (
+
         <div className="popup-overlay">
+
           <div className="popup-form">
+
             <h2>Logo ändern</h2>
 
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => setLogoFile(e.target.files[0])}
+              onChange={(e) =>
+                setLogoFile(
+                  e.target.files[0]
+                )
+              }
             />
 
             <div className="actions">
-              <button onClick={handleLogoUpload} disabled={loading}>
-                {loading ? "Upload..." : "Upload"}
+
+              <button
+                onClick={handleLogoUpload}
+                disabled={loading}
+              >
+                {loading
+                  ? "Upload läuft..."
+                  : "Upload"}
               </button>
 
-              <button onClick={() => setShowUploadLogo(false)}>
+              <button
+                onClick={() =>
+                  setShowUploadLogo(false)
+                }
+              >
                 Abbrechen
               </button>
+
             </div>
+
           </div>
+
         </div>
       )}
 
-      {/* LOGO */}
+      {/* ================= LOGO ================= */}
+
       {logo && (
-        <img src={fixImage(logo)} alt="Logo" className="logo-preview" />
+
+        <img
+          src={fixImage(logo)}
+          alt="Logo"
+          className="logo-preview"
+        />
+
       )}
 
-      {/* GRID */}
-      <div className="grid">
-      {bilder.map((bild, index) => (
-  <div key={bild.id} className="item">
-    <img
-      src={
-        bild.bild.startsWith("http")
-          ? bild.bild
-          : `${API_BASE}/${bild.bild}`
-      }
-      alt={`Galeriebild ${index + 1}`}
-      onClick={() => setActiveIndex(index)}
-    />
+      {/* ================= GRID ================= */}
 
-    {token && (
-      <button
-        className="delete-btn"
-        onClick={() => handleDeleteBild(bild.id)}
-      >
-        ✕
-      </button>
-    )}
-  </div>
-))}
+      <div className="grid">
+
+        {bilder.map((bild, index) => (
+
+          <div
+            key={bild.id}
+            className="item"
+          >
+
+            <img
+              src={fixImage(bild.bild)}
+              alt={`Galeriebild ${index + 1}`}
+              onClick={() =>
+                setActiveIndex(index)
+              }
+            />
+
+            {token && (
+
+              <button
+                className="delete-btn"
+                onClick={() =>
+                  handleDeleteBild(bild.id)
+                }
+              >
+                ✕
+              </button>
+
+            )}
+
+          </div>
+
+        ))}
+
       </div>
 
-      {/* LIGHTBOX */}
-      {activeIndex !== null && bilder[activeIndex] && (
-        <div className="lightbox" onClick={closeFullscreen}>
-          <button onClick={(e) => { e.stopPropagation(); prevBild(); }}>
+      {/* ================= LIGHTBOX ================= */}
+
+      {activeIndex !== null &&
+        bilder[activeIndex] && (
+
+        <div
+          className="lightbox"
+          onClick={closeFullscreen}
+        >
+
+          <button
+            className="nav prev"
+            onClick={(e) => {
+              e.stopPropagation();
+              prevBild();
+            }}
+          >
             ‹
           </button>
 
           <img
-  src={
-    bilder[activeIndex].bild.startsWith("http")
-      ? bilder[activeIndex].bild
-      : `https://restaurant-langhaus-backend.onrender.com/${bilder[activeIndex].bild}`
-  }
-  alt="Galeriebild"
-/>
-          <button onClick={(e) => { e.stopPropagation(); nextBild(); }}>
+            src={fixImage(
+              bilder[activeIndex].bild
+            )}
+            alt="Galeriebild"
+          />
+
+          <button
+            className="nav next"
+            onClick={(e) => {
+              e.stopPropagation();
+              nextBild();
+            }}
+          >
             ›
           </button>
 
-          <button onClick={closeFullscreen}>✕</button>
+          <button
+            className="close"
+            onClick={closeFullscreen}
+          >
+            ✕
+          </button>
+
         </div>
       )}
+
     </div>
   );
 }
