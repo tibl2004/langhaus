@@ -22,34 +22,7 @@ export default function Galerie() {
 
   const token = localStorage.getItem("token");
 
-  /*
-  ====================================
-  FIX IMAGE URL
-  ====================================
-  */
 
-  const fixImage = (url) => {
-
-    if (!url) return "";
-
-    // Bereits vollständige URL
-    if (url.startsWith("http")) {
-      return url;
-    }
-
-    // Falls DB nur /galerie/... liefert
-    if (url.startsWith("/galerie")) {
-      return `${API_BASE}/uploads${url}`;
-    }
-
-    // Falls DB bereits /uploads/... liefert
-    if (url.startsWith("/uploads")) {
-      return `${API_BASE}${url}`;
-    }
-
-    // Fallback
-    return `${API_BASE}/${url}`;
-  };
 
   /*
   ====================================
@@ -407,11 +380,11 @@ export default function Galerie() {
 
       {logo && (
 
-        <img
-          src={fixImage(logo)}
-          alt="Logo"
-          className="logo-preview"
-        />
+<img
+src={logo}
+alt="Logo"
+className="logo-preview"
+/>
 
       )}
 
@@ -426,13 +399,11 @@ export default function Galerie() {
             className="item"
           >
 
-            <img
-              src={fixImage(bild.bild)}
-              alt={`Galeriebild ${index + 1}`}
-              onClick={() =>
-                setActiveIndex(index)
-              }
-            />
+<img
+  src={bild.bild}
+  alt={`Galeriebild ${index + 1}`}
+  onClick={() => setActiveIndex(index)}
+/>
 
             {token && (
 
@@ -474,11 +445,9 @@ export default function Galerie() {
           </button>
 
           <img
-            src={fixImage(
-              bilder[activeIndex].bild
-            )}
-            alt="Galeriebild"
-          />
+  src={bilder[activeIndex].bild}
+  alt="Galeriebild"
+/>
 
           <button
             className="nav next"
