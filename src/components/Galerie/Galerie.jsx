@@ -407,7 +407,7 @@ const Galerie = () => {
               >
 
 <img
-  src={String(b.bild).trim()}
+  src={`https://restaurant-langhaus-backend.onrender.com/uploads${b.bild}`}
   alt="Galerie Bild"
   loading="lazy"
   onClick={() =>
@@ -416,16 +416,9 @@ const Galerie = () => {
   onError={(e) => {
 
     console.log(
-      "KAPUTT:",
-      b
+      "FAILED:",
+      `https://restaurant-langhaus-backend.onrender.com/uploads${b.bild}`
     );
-
-    console.log(
-      "SRC:",
-      String(b.bild).trim()
-    );
-
-    e.target.onerror = null;
 
     e.target.src =
       "https://dummyimage.com/600x400/000/fff&text=Fehler";
@@ -479,10 +472,7 @@ const Galerie = () => {
             ❮
           </button>
           <img
-  src={
-    bilder[activeIndex]
-      .bild
-  }
+  src={`https://restaurant-langhaus-backend.onrender.com/uploads${bilder[activeIndex].bild}`}
   alt=""
 />
           <button
