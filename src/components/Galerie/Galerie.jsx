@@ -1,192 +1,153 @@
-import React, {
-  useEffect,
-  useState,
-  useCallback,
-} from "react";
-
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-
 import "./Galerie.scss";
 
-const API =
-  "https://restaurant-langhaus-backend.onrender.com/api";
+const API = "https://restaurant-langhaus-backend.onrender.com/api";
 
 export default function Galerie() {
 
-  /*
-  ====================================
-  STATES
-  ====================================
-  */
+  /* ================= STATES ================= */
 
   const [bilder, setBilder] = useState([]);
-
-  const [activeIndex, setActiveIndex] =
-    useState(null);
-
+  const [activeIndex, setActiveIndex] = useState(null);
   const [error, setError] = useState("");
 
-  /*
-  ====================================
-  GALERIE LADEN
-  ====================================
-  */
+  const [files, setFiles] = useState([]);
+  const [uploading, setUploading] = useState(false);
 
-  useEffect(() => {
+  /* ================= GALERIE LADEN ================= */
 
-    const loadGalerie = async () => {
+  const loadGalerie = useCallback(async () => {
+    try {
+      const res = await axios.get(`${API}/galerie`);
 
-      try {
+      const validImages = res.data.filter(
+        (item) => item.bild && typeof item.bild === "string"
+      );
 
-        const res = await axios.get(
-          `${API}/galerie`
-        );
+      setBilder(validImages);
 
-        console.log("API:", res.data);
-
-        /*
-        NUR GÜLTIGE BILDER
-        */
-
-        const validImages =
-          res.data.filter(
-            (item) =>
-              item.bild &&
-              typeof item.bild === "string"
-          );
-
-        setBilder(validImages);
-
-      } catch (err) {
-
-        console.error(err);
-
-        setError(
-          "Galerie konnte nicht geladen werden"
-        );
-      }
-    };
-
-    loadGalerie();
-
+    } catch (err) {
+      console.error(err);
+      setError("Galerie konnte nicht geladen werden");
+    }
   }, []);
 
-  /*
-  ====================================
-  LIGHTBOX SCHLIESSEN
-  ====================================
-  */
+  useEffect(() => {
+    loadGalerie();
+  }, [loadGalerie]);
 
-  const closeFullscreen = () => {
+  /* ================= UPLOAD ================= */
 
-    setActiveIndex(null);
+  const handleUpload = async () => {
+
+    if (!files.length) return;
+
+    const formData = new FormData();
+
+    for (let file of files) {
+      formData.append("bilder", file);
+    }
+
+    try {
+
+      setUploading(true);
+
+      await axios.post(
+        `${API}/galerie`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          }
+        }
+      );
+
+      setFiles([]);
+      await loadGalerie();
+
+    } catch (err) {
+      console.error(err);
+      alert("Upload fehlgeschlagen");
+    } finally {
+      setUploading(false);
+    }
   };
 
-  /*
-  ====================================
-  NÄCHSTES BILD
-  ====================================
-  */
+  /* ================= LIGHTBOX ================= */
+
+  const closeFullscreen = () => setActiveIndex(null);
 
   const nextBild = useCallback(() => {
-
-    setActiveIndex((prev) => {
-
-      if (prev === null) return 0;
-
-      return prev === bilder.length - 1
+    setActiveIndex((prev) =>
+      prev === null
         ? 0
-        : prev + 1;
-    });
-
+        : prev === bilder.length - 1
+          ? 0
+          : prev + 1
+    );
   }, [bilder]);
-
-  /*
-  ====================================
-  VORHERIGES BILD
-  ====================================
-  */
 
   const prevBild = useCallback(() => {
-
-    setActiveIndex((prev) => {
-
-      if (prev === null) return 0;
-
-      return prev === 0
-        ? bilder.length - 1
-        : prev - 1;
-    });
-
+    setActiveIndex((prev) =>
+      prev === null
+        ? 0
+        : prev === 0
+          ? bilder.length - 1
+          : prev - 1
+    );
   }, [bilder]);
 
-  /*
-  ====================================
-  KEYBOARD SUPPORT
-  ====================================
-  */
+  /* ================= KEYBOARD ================= */
 
   useEffect(() => {
 
     const handleKeyDown = (e) => {
 
-      /*
-      NUR WENN LIGHTBOX OFFEN
-      */
-
       if (activeIndex === null) return;
 
-      if (e.key === "Escape") {
-        closeFullscreen();
-      }
-
-      if (e.key === "ArrowRight") {
-        nextBild();
-      }
-
-      if (e.key === "ArrowLeft") {
-        prevBild();
-      }
+      if (e.key === "Escape") closeFullscreen();
+      if (e.key === "ArrowRight") nextBild();
+      if (e.key === "ArrowLeft") prevBild();
     };
 
-    window.addEventListener(
-      "keydown",
-      handleKeyDown
-    );
+    window.addEventListener("keydown", handleKeyDown);
 
-    return () => {
+    return () =>
+      window.removeEventListener("keydown", handleKeyDown);
 
-      window.removeEventListener(
-        "keydown",
-        handleKeyDown
-      );
-    };
+  }, [activeIndex, nextBild, prevBild]);
 
-  }, [
-    activeIndex,
-    nextBild,
-    prevBild,
-  ]);
-
-  /*
-  ====================================
-  JSX
-  ====================================
-  */
+  /* ================= RENDER ================= */
 
   return (
-
     <div className="galerie">
 
       <h1>Galerie</h1>
 
       {/* ERROR */}
+      {error && <div className="error">{error}</div>}
 
-      {error && (
-        <div className="error">
-          {error}
-        </div>
-      )}
+      {/* ================= UPLOAD ================= */}
+
+      <div className="upload-box">
+
+        <input
+          type="file"
+          multiple
+          accept="image/*"
+          onChange={(e) => setFiles([...e.target.files])}
+        />
+
+        <button
+          onClick={handleUpload}
+          disabled={uploading}
+        >
+          {uploading ? "Upload..." : "Bilder hochladen"}
+        </button>
+
+      </div>
 
       {/* ================= GRID ================= */}
 
@@ -194,44 +155,16 @@ export default function Galerie() {
 
         {bilder.map((bild, index) => (
 
-          <div
-            key={bild.id || index}
-            className="item"
-          >
+          <div key={bild.id || index} className="item">
 
             <img
               src={bild.bild}
               alt={`Galerie ${index + 1}`}
-
               loading="lazy"
-
               crossOrigin="anonymous"
-
               referrerPolicy="no-referrer"
-
-              onClick={() =>
-                setActiveIndex(index)
-              }
-
-              onLoad={() => {
-
-                console.log(
-                  "BILD GELADEN:",
-                  bild.bild
-                );
-              }}
-
+              onClick={() => setActiveIndex(index)}
               onError={(e) => {
-
-                console.log(
-                  "FEHLER:",
-                  bild.bild
-                );
-
-                /*
-                FALLBACK BILD
-                */
-
                 e.target.src =
                   "https://dummyimage.com/600x400/000/fff&text=Bild";
               }}
@@ -245,75 +178,40 @@ export default function Galerie() {
 
       {/* ================= LIGHTBOX ================= */}
 
-      {activeIndex !== null &&
-        bilder[activeIndex] && (
+      {activeIndex !== null && bilder[activeIndex] && (
 
-        <div
-          className="lightbox"
-          onClick={closeFullscreen}
-        >
-
-          {/* PREV */}
+        <div className="lightbox" onClick={closeFullscreen}>
 
           <button
             className="nav prev"
             onClick={(e) => {
-
               e.stopPropagation();
-
               prevBild();
             }}
           >
             ❮
           </button>
 
-          {/* CONTENT */}
-
-          <div
-            className="lightbox-content"
-            onClick={(e) =>
-              e.stopPropagation()
-            }
-          >
-
-            <img
-              src={
-                bilder[activeIndex].bild
-              }
-
-              alt={`Fullscreen ${
-                activeIndex + 1
-              }`}
-
-              crossOrigin="anonymous"
-
-              referrerPolicy="no-referrer"
-            />
-
-          </div>
-
-          {/* NEXT */}
+          <img
+            src={bilder[activeIndex].bild}
+            alt="Fullscreen"
+            onClick={(e) => e.stopPropagation()}
+          />
 
           <button
             className="nav next"
             onClick={(e) => {
-
               e.stopPropagation();
-
               nextBild();
             }}
           >
             ❯
           </button>
 
-          {/* CLOSE */}
-
           <button
             className="close"
             onClick={(e) => {
-
               e.stopPropagation();
-
               closeFullscreen();
             }}
           >
