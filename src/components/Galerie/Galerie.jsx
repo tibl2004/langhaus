@@ -16,55 +16,38 @@ export default function Galerie() {
   ====================================
   */
 
-  const loadGalerie = async () => {
+  useEffect(() => {
 
-    try {
+    const loadGalerie = async () => {
 
-      const res = await axios.get(`${API}/galerie`);
+      try {
 
-      console.log("API DATA:", res.data);
+        const res = await axios.get(`${API}/galerie`);
 
-      const cleanData = res.data.map((item) => {
-
-        let imageUrl = item.bild;
+        console.log("API:", res.data);
 
         /*
-        Falls Backend nur /galerie/... liefert
+        WICHTIG:
+        Nur gültige Bilder übernehmen
         */
 
-        if (
-          imageUrl &&
-          imageUrl.startsWith("/galerie")
-        ) {
-          imageUrl =
-            `https://restaurant-langhaus-backend.onrender.com/uploads${imageUrl}`;
-        }
+        const validImages = res.data.filter(
+          (item) =>
+            item.bild &&
+            typeof item.bild === "string"
+        );
 
-        return {
-          ...item,
-          bild: imageUrl,
-        };
-      });
+        setBilder(validImages);
 
-      console.log("CLEAN DATA:", cleanData);
+      } catch (err) {
 
-      setBilder(cleanData);
+        console.error(err);
 
-    } catch (err) {
-
-      console.error(err);
-
-      setError("Galerie konnte nicht geladen werden.");
-    }
-  };
-
-  /*
-  ====================================
-  INITIAL LOAD
-  ====================================
-  */
-
-  useEffect(() => {
+        setError(
+          "Galerie konnte nicht geladen werden"
+        );
+      }
+    };
 
     loadGalerie();
 
@@ -82,19 +65,23 @@ export default function Galerie() {
 
   const nextBild = useCallback(() => {
 
-    setActiveIndex((i) =>
-      (i + 1) % bilder.length
+    setActiveIndex((prev) =>
+      prev === bilder.length - 1
+        ? 0
+        : prev + 1
     );
 
-  }, [bilder.length]);
+  }, [bilder]);
 
   const prevBild = useCallback(() => {
 
-    setActiveIndex((i) =>
-      (i - 1 + bilder.length) % bilder.length
+    setActiveIndex((prev) =>
+      prev === 0
+        ? bilder.length - 1
+        : prev - 1
     );
 
-  }, [bilder.length]);
+  }, [bilder]);
 
   /*
   ====================================
@@ -125,37 +112,44 @@ export default function Galerie() {
             className="item"
           >
 
-            {/* DEBUG URL */}
-            <p
-              style={{
-                fontSize: "12px",
-                wordBreak: "break-all",
-              }}
-            >
-              {bild.bild}
-            </p>
-
             <img
               src={bild.bild}
-              alt={`Bild ${index + 1}`}
+              alt={`Galerie ${index + 1}`}
               loading="lazy"
+              crossOrigin="anonymous"
+              referrerPolicy="no-referrer"
               style={{
                 width: "100%",
-                maxWidth: "400px",
+                height: "300px",
+                objectFit: "cover",
                 display: "block",
+                cursor: "pointer",
               }}
               onClick={() =>
                 setActiveIndex(index)
               }
-              onError={(e) => {
+              onLoad={() => {
 
                 console.log(
-                  "BILD FEHLER:",
+                  "BILD GELADEN:",
                   bild.bild
                 );
 
+              }}
+              onError={(e) => {
+
+                console.log(
+                  "FEHLER:",
+                  bild.bild
+                );
+
+                /*
+                FALLBACK BILD
+                */
+
                 e.target.src =
-                  "https://via.placeholder.com/400x300?text=Bild+fehlt";
+                  "https://dummyimage.com/600x400/000/fff&text=Bild";
+
               }}
             />
 
@@ -187,10 +181,13 @@ export default function Galerie() {
 
           <img
             src={bilder[activeIndex].bild}
-            alt="Galeriebild"
+            alt="Fullscreen"
+            crossOrigin="anonymous"
+            referrerPolicy="no-referrer"
             style={{
               maxWidth: "90vw",
               maxHeight: "90vh",
+              objectFit: "contain",
             }}
           />
 
@@ -206,7 +203,10 @@ export default function Galerie() {
 
           <button
             className="close"
-            onClick={closeFullscreen}
+            onClick={(e) => {
+              e.stopPropagation();
+              closeFullscreen();
+            }}
           >
             ✕
           </button>
