@@ -407,18 +407,23 @@ const Galerie = () => {
               >
 
 <img
-  src={
-    b.bild?.startsWith("http")
-      ? b.bild
-      : `https://restaurant-langhaus-backend.onrender.com/uploads${b.bild}`
-  }
+  src={b.bild}
   alt="Galerie Bild"
+  loading="lazy"
   onClick={() =>
     setActiveIndex(i)
   }
-  loading="lazy"
+  style={{
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+  }}
   onError={(e) => {
-    console.log("IMAGE ERROR:", b.bild);
+
+    console.log(
+      "IMAGE FAILED:",
+      b.bild
+    );
 
     e.target.src =
       "https://dummyimage.com/600x400/000/fff&text=Fehler";
@@ -471,13 +476,10 @@ const Galerie = () => {
           >
             ❮
           </button>
-
           <img
   src={
     bilder[activeIndex]
-      .bild?.startsWith("http")
-      ? bilder[activeIndex].bild
-      : `https://restaurant-langhaus-backend.onrender.com/uploads${bilder[activeIndex].bild}`
+      .bild
   }
   alt=""
 />
