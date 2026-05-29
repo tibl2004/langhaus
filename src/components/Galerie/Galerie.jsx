@@ -2,31 +2,17 @@ import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import "./Galerie.scss";
 
-const API_BASE = "https://restaurant-langhaus-backend.onrender.com";
-const API = `${API_BASE}/api`;
+const API = "https://restaurant-langhaus-backend.onrender.com/api";
 
 export default function Galerie() {
 
   const [bilder, setBilder] = useState([]);
-  const [logo, setLogo] = useState(null);
   const [activeIndex, setActiveIndex] = useState(null);
-
-  const [showUploadGalerie, setShowUploadGalerie] = useState(false);
-  const [showUploadLogo, setShowUploadLogo] = useState(false);
-
-  const [galerieFiles, setGalerieFiles] = useState([]);
-  const [logoFile, setLogoFile] = useState(null);
-
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  const token = localStorage.getItem("token");
-
-
 
   /*
   ====================================
-  LOAD GALERIE
+  GALERIE LADEN
   ====================================
   */
 
@@ -36,37 +22,39 @@ export default function Galerie() {
 
       const res = await axios.get(`${API}/galerie`);
 
-      setBilder(res.data);
+      console.log("API DATA:", res.data);
+
+      const cleanData = res.data.map((item) => {
+
+        let imageUrl = item.bild;
+
+        /*
+        Falls Backend nur /galerie/... liefert
+        */
+
+        if (
+          imageUrl &&
+          imageUrl.startsWith("/galerie")
+        ) {
+          imageUrl =
+            `https://restaurant-langhaus-backend.onrender.com/uploads${imageUrl}`;
+        }
+
+        return {
+          ...item,
+          bild: imageUrl,
+        };
+      });
+
+      console.log("CLEAN DATA:", cleanData);
+
+      setBilder(cleanData);
 
     } catch (err) {
 
       console.error(err);
 
       setError("Galerie konnte nicht geladen werden.");
-    }
-  };
-
-  /*
-  ====================================
-  LOAD LOGO
-  ====================================
-  */
-
-  const loadLogo = async () => {
-
-    try {
-
-      const res = await axios.get(`${API}/logo/current`);
-
-      if (res.data?.logoUrl) {
-        setLogo(res.data.logoUrl);
-      }
-
-    } catch (err) {
-
-      console.error(err);
-
-      setLogo(null);
     }
   };
 
@@ -79,141 +67,8 @@ export default function Galerie() {
   useEffect(() => {
 
     loadGalerie();
-    loadLogo();
 
   }, []);
-
-  /*
-  ====================================
-  UPLOAD GALERIE
-  ====================================
-  */
-
-  const handleGalerieUpload = async () => {
-
-    if (!galerieFiles.length) return;
-
-    const formData = new FormData();
-
-    galerieFiles.forEach((file) => {
-      formData.append("bilder", file);
-    });
-
-    try {
-
-      setLoading(true);
-      setError("");
-
-      await axios.post(
-        `${API}/galerie/upload`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      setGalerieFiles([]);
-      setShowUploadGalerie(false);
-
-      await loadGalerie();
-
-    } catch (err) {
-
-      console.error(err);
-
-      setError(
-        err.response?.data?.error ||
-        "Upload fehlgeschlagen"
-      );
-
-    } finally {
-
-      setLoading(false);
-    }
-  };
-
-  /*
-  ====================================
-  UPLOAD LOGO
-  ====================================
-  */
-
-  const handleLogoUpload = async () => {
-
-    if (!logoFile) return;
-
-    const formData = new FormData();
-
-    formData.append("logo", logoFile);
-
-    try {
-
-      setLoading(true);
-      setError("");
-
-      await axios.post(
-        `${API}/logo`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      setLogoFile(null);
-      setShowUploadLogo(false);
-
-      await loadLogo();
-
-    } catch (err) {
-
-      console.error(err);
-
-      setError("Logo Upload fehlgeschlagen");
-
-    } finally {
-
-      setLoading(false);
-    }
-  };
-
-  /*
-  ====================================
-  DELETE BILD
-  ====================================
-  */
-
-  const handleDeleteBild = async (id) => {
-
-    const confirmDelete = window.confirm(
-      "Wirklich löschen?"
-    );
-
-    if (!confirmDelete) return;
-
-    try {
-
-      await axios.delete(
-        `${API}/galerie/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      await loadGalerie();
-
-    } catch (err) {
-
-      console.error(err);
-
-      setError("Löschen fehlgeschlagen");
-    }
-  };
 
   /*
   ====================================
@@ -259,135 +114,6 @@ export default function Galerie() {
         </div>
       )}
 
-      {/* ================= BUTTONS ================= */}
-
-      {token && (
-        <div className="upload-actions">
-
-          <button
-            onClick={() =>
-              setShowUploadGalerie(true)
-            }
-          >
-            + Bilder hochladen
-          </button>
-
-          <button
-            onClick={() =>
-              setShowUploadLogo(true)
-            }
-          >
-            + Logo ändern
-          </button>
-
-        </div>
-      )}
-
-      {/* ================= UPLOAD GALERIE ================= */}
-
-      {showUploadGalerie && (
-
-        <div className="popup-overlay">
-
-          <div className="popup-form">
-
-            <h2>Bilder hochladen</h2>
-
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={(e) =>
-                setGalerieFiles([
-                  ...e.target.files,
-                ])
-              }
-            />
-
-            <div className="actions">
-
-              <button
-                onClick={handleGalerieUpload}
-                disabled={loading}
-              >
-                {loading
-                  ? "Upload läuft..."
-                  : "Upload"}
-              </button>
-
-              <button
-                onClick={() =>
-                  setShowUploadGalerie(false)
-                }
-              >
-                Abbrechen
-              </button>
-
-            </div>
-
-          </div>
-
-        </div>
-      )}
-
-      {/* ================= UPLOAD LOGO ================= */}
-
-      {showUploadLogo && (
-
-        <div className="popup-overlay">
-
-          <div className="popup-form">
-
-            <h2>Logo ändern</h2>
-
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) =>
-                setLogoFile(
-                  e.target.files[0]
-                )
-              }
-            />
-
-            <div className="actions">
-
-              <button
-                onClick={handleLogoUpload}
-                disabled={loading}
-              >
-                {loading
-                  ? "Upload läuft..."
-                  : "Upload"}
-              </button>
-
-              <button
-                onClick={() =>
-                  setShowUploadLogo(false)
-                }
-              >
-                Abbrechen
-              </button>
-
-            </div>
-
-          </div>
-
-        </div>
-      )}
-
-      {/* ================= LOGO ================= */}
-
-      {logo && (
-
-<img
-src={logo}
-alt="Logo"
-className="logo-preview"
-/>
-
-      )}
-
       {/* ================= GRID ================= */}
 
       <div className="grid">
@@ -399,24 +125,39 @@ className="logo-preview"
             className="item"
           >
 
-<img
-  src={bild.bild}
-  alt={`Galeriebild ${index + 1}`}
-  onClick={() => setActiveIndex(index)}
-/>
+            {/* DEBUG URL */}
+            <p
+              style={{
+                fontSize: "12px",
+                wordBreak: "break-all",
+              }}
+            >
+              {bild.bild}
+            </p>
 
-            {token && (
+            <img
+              src={bild.bild}
+              alt={`Bild ${index + 1}`}
+              loading="lazy"
+              style={{
+                width: "100%",
+                maxWidth: "400px",
+                display: "block",
+              }}
+              onClick={() =>
+                setActiveIndex(index)
+              }
+              onError={(e) => {
 
-              <button
-                className="delete-btn"
-                onClick={() =>
-                  handleDeleteBild(bild.id)
-                }
-              >
-                ✕
-              </button>
+                console.log(
+                  "BILD FEHLER:",
+                  bild.bild
+                );
 
-            )}
+                e.target.src =
+                  "https://via.placeholder.com/400x300?text=Bild+fehlt";
+              }}
+            />
 
           </div>
 
@@ -445,9 +186,13 @@ className="logo-preview"
           </button>
 
           <img
-  src={bilder[activeIndex].bild}
-  alt="Galeriebild"
-/>
+            src={bilder[activeIndex].bild}
+            alt="Galeriebild"
+            style={{
+              maxWidth: "90vw",
+              maxHeight: "90vh",
+            }}
+          />
 
           <button
             className="nav next"
