@@ -407,23 +407,25 @@ const Galerie = () => {
               >
 
 <img
-  src={b.bild}
+  src={String(b.bild).trim()}
   alt="Galerie Bild"
   loading="lazy"
   onClick={() =>
     setActiveIndex(i)
   }
-  style={{
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-  }}
   onError={(e) => {
 
     console.log(
-      "IMAGE FAILED:",
-      b.bild
+      "KAPUTT:",
+      b
     );
+
+    console.log(
+      "SRC:",
+      String(b.bild).trim()
+    );
+
+    e.target.onerror = null;
 
     e.target.src =
       "https://dummyimage.com/600x400/000/fff&text=Fehler";
