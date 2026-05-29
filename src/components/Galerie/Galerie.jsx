@@ -406,17 +406,24 @@ const Galerie = () => {
                 className="galerie-item"
               >
 
-                <img
-                  src={b.bild}
-                  alt="Galerie Bild"
-                  onClick={() =>
-                    setActiveIndex(
-                      i
-                    )
-                  }
-                  loading="lazy"
-                />
+<img
+  src={
+    b.bild?.startsWith("http")
+      ? b.bild
+      : `https://restaurant-langhaus-backend.onrender.com/uploads${b.bild}`
+  }
+  alt="Galerie Bild"
+  onClick={() =>
+    setActiveIndex(i)
+  }
+  loading="lazy"
+  onError={(e) => {
+    console.log("IMAGE ERROR:", b.bild);
 
+    e.target.src =
+      "https://dummyimage.com/600x400/000/fff&text=Fehler";
+  }}
+/>
                 {isAdmin && (
 
                   <button
@@ -466,17 +473,14 @@ const Galerie = () => {
           </button>
 
           <img
-            src={
-              bilder[
-                activeIndex
-              ].bild
-            }
-            alt=""
-            onClick={(e) =>
-              e.stopPropagation()
-            }
-          />
-
+  src={
+    bilder[activeIndex]
+      .bild?.startsWith("http")
+      ? bilder[activeIndex].bild
+      : `https://restaurant-langhaus-backend.onrender.com/uploads${bilder[activeIndex].bild}`
+  }
+  alt=""
+/>
           <button
             className="nav next"
             onClick={(e) => {
