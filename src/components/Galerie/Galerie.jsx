@@ -2,10 +2,10 @@ import React, {
   useEffect,
   useState,
   useCallback,
-  useRef,
 } from "react";
 
 import axios from "axios";
+
 import "./Galerie.scss";
 
 const API =
@@ -13,12 +13,18 @@ const API =
 
 export default function Galerie() {
 
-  const [bilder, setBilder] = useState([]);
-  const [activeIndex, setActiveIndex] = useState(null);
-  const [error, setError] = useState("");
+  /*
+  ====================================
+  STATES
+  ====================================
+  */
 
-  /* 🔥 FULLSCREEN REF */
-  const lightboxRef = useRef(null);
+  const [bilder, setBilder] = useState([]);
+
+  const [activeIndex, setActiveIndex] =
+    useState(null);
+
+  const [error, setError] = useState("");
 
   /*
   ====================================
@@ -36,11 +42,18 @@ export default function Galerie() {
           `${API}/galerie`
         );
 
-        const validImages = res.data.filter(
-          (item) =>
-            item.bild &&
-            typeof item.bild === "string"
-        );
+        console.log("API:", res.data);
+
+        /*
+        NUR GÜLTIGE BILDER
+        */
+
+        const validImages =
+          res.data.filter(
+            (item) =>
+              item.bild &&
+              typeof item.bild === "string"
+          );
 
         setBilder(validImages);
 
@@ -60,76 +73,68 @@ export default function Galerie() {
 
   /*
   ====================================
-  FULLSCREEN ÖFFNEN
+  LIGHTBOX SCHLIESSEN
   ====================================
   */
 
-  useEffect(() => {
-
-    if (
-      activeIndex !== null &&
-      lightboxRef.current
-    ) {
-
-      const elem = lightboxRef.current;
-
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      }
-    }
-
-  }, [activeIndex]);
-
-  /*
-  ====================================
-  FULLSCREEN SCHLIESSEN
-  ====================================
-  */
-
-  const closeFullscreen = async () => {
+  const closeFullscreen = () => {
 
     setActiveIndex(null);
-
-    if (document.fullscreenElement) {
-      await document.exitFullscreen();
-    }
   };
 
   /*
   ====================================
-  NAVIGATION
+  NÄCHSTES BILD
   ====================================
   */
 
   const nextBild = useCallback(() => {
 
-    setActiveIndex((prev) =>
-      prev === bilder.length - 1
+    setActiveIndex((prev) => {
+
+      if (prev === null) return 0;
+
+      return prev === bilder.length - 1
         ? 0
-        : prev + 1
-    );
-
-  }, [bilder]);
-
-  const prevBild = useCallback(() => {
-
-    setActiveIndex((prev) =>
-      prev === 0
-        ? bilder.length - 1
-        : prev - 1
-    );
+        : prev + 1;
+    });
 
   }, [bilder]);
 
   /*
   ====================================
-  ESC KEY SUPPORT
+  VORHERIGES BILD
+  ====================================
+  */
+
+  const prevBild = useCallback(() => {
+
+    setActiveIndex((prev) => {
+
+      if (prev === null) return 0;
+
+      return prev === 0
+        ? bilder.length - 1
+        : prev - 1;
+    });
+
+  }, [bilder]);
+
+  /*
+  ====================================
+  KEYBOARD SUPPORT
   ====================================
   */
 
   useEffect(() => {
 
-    const handleKey = (e) => {
+    const handleKeyDown = (e) => {
+
+      /*
+      NUR WENN LIGHTBOX OFFEN
+      */
+
+      if (activeIndex === null) return;
 
       if (e.key === "Escape") {
         closeFullscreen();
@@ -146,16 +151,22 @@ export default function Galerie() {
 
     window.addEventListener(
       "keydown",
-      handleKey
+      handleKeyDown
     );
 
-    return () =>
+    return () => {
+
       window.removeEventListener(
         "keydown",
-        handleKey
+        handleKeyDown
       );
+    };
 
-  }, [nextBild, prevBild]);
+  }, [
+    activeIndex,
+    nextBild,
+    prevBild,
+  ]);
 
   /*
   ====================================
@@ -169,32 +180,61 @@ export default function Galerie() {
 
       <h1>Galerie</h1>
 
+      {/* ERROR */}
+
       {error && (
         <div className="error">
           {error}
         </div>
       )}
 
-      {/* GRID */}
+      {/* ================= GRID ================= */}
 
       <div className="grid">
 
         {bilder.map((bild, index) => (
 
           <div
-            key={bild.id}
+            key={bild.id || index}
             className="item"
           >
 
             <img
               src={bild.bild}
               alt={`Galerie ${index + 1}`}
+
               loading="lazy"
+
               crossOrigin="anonymous"
+
               referrerPolicy="no-referrer"
+
               onClick={() =>
                 setActiveIndex(index)
               }
+
+              onLoad={() => {
+
+                console.log(
+                  "BILD GELADEN:",
+                  bild.bild
+                );
+              }}
+
+              onError={(e) => {
+
+                console.log(
+                  "FEHLER:",
+                  bild.bild
+                );
+
+                /*
+                FALLBACK BILD
+                */
+
+                e.target.src =
+                  "https://dummyimage.com/600x400/000/fff&text=Bild";
+              }}
             />
 
           </div>
@@ -203,46 +243,77 @@ export default function Galerie() {
 
       </div>
 
-      {/* LIGHTBOX */}
+      {/* ================= LIGHTBOX ================= */}
 
       {activeIndex !== null &&
         bilder[activeIndex] && (
 
         <div
           className="lightbox"
-          ref={lightboxRef}
           onClick={closeFullscreen}
         >
+
+          {/* PREV */}
 
           <button
             className="nav prev"
             onClick={(e) => {
+
               e.stopPropagation();
+
               prevBild();
             }}
           >
-            ‹
+            ❮
           </button>
 
-          <img
-            src={bilder[activeIndex].bild}
-            alt="Fullscreen"
-          />
+          {/* CONTENT */}
+
+          <div
+            className="lightbox-content"
+            onClick={(e) =>
+              e.stopPropagation()
+            }
+          >
+
+            <img
+              src={
+                bilder[activeIndex].bild
+              }
+
+              alt={`Fullscreen ${
+                activeIndex + 1
+              }`}
+
+              crossOrigin="anonymous"
+
+              referrerPolicy="no-referrer"
+            />
+
+          </div>
+
+          {/* NEXT */}
 
           <button
             className="nav next"
             onClick={(e) => {
+
               e.stopPropagation();
+
               nextBild();
             }}
           >
-            ›
+            ❯
           </button>
+
+          {/* CLOSE */}
 
           <button
             className="close"
             onClick={(e) => {
+
               e.stopPropagation();
+
               closeFullscreen();
             }}
           >
