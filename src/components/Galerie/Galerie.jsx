@@ -1,191 +1,464 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
+
 import axios from "axios";
+
+import {
+  FaTrash,
+  FaUpload,
+} from "react-icons/fa";
+
 import "./Galerie.scss";
 
-const API = "https://restaurant-langhaus-backend.onrender.com/api";
+const API =
+  "https://restaurant-langhaus-backend.onrender.com/api";
 
-export default function Galerie() {
+const GALERIE_API =
+  `${API}/galerie`;
 
-  /* ================= STATES ================= */
+const Galerie = () => {
 
-  const [bilder, setBilder] = useState([]);
-  const [activeIndex, setActiveIndex] = useState(null);
-  const [error, setError] = useState("");
+  /*
+  ====================================
+  AUTH
+  ====================================
+  */
 
-  const [files, setFiles] = useState([]);
-  const [uploading, setUploading] = useState(false);
+  const token =
+    localStorage.getItem("token");
 
-  /* ================= GALERIE LADEN ================= */
+  const user = JSON.parse(
+    localStorage.getItem("user") ||
+      "{}"
+  );
 
-  const loadGalerie = useCallback(async () => {
-    try {
-      const res = await axios.get(`${API}/galerie`);
+  const isAdmin =
+    user?.userTypes?.includes(
+      "admin"
+    );
 
-      const validImages = res.data.filter(
-        (item) => item.bild && typeof item.bild === "string"
-      );
+  /*
+  ====================================
+  STATES
+  ====================================
+  */
 
-      setBilder(validImages);
+  const [bilder,
+    setBilder] =
+    useState([]);
 
-    } catch (err) {
-      console.error(err);
-      setError("Galerie konnte nicht geladen werden");
-    }
-  }, []);
+  const [loading,
+    setLoading] =
+    useState(true);
+
+  const [activeIndex,
+    setActiveIndex] =
+    useState(null);
+
+  const [uploadFiles,
+    setUploadFiles] =
+    useState([]);
+
+  const [uploading,
+    setUploading] =
+    useState(false);
+
+  /*
+  ====================================
+  FETCH
+  ====================================
+  */
+
+  const fetchGalerie =
+    useCallback(async () => {
+
+      try {
+
+        const res =
+          await axios.get(
+            GALERIE_API
+          );
+
+        setBilder(
+          res.data || []
+        );
+
+      } catch (err) {
+
+        console.error(err);
+
+      } finally {
+
+        setLoading(false);
+      }
+
+    }, []);
 
   useEffect(() => {
-    loadGalerie();
-  }, [loadGalerie]);
 
-  /* ================= UPLOAD ================= */
+    fetchGalerie();
 
-  const handleUpload = async () => {
+  }, [fetchGalerie]);
 
-    if (!files.length) return;
+  /*
+  ====================================
+  UPLOAD
+  ====================================
+  */
 
-    const formData = new FormData();
+  const handleUpload =
+    async () => {
 
-    for (let file of files) {
-      formData.append("bilder", file);
-    }
+      if (!token) {
 
-    try {
+        alert(
+          "Nicht eingeloggt"
+        );
 
-      setUploading(true);
+        return;
+      }
 
-      await axios.post(
-        `${API}/galerie`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem("token")}`
+      if (
+        uploadFiles.length === 0
+      ) {
+
+        alert(
+          "Bitte Bilder auswählen"
+        );
+
+        return;
+      }
+
+      try {
+
+        setUploading(true);
+
+        const formData =
+          new FormData();
+
+        uploadFiles.forEach(
+          (file) => {
+
+            formData.append(
+              "bilder",
+              file
+            );
           }
-        }
-      );
+        );
 
-      setFiles([]);
-      await loadGalerie();
+        await axios.post(
+          `${GALERIE_API}/upload`,
+          formData,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
 
-    } catch (err) {
-      console.error(err);
-      alert("Upload fehlgeschlagen");
-    } finally {
-      setUploading(false);
-    }
-  };
+              "Content-Type":
+                "multipart/form-data",
+            },
+          }
+        );
 
-  /* ================= LIGHTBOX ================= */
+        setUploadFiles([]);
 
-  const closeFullscreen = () => setActiveIndex(null);
+        await fetchGalerie();
 
-  const nextBild = useCallback(() => {
-    setActiveIndex((prev) =>
-      prev === null
-        ? 0
-        : prev === bilder.length - 1
-          ? 0
-          : prev + 1
-    );
-  }, [bilder]);
+        alert(
+          "Upload erfolgreich ✅"
+        );
 
-  const prevBild = useCallback(() => {
-    setActiveIndex((prev) =>
-      prev === null
-        ? 0
-        : prev === 0
-          ? bilder.length - 1
-          : prev - 1
-    );
-  }, [bilder]);
+      } catch (err) {
 
-  /* ================= KEYBOARD ================= */
+        console.error(err);
 
-  useEffect(() => {
+        alert(
+          err.response?.data
+            ?.error ||
+            "Upload fehlgeschlagen"
+        );
 
-    const handleKeyDown = (e) => {
+      } finally {
 
-      if (activeIndex === null) return;
-
-      if (e.key === "Escape") closeFullscreen();
-      if (e.key === "ArrowRight") nextBild();
-      if (e.key === "ArrowLeft") prevBild();
+        setUploading(false);
+      }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
+  /*
+  ====================================
+  DELETE
+  ====================================
+  */
+
+  const handleDelete =
+    async (id) => {
+
+      const ok =
+        window.confirm(
+          "Bild wirklich löschen?"
+        );
+
+      if (!ok) return;
+
+      try {
+
+        await axios.delete(
+          `${GALERIE_API}/${id}`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+        setBilder((prev) =>
+          prev.filter(
+            (b) =>
+              b.id !== id
+          )
+        );
+
+        alert(
+          "Bild gelöscht ✅"
+        );
+
+      } catch (err) {
+
+        console.error(err);
+
+        alert(
+          err.response?.data
+            ?.error ||
+            "Löschen fehlgeschlagen"
+        );
+      }
+    };
+
+  /*
+  ====================================
+  LIGHTBOX
+  ====================================
+  */
+
+  const closeFullscreen =
+    () =>
+      setActiveIndex(
+        null
+      );
+
+  const nextBild =
+    useCallback(
+      () =>
+        setActiveIndex(
+          (i) =>
+            (i + 1) %
+            bilder.length
+        ),
+      [bilder.length]
+    );
+
+  const prevBild =
+    useCallback(
+      () =>
+        setActiveIndex(
+          (i) =>
+            (i - 1 + bilder.length) %
+            bilder.length
+        ),
+      [bilder.length]
+    );
+
+  useEffect(() => {
+
+    if (
+      activeIndex === null
+    )
+      return;
+
+    const handleKey =
+      (e) => {
+
+        if (
+          e.key ===
+          "Escape"
+        ) {
+          closeFullscreen();
+        }
+
+        if (
+          e.key ===
+          "ArrowRight"
+        ) {
+          nextBild();
+        }
+
+        if (
+          e.key ===
+          "ArrowLeft"
+        ) {
+          prevBild();
+        }
+      };
+
+    window.addEventListener(
+      "keydown",
+      handleKey
+    );
 
     return () =>
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener(
+        "keydown",
+        handleKey
+      );
 
-  }, [activeIndex, nextBild, prevBild]);
+  }, [
+    activeIndex,
+    nextBild,
+    prevBild,
+  ]);
 
-  /* ================= RENDER ================= */
+  /*
+  ====================================
+  LOADING
+  ====================================
+  */
+
+  if (loading)
+    return <p>Lädt...</p>;
+
+  /*
+  ====================================
+  RENDER
+  ====================================
+  */
 
   return (
-    <div className="galerie">
 
-      <h1>Galerie</h1>
+    <div className="galerie-container">
 
-      {/* ERROR */}
-      {error && <div className="error">{error}</div>}
+      {/* HEADER */}
 
-      {/* ================= UPLOAD ================= */}
+      <div className="galerie-header">
 
-      <div className="upload-box">
+        <h1>
+          Galerie
+        </h1>
 
-        <input
-          type="file"
-          multiple
-          accept="image/*"
-          onChange={(e) => setFiles([...e.target.files])}
-        />
+      </div>
 
-        <button
-          onClick={handleUpload}
-          disabled={uploading}
+      {/* ADMIN */}
+
+      {isAdmin && (
+
+        <div className="upload-box">
+
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={(e) =>
+              setUploadFiles(
+                Array.from(
+                  e.target.files ||
+                    []
+                )
+              )
+            }
+          />
+
+          <button
+            onClick={
+              handleUpload
+            }
+            disabled={
+              uploading
+            }
+          >
+
+            <FaUpload />
+
+            {" "}
+
+            {uploading
+              ? "Upload läuft..."
+              : "Bilder hochladen"}
+
+          </button>
+
+        </div>
+      )}
+
+      {/* GRID */}
+
+      <section className="galerie-section">
+
+        <div className="grid">
+
+          {bilder.map(
+            (b, i) => (
+
+              <div
+                key={b.id}
+                className="galerie-item"
+              >
+
+                <img
+                  src={b.bild}
+                  alt="Galerie Bild"
+                  onClick={() =>
+                    setActiveIndex(
+                      i
+                    )
+                  }
+                  loading="lazy"
+                />
+
+                {isAdmin && (
+
+                  <button
+                    className="delete-btn"
+                    onClick={() =>
+                      handleDelete(
+                        b.id
+                      )
+                    }
+                  >
+
+                    <FaTrash />
+
+                  </button>
+                )}
+
+              </div>
+            )
+          )}
+
+        </div>
+
+      </section>
+
+      {/* LIGHTBOX */}
+
+      {activeIndex !==
+        null && (
+
+        <div
+          className="lightbox"
+          onClick={
+            closeFullscreen
+          }
         >
-          {uploading ? "Upload..." : "Bilder hochladen"}
-        </button>
-
-      </div>
-
-      {/* ================= GRID ================= */}
-
-      <div className="grid">
-
-        {bilder.map((bild, index) => (
-
-          <div key={bild.id || index} className="item">
-
-            <img
-              src={bild.bild}
-              alt={`Galerie ${index + 1}`}
-              loading="lazy"
-              crossOrigin="anonymous"
-              referrerPolicy="no-referrer"
-              onClick={() => setActiveIndex(index)}
-              onError={(e) => {
-                e.target.src =
-                  "https://dummyimage.com/600x400/000/fff&text=Bild";
-              }}
-            />
-
-          </div>
-
-        ))}
-
-      </div>
-
-      {/* ================= LIGHTBOX ================= */}
-
-      {activeIndex !== null && bilder[activeIndex] && (
-
-        <div className="lightbox" onClick={closeFullscreen}>
 
           <button
             className="nav prev"
             onClick={(e) => {
+
               e.stopPropagation();
+
               prevBild();
             }}
           >
@@ -193,15 +466,23 @@ export default function Galerie() {
           </button>
 
           <img
-            src={bilder[activeIndex].bild}
-            alt="Fullscreen"
-            onClick={(e) => e.stopPropagation()}
+            src={
+              bilder[
+                activeIndex
+              ].bild
+            }
+            alt=""
+            onClick={(e) =>
+              e.stopPropagation()
+            }
           />
 
           <button
             className="nav next"
             onClick={(e) => {
+
               e.stopPropagation();
+
               nextBild();
             }}
           >
@@ -211,7 +492,9 @@ export default function Galerie() {
           <button
             className="close"
             onClick={(e) => {
+
               e.stopPropagation();
+
               closeFullscreen();
             }}
           >
@@ -223,4 +506,6 @@ export default function Galerie() {
 
     </div>
   );
-}
+};
+
+export default Galerie;
