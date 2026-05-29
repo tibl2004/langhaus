@@ -139,139 +139,154 @@ export default function MenuCategory() {
   };
 
   const downloadPDF = () => {
-    if (!cardData?.categories?.length) {
-      console.warn("Keine Daten für PDF vorhanden");
-      return;
-    }
+    if (!cardData?.categories?.length) return;
   
     const pdf = new jsPDF("p", "mm", "a4");
   
-    const primary = [20, 20, 20];
-    const gold = [180, 140, 40];
-    const gray = [110, 110, 110];
+    const black = [25, 25, 25];
+    const gold = [170, 130, 60];
+    const gray = [120, 120, 120];
+  
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+  
+    let y = 35;
   
     // =========================
-    // HEADER
+    // HEADER (Fine Dining Style)
     // =========================
-    pdf.setFillColor(...primary);
-    pdf.rect(0, 0, 210, 35, "F");
+    pdf.setFillColor(...black);
+    pdf.rect(0, 0, pageWidth, 45, "F");
   
     pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(24);
     pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(28);
   
-    pdf.text(cardData.card?.name || "Speisekarte", 105, 18, {
+    pdf.text(cardData.card?.name || "SPEISEKARTE", pageWidth / 2, 20, {
       align: "center"
     });
   
-    pdf.setFontSize(10);
+    pdf.setFontSize(11);
     pdf.setTextColor(220, 220, 220);
   
-    pdf.text("Restaurant Langhaus", 105, 27, {
+    pdf.text("Restaurant Langhaus", pageWidth / 2, 30, {
       align: "center"
     });
   
-    let currentY = 45;
+    pdf.setFontSize(9);
+    pdf.text("Frisch • Regional • Hausgemacht", pageWidth / 2, 37, {
+      align: "center"
+    });
+  
+    y = 55;
   
     // =========================
-    // KATEGORIEN
+    // CATEGORIES
     // =========================
-    cardData.categories.forEach((category) => {
-      if (!category) return;
+    cardData.categories.forEach((cat) => {
+      if (!cat?.items?.length) return;
   
-      if (currentY > 250) {
+      if (y > 240) {
         pdf.addPage();
-        currentY = 20;
+        y = 20;
       }
   
-      // Kategorie Titel
+      // CATEGORY TITLE BAR
       pdf.setFillColor(...gold);
-      pdf.roundedRect(14, currentY - 6, 182, 10, 2, 2, "F");
+      pdf.roundedRect(14, y - 6, pageWidth - 28, 10, 2, 2, "F");
   
       pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(14);
+      pdf.setFontSize(13);
       pdf.setTextColor(255, 255, 255);
   
-      pdf.text(category.name || "", 18, currentY);
-  
-      currentY += 12;
-  
-      // Items
-      const rows = (category.items || []).map((item) => [
-        item.nummer || "",
-        item.name || "",
-        item.zutaten || "",
-        `CHF ${Number(item.preis || 0).toFixed(2)}`
-      ]);
-  
-      autoTable(pdf, {
-        startY: currentY,
-  
-        head: [["Nr.", "Gericht", "Beschreibung", "Preis"]],
-  
-        body: rows,
-  
-        theme: "grid",
-  
-        styles: {
-          font: "helvetica",
-          fontSize: 9,
-          cellPadding: 3,
-          textColor: primary,
-          lineColor: [220, 220, 220],
-          lineWidth: 0.2
-        },
-  
-        headStyles: {
-          fillColor: primary,
-          textColor: [255, 255, 255],
-          fontStyle: "bold"
-        },
-  
-        alternateRowStyles: {
-          fillColor: [250, 250, 250]
-        },
-  
-        columnStyles: {
-          0: { cellWidth: 15, halign: "center" },
-          1: { cellWidth: 55 },
-          2: { cellWidth: 85 },
-          3: { cellWidth: 25, halign: "right" }
-        },
-  
-        margin: { left: 14, right: 14 },
-  
-        didDrawPage: () => {
-          const pageHeight = pdf.internal.pageSize.height;
-  
-          pdf.setDrawColor(...gold);
-          pdf.line(14, pageHeight - 15, 196, pageHeight - 15);
-  
-          pdf.setFontSize(9);
-          pdf.setTextColor(...gray);
-  
-          pdf.text("Alle Preise inkl. 8.1% MWST", 14, pageHeight - 8);
-  
-          pdf.text(
-            `Seite ${pdf.internal.getNumberOfPages()}`,
-            196,
-            pageHeight - 8,
-            { align: "right" }
-          );
-        }
+      pdf.text(cat.name.toUpperCase(), pageWidth / 2, y, {
+        align: "center"
       });
   
-      currentY = pdf.lastAutoTable.finalY + 10;
+      y += 14;
+  
+      // =========================
+      // ITEMS (Restaurant Layout)
+      // =========================
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(10);
+  
+      cat.items.forEach((item) => {
+        if (y > 270) {
+          pdf.addPage();
+          y = 20;
+        }
+  
+        const name = item.name || "";
+        const desc = item.zutaten || "";
+        const price = `CHF ${Number(item.preis || 0).toFixed(2)}`;
+  
+        // LEFT: NAME
+        pdf.setTextColor(30, 30, 30);
+        pdf.setFont("helvetica", "bold");
+        pdf.text(name, 14, y);
+  
+        // RIGHT: PRICE
+        pdf.setFont("helvetica", "bold");
+        pdf.text(price, pageWidth - 14, y, { align: "right" });
+  
+        y += 5;
+  
+        // DESCRIPTION (light gray)
+        if (desc) {
+          pdf.setFont("helvetica", "normal");
+          pdf.setTextColor(...gray);
+  
+          const split = pdf.splitTextToSize(desc, pageWidth - 28);
+          pdf.text(split, 14, y);
+  
+          y += split.length * 4;
+        }
+  
+        y += 4;
+  
+        // subtle line
+        pdf.setDrawColor(235, 235, 235);
+        pdf.line(14, y - 3, pageWidth - 14, y - 3);
+      });
+  
+      y += 8;
     });
   
     // =========================
-    // SAFE FILENAME
+    // FOOTER
     // =========================
-    const safeName = (cardData.card?.name || "speisekarte")
+    const pages = pdf.getNumberOfPages();
+  
+    for (let i = 1; i <= pages; i++) {
+      pdf.setPage(i);
+  
+      pdf.setFontSize(9);
+      pdf.setTextColor(...gray);
+  
+      pdf.text(
+        "Alle Preise inkl. MwSt. • Änderungen vorbehalten",
+        pageWidth / 2,
+        pageHeight - 10,
+        { align: "center" }
+      );
+  
+      pdf.text(
+        `Seite ${i} / ${pages}`,
+        pageWidth - 14,
+        pageHeight - 10,
+        { align: "right" }
+      );
+    }
+  
+    // =========================
+    // SAFE FILE NAME
+    // =========================
+    const fileName = (cardData.card?.name || "speisekarte")
       .replace(/[^a-z0-9]/gi, "_")
       .toLowerCase();
   
-    pdf.save(`${safeName}.pdf`);
+    pdf.save(`${fileName}.pdf`);
   };
     return (
       <div className="menu-card-view">
