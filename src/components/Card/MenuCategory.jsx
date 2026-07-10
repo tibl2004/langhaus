@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import "./MenuCategory.scss";
 import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 
 const API = "https://restaurant-langhaus-backend.onrender.com/api/menu";
 

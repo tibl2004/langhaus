@@ -2,7 +2,6 @@ import React from "react";
 import {
   FaMapMarkerAlt,
   FaPhone,
-  FaEnvelope,
   FaBuilding,
   FaInfoCircle
 } from "react-icons/fa";
