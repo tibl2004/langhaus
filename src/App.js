@@ -8,6 +8,7 @@ import Galerie from './components/Galerie/Galerie';
 import MenuCardsManager from './components/Card/MenuCardsManager';
 import Footer from './components/Landingpage/Footer/Footer';
 import Impressum from './components/Impressum/Impressum';
+import Kontakt from './components/Landingpage/Kontakt/Kontakt';
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
           <Route path="/card/:cardId" element={<MenuCategory />} />
           <Route path="/galerie" element={<Galerie />} />
           <Route path="/impressum" element={<Impressum />} />
+          <Route path="/kontakt" element={<Kontakt />} />
 
         </Routes>
         <Footer />

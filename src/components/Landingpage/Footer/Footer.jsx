@@ -70,7 +70,7 @@ function Footer() {
               <FaInstagram />
             </a>
 
-            <a href="#">
+            <a href="https://www.tripadvisor.ch/Restaurant_Review-g198855-d19769579-Reviews-Restaurant_Langhaus-Baden_Canton_of_Aargau.html">
               <FaTripadvisor />
             </a>
 
@@ -93,9 +93,9 @@ function Footer() {
               <div>
                 <strong>Adresse</strong>
                 <span>
-                  Musterstrasse 10
+                Langhausstrasse 1
                   <br />
-                  3000 Bern
+                  5400 Baden
                 </span>
               </div>
             </div>
@@ -104,7 +104,7 @@ function Footer() {
               <FaPhoneAlt />
               <div>
                 <strong>Telefon</strong>
-                <span>+41 31 123 45 67</span>
+                <span>+41 56 555 21 12</span>
               </div>
             </div>
 
@@ -112,7 +112,7 @@ function Footer() {
               <FaEnvelope />
               <div>
                 <strong>E-Mail</strong>
-                <span>info@restaurant-langhaus.ch</span>
+                <span>gastro@baden-langhaus.ch</span>
               </div>
             </div>
 
@@ -121,7 +121,7 @@ function Footer() {
           <div className="footer-buttons">
 
             <a
-              href="tel:+41311234567"
+              href="tel:+41565552112"
               className="gold-btn"
             >
               Jetzt anrufen
