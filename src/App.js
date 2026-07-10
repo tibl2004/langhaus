@@ -6,6 +6,8 @@ import LoginForm from './components/Login/LoginForm';
 import MenuCategory from './components/Card/MenuCategory';
 import Galerie from './components/Galerie/Galerie';
 import MenuCardsManager from './components/Card/MenuCardsManager';
+import Footer from './components/Landingpage/Footer/Footer';
+import Impressum from './components/Impressum/Impressum';
 
 const App = () => {
   return (
@@ -18,8 +20,10 @@ const App = () => {
           <Route path="/cards" element={<MenuCardsManager />} />
           <Route path="/card/:cardId" element={<MenuCategory />} />
           <Route path="/galerie" element={<Galerie />} />
+          <Route path="/impressum" element={<Impressum />} />
 
         </Routes>
+        <Footer />
       </div>
     </Router>
   );

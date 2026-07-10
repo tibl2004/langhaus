@@ -1,125 +1,790 @@
+/* =========================================
+   PREMIUM MENU CATEGORY DESIGN
+   RESTAURANT LANGHAUS STYLE
+========================================= */
+
+
+$gold: #c8a96a;
+$gold-dark: #9d7c3c;
+$dark: #181818;
+$text: #333;
+$light: #f8f6f2;
+$white: #ffffff;
+$danger: #b53a3a;
+
+
+
 .menu-card-view {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 40px;
-  font-family: "Poppins", sans-serif;
-  background: #f8f6f2;
-  border-radius: 14px;
-}
 
-/* Titel */
+  min-height:100vh;
+
+  padding:4rem 3rem;
+
+  background:
+  linear-gradient(
+    135deg,
+    #f8f6f2,
+    #ffffff
+  );
+
+  font-family:"Poppins",sans-serif;
+
+  color:$text;
+
+
+
+/* =================================
+   TITLE
+================================= */
+
+
 h1 {
-  text-align: center;
-  margin-bottom: 40px;
+
+  text-align:center;
+
+  font-size:3.2rem;
+
+  color:$dark;
+
+  font-weight:700;
+
+  margin-bottom:3rem;
+
+
+  letter-spacing:-1px;
+
+
+
+  &::after {
+
+    content:"";
+
+    display:block;
+
+    width:90px;
+
+    height:4px;
+
+    margin:20px auto;
+
+    background:$gold;
+
+    border-radius:30px;
+
+  }
+
 }
 
-/* Neue Kategorie */
+
+
+
+
+
+/* =================================
+   PDF BUTTON
+================================= */
+
+
+.pdf-actions {
+
+display:flex;
+
+justify-content:center;
+
+margin-bottom:3rem;
+
+
+.download-pdf {
+
+
+background:
+linear-gradient(
+135deg,
+$gold,
+$gold-dark
+);
+
+
+color:white;
+
+border:none;
+
+padding:15px 35px;
+
+border-radius:50px;
+
+font-size:16px;
+
+font-weight:700;
+
+cursor:pointer;
+
+
+box-shadow:
+0 15px 40px rgba(200,169,106,.35);
+
+
+transition:.3s;
+
+
+
+&:hover {
+
+transform:translateY(-3px);
+
+}
+
+
+}
+
+
+}
+
+
+
+
+
+/* =================================
+   CATEGORY CREATE
+================================= */
+
+
 .new-category {
-  margin-bottom: 40px;
 
-  form {
-    display: flex;
-    gap: 10px;
-  }
 
-  input {
-    flex: 1;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-  }
+background:white;
+
+padding:2rem;
+
+border-radius:25px;
+
+box-shadow:
+0 20px 50px rgba(0,0,0,.08);
+
+margin-bottom:3rem;
+
+
+
+h2 {
+
+color:$dark;
+
+margin-bottom:1.5rem;
+
+border-left:5px solid $gold;
+
+padding-left:15px;
+
 }
 
-/* Kategorien */
+
+
+form {
+
+
+display:flex;
+
+gap:1rem;
+
+
+
+input {
+
+flex:1;
+
+padding:15px 20px;
+
+border-radius:12px;
+
+border:1px solid #ddd;
+
+font-size:15px;
+
+
+&:focus {
+
+outline:none;
+
+border-color:$gold;
+
+}
+
+}
+
+
+}
+
+}
+
+
+
+
+
+
+/* =================================
+   CATEGORY CARD
+================================= */
+
+
 .category {
-  margin-bottom: 40px;
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
+
+
+background:white;
+
+
+border-radius:30px;
+
+
+padding:2.5rem;
+
+
+margin-bottom:3rem;
+
+
+box-shadow:
+
+0 25px 70px rgba(0,0,0,.08);
+
+
+
+h2 {
+
+
+font-size:2rem;
+
+color:$dark;
+
+
+margin-bottom:2rem;
+
+
+display:flex;
+
+align-items:center;
+
+
+&::before {
+
+content:"";
+
+width:10px;
+
+height:35px;
+
+background:$gold;
+
+border-radius:20px;
+
+margin-right:15px;
+
 }
+
+
+}
+
+}
+
+
+
+
+
+/* =================================
+   DISH LIST
+================================= */
+
 
 .category-gerichte {
-  list-style: none;
-  padding: 0;
-}
+
+
+list-style:none;
+
+padding:0;
+
+margin:0;
+
+
 
 .gericht {
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
+
+
+padding:1.5rem 0;
+
+
+border-bottom:
+
+1px solid #eee;
+
+
+
+&:last-child {
+
+border-bottom:none;
+
 }
+
+
+
 
 .gericht-row {
-  display: flex;
-  justify-content: space-between;
+
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+
+
+.name {
+
+font-size:1.25rem;
+
+font-weight:700;
+
+color:$dark;
+
 }
+
+
+
+.preis {
+
+
+font-size:1.2rem;
+
+font-weight:700;
+
+color:$gold-dark;
+
+
+}
+
+
+}
+
+
+
+
 
 .zutaten {
-  font-size: 0.9rem;
-  color: #777;
+
+
+margin-top:.8rem;
+
+color:#777;
+
+font-size:.95rem;
+
+line-height:1.6;
+
+
 }
 
-/* Buttons */
-button {
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  background: #c8a96a;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
-}
 
-button:hover {
-  background: #b89352;
-}
-
-.add-gericht {
-  margin-top: 10px;
-  background: #111;
-}
-
-.add-gericht:hover {
-  background: #333;
-}
-
-.primary {
-  background: #c8a96a;
-}
-
-.ghost {
-  background: #ccc;
-  color: #111;
-}
-
-/* Popup */
-.popup-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.popup-form {
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 400px;
-}
-
-.popup-form form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
 
 .actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+
+
+margin-top:1rem;
+
+
+display:flex;
+
+gap:1rem;
+
+
+
+button {
+
+
+border:none;
+
+padding:10px 22px;
+
+border-radius:30px;
+
+cursor:pointer;
+
+font-weight:600;
+
+background:$gold;
+
+color:white;
+
+
+
 }
 
-.pdf-actions { display: flex; justify-content: flex-end; margin-bottom: 30px; } .download-pdf { background: linear-gradient(135deg, #111, #333); color: white; border: none; padding: 14px 22px; border-radius: 14px; font-size: 15px; font-weight: 700; letter-spacing: 0.4px; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18); } .download-pdf:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22); } .download-pdf:active { transform: scale(0.98); }
+
+.danger {
+
+background:$danger;
+
+}
+
+
+}
+
+
+}
+
+
+
+
+
+.no-gerichte {
+
+
+color:#999;
+
+font-style:italic;
+
+padding:1rem;
+
+}
+
+
+}
+
+
+
+
+
+/* =================================
+   ADD BUTTON
+================================= */
+
+
+.add-gericht {
+
+
+margin-top:2rem;
+
+
+background:
+
+linear-gradient(
+135deg,
+$gold,
+$gold-dark
+);
+
+
+border:none;
+
+
+color:white;
+
+
+padding:14px 30px;
+
+
+border-radius:50px;
+
+
+font-weight:700;
+
+
+cursor:pointer;
+
+
+box-shadow:
+
+0 15px 30px rgba(200,169,106,.3);
+
+
+
+transition:.3s;
+
+
+
+&:hover {
+
+transform:translateY(-3px);
+
+}
+
+
+}
+
+
+
+
+
+
+/* =================================
+   POPUPS
+================================= */
+
+
+.popup-overlay {
+
+
+position:fixed;
+
+inset:0;
+
+
+background:
+
+rgba(0,0,0,.65);
+
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+
+z-index:9999;
+
+
+}
+
+
+
+
+
+.popup-form {
+
+
+background:white;
+
+
+width:450px;
+
+
+max-width:90%;
+
+
+padding:3rem;
+
+
+border-radius:30px;
+
+
+box-shadow:
+
+0 30px 90px rgba(0,0,0,.4);
+
+
+
+animation:
+
+popup .3s ease;
+
+
+
+h2 {
+
+font-size:2rem;
+
+margin-bottom:2rem;
+
+color:$dark;
+
+
+}
+
+
+
+form {
+
+
+display:flex;
+
+flex-direction:column;
+
+gap:1rem;
+
+
+
+input {
+
+
+padding:15px 18px;
+
+
+border-radius:12px;
+
+
+border:1px solid #ddd;
+
+
+font-size:15px;
+
+
+
+&:focus {
+
+outline:none;
+
+border-color:$gold;
+
+}
+
+
+}
+
+
+
+.actions {
+
+
+display:flex;
+
+gap:1rem;
+
+margin-top:1rem;
+
+
+
+button {
+
+
+flex:1;
+
+padding:14px;
+
+border:none;
+
+border-radius:30px;
+
+font-weight:700;
+
+cursor:pointer;
+
+
+}
+
+
+
+.primary {
+
+
+background:$gold;
+
+color:white;
+
+}
+
+
+
+.ghost {
+
+
+background:#eee;
+
+
+}
+
+
+}
+
+
+
+}
+
+
+}
+
+
+
+
+}
+
+
+
+
+
+@keyframes popup {
+
+
+from {
+
+opacity:0;
+
+transform:scale(.85);
+
+}
+
+
+to {
+
+opacity:1;
+
+transform:scale(1);
+
+}
+
+
+}
+
+
+
+
+
+
+/* =================================
+   RESPONSIVE
+================================= */
+
+
+@media(max-width:900px){
+
+
+.menu-card-view {
+
+
+padding:2rem 1rem;
+
+
+
+h1 {
+
+font-size:2.2rem;
+
+}
+
+
+
+
+.category {
+
+
+padding:1.5rem;
+
+}
+
+
+
+
+.gericht-row {
+
+
+flex-direction:column;
+
+align-items:flex-start;
+
+gap:.7rem;
+
+
+}
+
+
+
+.new-category form {
+
+
+flex-direction:column;
+
+}
+
+
+
+}
+
+
+}

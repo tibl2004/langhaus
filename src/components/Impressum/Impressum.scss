@@ -1,0 +1,549 @@
+/* ==========================================
+   PREMIUM IMPRESSUM DESIGN
+========================================== */
+
+
+$gold: #c8a96a;
+$gold-light: #e2c891;
+$gold-dark: #9c8454;
+
+$dark: #121212;
+$dark-soft: #1d1d1d;
+
+$cream: #f7f3eb;
+
+$text: #333;
+
+$white: #fff;
+
+
+
+.impressum-page {
+
+  font-family: "Poppins", sans-serif;
+
+  background:
+  $cream;
+
+  color:
+  $text;
+
+  min-height:
+  100vh;
+
+}
+
+
+
+
+
+/* ==========================================
+   HERO
+========================================== */
+
+
+.impressum-hero {
+
+
+  height:60vh;
+
+
+  background:
+
+  linear-gradient(
+    rgba(0,0,0,.65),
+    rgba(0,0,0,.85)
+  ),
+
+  url("./restaurant.jpg");
+
+
+  background-size:cover;
+
+  background-position:center;
+
+
+  display:flex;
+
+  justify-content:center;
+
+  align-items:center;
+
+
+  position:relative;
+
+
+}
+
+
+
+.hero-overlay {
+
+  width:100%;
+
+  height:100%;
+
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+
+}
+
+
+
+.hero-content {
+
+
+  text-align:center;
+
+  color:white;
+
+
+  animation:fadeUp .8s ease;
+
+
+
+  h1 {
+
+
+    font-size:
+
+    clamp(3rem,6vw,5rem);
+
+
+    font-weight:700;
+
+
+    letter-spacing:4px;
+
+
+    text-transform:uppercase;
+
+
+    margin-bottom:1rem;
+
+
+  }
+
+
+
+  p {
+
+
+    color:$gold-light;
+
+
+    font-size:1.3rem;
+
+
+    letter-spacing:2px;
+
+
+  }
+
+
+
+}
+
+
+
+
+
+/* ==========================================
+   CONTENT
+========================================== */
+
+
+.impressum-content {
+
+
+  padding:
+
+  6rem 6%;
+
+
+  display:grid;
+
+
+  grid-template-columns:
+
+  repeat(
+    auto-fit,
+    minmax(340px,1fr)
+  );
+
+
+  gap:2.5rem;
+
+
+}
+
+
+
+
+
+/* ==========================================
+   CARDS
+========================================== */
+
+
+.impressum-card {
+
+
+  background:white;
+
+
+  padding:3rem;
+
+
+  border-radius:25px;
+
+
+  position:relative;
+
+
+  overflow:hidden;
+
+
+  box-shadow:
+
+  0 25px 60px rgba(0,0,0,.12);
+
+
+
+  transition:.3s;
+
+
+
+  &::before {
+
+
+    content:"";
+
+
+    position:absolute;
+
+
+    top:0;
+
+    left:0;
+
+
+    width:100%;
+
+
+    height:4px;
+
+
+    background:
+
+    linear-gradient(
+      90deg,
+      $gold,
+      $gold-light
+    );
+
+
+  }
+
+
+
+
+  .icon {
+
+
+    font-size:2.8rem;
+
+
+    color:$gold;
+
+
+    margin-bottom:1.5rem;
+
+
+  }
+
+
+
+
+
+  h2 {
+
+
+    font-size:1.5rem;
+
+
+    color:$dark;
+
+
+    margin-bottom:1.5rem;
+
+
+    font-weight:700;
+
+
+  }
+
+
+
+
+
+  p {
+
+
+    line-height:1.9;
+
+
+    color:#666;
+
+
+    font-size:1rem;
+
+
+  }
+
+
+
+
+
+  strong {
+
+
+    color:$dark;
+
+
+    font-size:1.15rem;
+
+
+  }
+
+
+
+
+  a {
+
+
+    color:$gold-dark;
+
+
+    font-weight:600;
+
+
+    text-decoration:none;
+
+
+
+  }
+
+
+
+}
+
+
+
+
+
+/* ==========================================
+   DEVELOPER CARD
+========================================== */
+
+
+.developer-card {
+
+
+  grid-column:
+
+  span 2;
+
+
+
+  background:
+
+
+  linear-gradient(
+
+    135deg,
+
+    #181818,
+
+    #292929
+
+  );
+
+
+
+  color:white;
+
+
+
+  .icon {
+
+
+    color:$gold-light;
+
+
+  }
+
+
+
+
+  h2 {
+
+
+    color:white;
+
+
+  }
+
+
+
+  p {
+
+
+    color:#ddd;
+
+
+  }
+
+
+
+  strong {
+
+
+    color:$gold-light;
+
+
+    font-size:1.4rem;
+
+
+  }
+
+
+
+  a {
+
+
+    color:$gold-light;
+
+
+  }
+
+
+
+}
+
+
+
+
+
+/* ==========================================
+   FOOTER STYLE FEEL
+========================================== */
+
+
+.impressum-card:last-child {
+
+
+  border-bottom:
+
+  4px solid $gold;
+
+
+}
+
+
+
+
+
+/* ==========================================
+   ANIMATION
+========================================== */
+
+
+@keyframes fadeUp {
+
+
+from {
+
+
+  opacity:0;
+
+  transform:translateY(30px);
+
+
+}
+
+
+to {
+
+
+  opacity:1;
+
+  transform:translateY(0);
+
+
+}
+
+
+}
+
+
+
+
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+
+@media(max-width:900px){
+
+
+.developer-card {
+
+
+  grid-column:
+
+  auto;
+
+
+}
+
+
+
+.impressum-content {
+
+
+  padding:
+
+  4rem 1rem;
+
+
+}
+
+
+
+.impressum-card {
+
+
+  padding:2rem;
+
+
+}
+
+
+
+.hero-content h1 {
+
+
+  letter-spacing:2px;
+
+
+}
+
+
+}
