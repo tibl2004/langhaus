@@ -409,3 +409,574 @@
     
     
     }
+
+    /* ==========================================
+   RESPONSIVE DESIGN
+========================================== */
+
+
+/* ==========================================
+   TABLET / SMALL DESKTOP
+========================================== */
+
+@media (max-width:1200px){
+
+
+    .contact-page {
+    
+        padding:70px 30px;
+    
+    }
+    
+    
+    
+    /* HERO */
+    
+    .contact-hero {
+    
+        height:320px;
+    
+        margin-bottom:55px;
+    
+    
+        .hero-content {
+    
+    
+            h1 {
+    
+                font-size:52px;
+    
+                letter-spacing:3px;
+    
+            }
+    
+    
+            p {
+    
+                font-size:20px;
+    
+            }
+    
+        }
+    
+    }
+    
+    
+    
+    /* CONTENT */
+    
+    .contact-content {
+    
+        grid-template-columns:1fr;
+    
+        gap:40px;
+    
+    }
+    
+    
+    
+    /* BOXEN */
+    
+    .contact-info,
+    .contact-form-box {
+    
+        padding:40px;
+    
+    }
+    
+    
+    
+    .contact-info {
+    
+    
+        h2 {
+    
+            font-size:30px;
+    
+        }
+    
+    
+    }
+    
+    
+    .contact-form-box {
+    
+    
+        h2 {
+    
+            font-size:30px;
+    
+        }
+    
+    
+    }
+    
+    
+    }
+    
+    
+    
+    /* ==========================================
+       TABLET
+    ========================================== */
+    
+    @media (max-width:768px){
+    
+    
+    
+    .contact-page {
+    
+    
+        padding:50px 20px;
+    
+    
+    }
+    
+    
+    
+    /* HERO */
+    
+    
+    .contact-hero {
+    
+    
+        height:260px;
+    
+        border-radius:22px;
+    
+        margin-bottom:45px;
+    
+    
+    
+        .hero-content {
+    
+    
+    
+            padding:20px;
+    
+    
+    
+            h1 {
+    
+                font-size:38px;
+    
+                letter-spacing:2px;
+    
+            }
+    
+    
+    
+            p {
+    
+                font-size:17px;
+    
+                margin-top:15px;
+    
+            }
+    
+    
+        }
+    
+    }
+    
+    
+    
+    /* INFO */
+    
+    
+    .contact-info,
+    .contact-form-box {
+    
+    
+        padding:30px;
+    
+        border-radius:22px;
+    
+    
+    }
+    
+    
+    
+    .contact-info {
+    
+    
+        .contact-icon {
+    
+    
+            font-size:38px;
+    
+    
+        }
+    
+    
+    
+        h2 {
+    
+    
+            font-size:26px;
+    
+    
+        }
+    
+    
+    
+        p {
+    
+    
+            font-size:16px;
+    
+    
+        }
+    
+    
+    
+        span {
+    
+    
+            font-size:18px;
+    
+    
+        }
+    
+    
+    }
+    
+    
+    
+    /* FORM */
+    
+    
+    .contact-form-box {
+    
+    
+        h2 {
+    
+    
+            font-size:26px;
+    
+            margin-bottom:25px;
+    
+    
+        }
+    
+    
+    }
+    
+    
+    
+    .contact-form {
+    
+    
+        gap:18px;
+    
+    
+    }
+    
+    
+    
+    .input-box {
+    
+    
+        padding:15px;
+    
+    
+        border-radius:12px;
+    
+    
+    }
+    
+    
+    
+    .contact-submit {
+    
+    
+        padding:16px;
+    
+    }
+    
+    
+    
+    /* STATUS */
+    
+    
+    .contact-status {
+    
+    
+        font-size:14px;
+    
+    
+    }
+    
+    
+    }
+    
+    
+    
+    /* ==========================================
+       MOBILE
+    ========================================== */
+    
+    @media (max-width:480px){
+    
+    
+    
+    .contact-page {
+    
+    
+        padding:35px 15px;
+    
+    
+    }
+    
+    
+    
+    /* HERO */
+    
+    
+    .contact-hero {
+    
+    
+        height:220px;
+    
+        border-radius:18px;
+    
+    
+    
+        .hero-content {
+    
+    
+            h1 {
+    
+    
+                font-size:28px;
+    
+                letter-spacing:1px;
+    
+    
+            }
+    
+    
+    
+            p {
+    
+    
+                font-size:15px;
+    
+    
+            }
+    
+    
+        }
+    
+    
+    }
+    
+    
+    
+    /* CONTENT BOX */
+    
+    
+    .contact-info,
+    .contact-form-box {
+    
+    
+        padding:22px;
+    
+        border-radius:18px;
+    
+    
+    }
+    
+    
+    
+    /* INFO */
+    
+    
+    .contact-info {
+    
+    
+        .contact-icon {
+    
+    
+            font-size:32px;
+    
+            margin-bottom:18px;
+    
+    
+        }
+    
+    
+    
+        h2 {
+    
+    
+            font-size:23px;
+    
+    
+        }
+    
+    
+    
+        p {
+    
+    
+            line-height:1.6;
+    
+    
+        }
+    
+    
+    
+        span {
+    
+    
+            font-size:16px;
+    
+    
+        }
+    
+    
+    }
+    
+    
+    
+    /* FORM */
+    
+    
+    .contact-form-box {
+    
+    
+        h2 {
+    
+    
+            font-size:23px;
+    
+    
+        }
+    
+    
+    }
+    
+    
+    
+    .input-box {
+    
+    
+        flex-direction:column;
+    
+        align-items:flex-start;
+    
+        gap:8px;
+    
+    
+    }
+    
+    
+    
+    .input-box svg {
+    
+    
+        font-size:18px;
+    
+    
+    }
+    
+    
+    
+    .input-box input,
+    .input-box textarea {
+    
+    
+        font-size:15px;
+    
+    
+    }
+    
+    
+    
+    textarea {
+    
+    
+        height:120px !important;
+    
+    
+    }
+    
+    
+    
+    .contact-submit {
+    
+    
+        font-size:15px;
+    
+        border-radius:14px;
+    
+    
+    }
+    
+    
+    
+    /* LINE */
+    
+    
+    .premium-line {
+    
+    
+        margin:22px 0;
+    
+    
+    }
+    
+    
+    
+    }
+    
+    
+    
+    /* ==========================================
+       EXTRA SMALL
+    ========================================== */
+    
+    @media(max-width:360px){
+    
+    
+    
+    .contact-page {
+    
+        padding:25px 10px;
+    
+    }
+    
+    
+    
+    .contact-hero {
+    
+    
+        height:190px;
+    
+    
+    }
+    
+    
+    
+    .contact-hero .hero-content h1 {
+    
+    
+        font-size:24px;
+    
+    
+    }
+    
+    
+    
+    .contact-info,
+    .contact-form-box {
+    
+    
+        padding:18px;
+    
+    
+    }
+    
+    
+    }
