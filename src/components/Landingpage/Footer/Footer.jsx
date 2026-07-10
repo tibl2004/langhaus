@@ -59,22 +59,38 @@ function Footer() {
             und einer grossen Auswahl an erlesenen
             Weinen.
           </p>
-
           <div className="footer-social">
 
-            <a href="#">
-              <FaFacebookF />
-            </a>
+<a
+  href="https://www.facebook.com"
+  target="_blank"
+  rel="noreferrer"
+  aria-label="Facebook"
+>
+  <FaFacebookF />
+</a>
 
-            <a href="#">
-              <FaInstagram />
-            </a>
 
-            <a href="https://www.tripadvisor.ch/Restaurant_Review-g198855-d19769579-Reviews-Restaurant_Langhaus-Baden_Canton_of_Aargau.html">
-              <FaTripadvisor />
-            </a>
+<a
+  href="https://www.instagram.com"
+  target="_blank"
+  rel="noreferrer"
+  aria-label="Instagram"
+>
+  <FaInstagram />
+</a>
 
-          </div>
+
+<a
+  href="https://www.tripadvisor.ch/Restaurant_Review-g198855-d19769579-Reviews-Restaurant_Langhaus-Baden_Canton_of_Aargau.html"
+  target="_blank"
+  rel="noreferrer"
+  aria-label="Tripadvisor"
+>
+  <FaTripadvisor />
+</a>
+
+</div>
 
         </div>
 
